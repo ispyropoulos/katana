@@ -5,12 +5,14 @@ default: &default
 development:
   <<: *default
   database: <%= LOCAL_DB[:dev_database] %>
+  host: <%= LOCAL_DB[:host] %>
   username: <%= LOCAL_DB[:dev_database_username] %>
   password: <%= LOCAL_DB[:dev_database_password] %>
 
 test:
   <<: *default
   database: <%= LOCAL_DB[:test_database] %>
+  host: <%= LOCAL_DB[:host] %>
   username: <%= LOCAL_DB[:test_database_username] %>
   password: <%= LOCAL_DB[:test_database_password] %>
 
