@@ -1,4 +1,4 @@
-class TestJobFilesController < ApplicationController
+class TestJobFilesController < DashboardController
   # Here, we use update to retry a failed
   # test job file
   def update

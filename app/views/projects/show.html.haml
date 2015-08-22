@@ -1,0 +1,15 @@
+- if @project.tracked_branches.empty?
+  %h2 No branches are tracked! None. Zero. Zilch. Nada.
+  Please
+  = link_to 'add', new_project_branch_path(@project)
+  at least one branch to this project.
+- else
+  %h2= "Your tracked branches in project '#{@project.repository_name}'"
+  %h3 Select which branch you want to manage
+  %ol
+    - @project.tracked_branches.each do |b|
+      %li= link_to b.branch_name, test_jobs_path(tracked_branch_id: b.id)
+  %p
+    or
+    = link_to 'add', new_project_branch_path(@project)
+    one more branch to this project.

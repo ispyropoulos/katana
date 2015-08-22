@@ -1,0 +1,22 @@
+- if @repos
+  - if @repos.empty?
+    %p
+      %h2 No repositories found! None. Zero. Zilch. Nada.
+      We were unable to find any repositories. If this is unexpected for you,
+      please check if you need to manually approve access of Testributor to
+      those organisations you are member of or create at least one personal
+      repository and then refresh this page.
+  - else
+    %h2 Your repositories on Github
+    %ul
+      - @repos.each do |repo|
+        %li
+          = form_for repo, url: { action: :create } do |f|
+            = f.hidden_field :repository_id
+            = f.submit repo.repository_name
+- else
+  %h2 Your Testributor account is not connected to GitHub.
+  %p
+    We're going to now talk to the GitHub API. Ready?
+    = link_to 'Click here', github_oauth_authorize_url
+    to begin!

@@ -26,4 +26,8 @@ module ApplicationHelper
       "js-method" => action_name.camelize(:lower)
     }
   end
+
+  def github_oauth_authorize_url
+    Octokit.authorize_url(Octokit.client_id, scope: 'user:email,repo')
+  end
 end

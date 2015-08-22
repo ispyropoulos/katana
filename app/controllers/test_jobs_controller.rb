@@ -1,8 +1,9 @@
-class TestJobsController < ApplicationController
+class TestJobsController < DashboardController
   before_action :set_test_job, only: [:show, :update, :destroy]
 
   def index
-    @test_jobs = TestJob.all
+    @test_jobs =
+      current_user.tracked_branches.find(params[:tracked_branch_id]).test_jobs
   end
 
   def show

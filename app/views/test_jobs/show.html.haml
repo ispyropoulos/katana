@@ -3,7 +3,7 @@
     .col-xs-12
       %h1 Test Job ##{@job.id}
       = link_to "Back to test jobs", test_jobs_path
-      %div= "Git commit: #{@job.git_ref}"
+      %div= "Git commit: #{@job.commit_sha}"
   .row
     .col-xs-12
       %table.table.table-bordered.table-striped.table-condensed.table-hover

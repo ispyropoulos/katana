@@ -1,0 +1,17 @@
+%h1
+  Welcome to the dashboard
+- if current_user.projects.empty?
+  = link_to 'Add', new_project_path
+  your first project and start testing!
+- else
+  %h3
+    Select which projects you want to manage
+  %ol
+    - current_user.projects.each do |p|
+      %li
+        = link_to p.repository_name, project_path(p)
+        = button_to 'Destroy', project_path(p), method: :delete
+  %p
+    or
+    = link_to 'add', new_project_path
+    a new project.

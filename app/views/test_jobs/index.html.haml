@@ -13,7 +13,7 @@
         %tbody
           - @test_jobs.each do |test_job|
             %tr{class: test_job.css_class}
-              %td= test_job.git_ref
+              %td= test_job.commit_sha
               %td= test_job.status_text
               %td= distance_of_time_in_words(test_job.total_running_time) if test_job.total_running_time
               %td= link_to 'Details', test_job
