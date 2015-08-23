@@ -1,4 +1,5 @@
 require File.expand_path('../boot', __FILE__)
+require File.expand_path('../../config/initializers/database_credentials', __FILE__)
 
 require 'rails/all'
 
