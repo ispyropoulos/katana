@@ -11,10 +11,49 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150822162749) do
+ActiveRecord::Schema.define(version: 20150911080713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "amazon_power_providers", force: :cascade do |t|
+    t.string  "cluster_arn"
+    t.string  "task_arn"
+    t.string  "service_arn"
+    t.string  "docker_image",                  null: false
+    t.integer "number_of_workers", default: 0, null: false
+  end
+
+  create_table "organization_roles", force: :cascade do |t|
+    t.string "name", default: "", null: false
+  end
+
+  create_table "organization_user_roles", force: :cascade do |t|
+    t.integer  "organization_id",      null: false
+    t.integer  "user_id",              null: false
+    t.integer  "organization_role_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "organization_user_roles", ["organization_id"], name: "index_organization_user_roles_on_organization_id", using: :btree
+  add_index "organization_user_roles", ["organization_role_id"], name: "index_organization_user_roles_on_organization_role_id", using: :btree
+  add_index "organization_user_roles", ["user_id"], name: "index_organization_user_roles_on_user_id", using: :btree
+
+  create_table "organizations", force: :cascade do |t|
+    t.integer  "user_id",    null: false
+    t.string   "name",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "organizations", ["user_id"], name: "index_organizations_on_user_id", using: :btree
+
+  create_table "power_sources", force: :cascade do |t|
+    t.integer "user_id",             null: false
+    t.integer "power_provider_id"
+    t.string  "power_provider_type"
+  end
 
   create_table "test_job_files", force: :cascade do |t|
     t.integer  "test_job_id"

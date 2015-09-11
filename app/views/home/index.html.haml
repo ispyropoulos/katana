@@ -1,3 +1,5 @@
 %h2= "Welcome to #{brand_name}"
+- if current_organization
+  %h4 Your current organization is #{current_organization.name}
 = link_to "Browse test jobs", test_jobs_path
 
