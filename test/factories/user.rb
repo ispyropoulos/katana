@@ -4,5 +4,6 @@ FactoryGirl.define do
     password '12345678'
     password_confirmation '12345678'
     confirmed_at Date.current
+    organizations_limit 1
   end
 end
