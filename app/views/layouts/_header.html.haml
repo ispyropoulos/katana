@@ -22,6 +22,8 @@
             = user_signed_in? ? current_user.email : 'Account'
             %span.caret
           %ul.dropdown-menu
+            - if current_organization && current_organization.user == current_user
+              %li= link_to I18n.t('.invite_user'), new_user_invitation_path
             - unless user_signed_in?
               %li= link_to 'Sign in', new_user_session_path
               %li= link_to 'Sign up', new_user_registration_path

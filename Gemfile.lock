@@ -114,6 +114,9 @@ GEM
       responders
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
+    devise_invitable (1.5.2)
+      actionmailer (>= 3.2.6, < 5)
+      devise (>= 3.2.0)
     dotenv (2.0.2)
     erubis (2.7.0)
     execjs (2.5.2)
@@ -278,6 +281,7 @@ DEPENDENCIES
   capybara
   coffee-rails (~> 4.1.0)
   devise
+  devise_invitable
   factory_girl_rails
   haml-rails
   jbuilder (~> 2.0)

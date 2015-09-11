@@ -56,4 +56,17 @@ class UserTest < ActiveSupport::TestCase
       end
     end
   end
+
+  describe "invited_by association" do
+    let(:organization) { FactoryGirl.create(:organization) }
+    let(:invited_user) do
+      User.invite!({ email: 'invited_user@example.com'}, organization)
+    end
+
+    before { invited_user }
+
+    it "returns the organization which invited the user" do
+      invited_user.invited_by.must_equal organization
+    end
+  end
 end

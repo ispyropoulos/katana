@@ -24,3 +24,5 @@ en:
   time:
     formats:
       no_utc: '%H:%M %P'
+  invitations:
+    non_owner_alert: "Only organization owners can send invitations!"

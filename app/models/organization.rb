@@ -1,9 +1,14 @@
 class Organization < ActiveRecord::Base
+  # https://github.com/scambra/devise_invitable/issues/84
+  include DeviseInvitable::Inviter
+
   belongs_to :user # this is the owner of the organization
 
   has_many :organization_user_roles
   has_many :organization_roles, through: :organization_user_roles
   has_many :participating_users, through: :organization_user_roles, source: :user
+
+  has_many :invited_users, :class_name => 'User', foreign_key: :invited_by_id
 
   validates :name, :user, presence: true
 

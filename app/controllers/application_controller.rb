@@ -26,4 +26,16 @@ class ApplicationController < ActionController::Base
 
     @current_organization
   end
+
+  protected
+
+  # https://github.com/scambra/devise_invitable#controller-filter
+  def authenticate_inviter!
+    if !current_organization || current_organization.user != current_user
+      flash[:alert] = I18n.t('.invitations.non_owner_alert')
+      redirect_to root_path and return
+    else
+      current_organization
+    end
+  end
 end

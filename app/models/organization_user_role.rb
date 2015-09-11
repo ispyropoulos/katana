@@ -3,5 +3,5 @@ class OrganizationUserRole < ActiveRecord::Base
   belongs_to :organization
   belongs_to :organization_role
 
-  validates :organization, :user, :organization_role, presence: true
+  validates :organization, :user, presence: true
 end
