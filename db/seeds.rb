@@ -57,3 +57,6 @@ test_job_file = TestJobFile.create({
 })
 test_job.test_job_files << test_job_file
 test_job.save
+
+OrganizationRole.find_or_create(name: 'Admin')
+OrganizationRole.find_or_create(name: 'Participant')

@@ -20,12 +20,21 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'devise'
+gem 'devise_invitable'
 gem 'cancancan', '~> 1.10'
 gem 'underscore-rails'
 
 group :production do
   gem 'rails_12factor'
   gem 'puma'
+end
+
+group :test do
+  gem "factory_girl_rails"
+  gem "capybara"
+  gem 'minitest-rails'
+  gem 'minitest-rails-capybara'
+  gem 'minitest-spec-rails'
 end
 
 group :development, :test do
