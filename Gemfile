@@ -28,6 +28,14 @@ group :production do
   gem 'puma'
 end
 
+group :test do
+  gem "factory_girl_rails"
+  gem "capybara"
+  gem 'minitest-rails'
+  gem 'minitest-rails-capybara'
+  gem 'minitest-spec-rails'
+end
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
