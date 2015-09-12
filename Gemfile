@@ -27,6 +27,9 @@ gem 'cancancan', '~> 1.10'
 gem 'underscore-rails'
 gem 'octokit', '~> 4.0'
 gem 'attr_encrypted'
+gem 'doorkeeper'
+gem 'oauth2'
+gem 'active_model_serializers'
 
 group :production do
   gem 'rails_12factor'

@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+  use_doorkeeper
   devise_for :users
+  devise_for :projects
 
   resources :projects, except: [:index, :edit, :update] do
     resources :tracked_branches, only: [:show, :new, :create], path: :branches,
@@ -9,6 +9,12 @@ Rails.application.routes.draw do
   end
   resources :test_job_files
   resources :test_jobs
+
+  namespace :api, default: { format: 'json' } do
+    namespace :v1 do
+      resources :test_jobs
+    end
+  end
 
   get 'dashboard' => 'dashboard#show', as: :dashboard
   get 'oauth/github_callback' => 'oauth#github_callback'
