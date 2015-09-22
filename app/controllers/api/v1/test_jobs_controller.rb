@@ -5,8 +5,7 @@ module Api
       respond_to :json
 
       def index
-        tracked_branches = current_project.tracked_branches
-        respond_with tracked_branches.map(&:test_jobs)
+        respond_with current_project.test_jobs
       end
 
       private

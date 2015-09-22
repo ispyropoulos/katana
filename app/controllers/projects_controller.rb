@@ -54,6 +54,14 @@ class ProjectsController < DashboardController
         end
         project.update_attributes!(webhook_id: hook.id)
 
+        # Create the projects oauth application
+        app = Doorkeeper::Application.new(
+          :name => repository_id,
+          :redirect_uri => root_url)
+        app.owner_id = projet.id
+        app.owner_type = 'Project'
+        app.save
+
         flash[:notice] =
           "Successfully created '#{project.repository_name}' project."
       end
