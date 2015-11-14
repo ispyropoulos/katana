@@ -11,6 +11,10 @@
     %section.content
       = render partial: 'layouts/header'
       .wraper.container-fluid
+        - if flash[:errors]
+          .alert.alert-danger.alert-dismissable= flash[:errors]
+        - if flash[:notice]
+          .alert.alert-success.alert-dismissable= flash[:notice]
         .pull-right
           = breadcrumbs pretext: "You are here: ", style: :bootstrap,
             display_single_fragment: true
