@@ -4,6 +4,8 @@ class Project < ActiveRecord::Base
   # https://github.com/scambra/devise_invitable/issues/84
   include DeviseInvitable::Inviter
 
+  ACTIVE_WORKER_THRESHOLD_SECONDS = 20
+
   devise :database_authenticatable
   belongs_to :user # this is the owner of the project
   has_many :tracked_branches, dependent: :destroy
@@ -85,6 +87,16 @@ class Project < ActiveRecord::Base
                  }
                }
     techs.merge(language).to_yaml
+  end
+
+  # We assume the number of live workers is the number of
+  # Doorkeeper::AccessTokens that where access less than
+  # ACTIVE_WORKER_THRESHOLD_SECONDS time ago
+  def active_workers
+    Doorkeeper::AccessToken.joins(:application).
+      where(oauth_applications: { owner_id: id }).
+      where("last_used_at >= ?", ACTIVE_WORKER_THRESHOLD_SECONDS.seconds.ago).
+      count
   end
 
   private

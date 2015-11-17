@@ -5,7 +5,10 @@
       %i.ion-social-buffer
       %img{alt: "logo", src: image_path("logo.png"), width: '45'}
       %span.nav-label Testributor
-
+  - if current_project
+    .text-center
+      %span.nav-label Live workers:
+      %span.badge.badge-sm.bg-purple.count= current_project.active_workers
   %nav.navigation
     %ul.list-unstyled
       - if current_project

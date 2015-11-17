@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151116182012) do
+ActiveRecord::Schema.define(version: 20151117093618) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(version: 20151116182012) do
     t.datetime "revoked_at"
     t.datetime "created_at",        null: false
     t.string   "scopes"
+    t.datetime "last_used_at"
   end
 
   add_index "oauth_access_tokens", ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
