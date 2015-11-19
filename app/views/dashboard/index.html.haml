@@ -1,5 +1,11 @@
 = content_for :page_title do
-  %h3= "Your projects"
+  %h3
+    = "Your projects"
+    .pull-right
+      = link_to project_wizard_path(:add_project) do
+        %button.btn.btn-icon.btn-info.mb-5.w-md
+          %i.fa.fa-plus.m-r-5
+          Add project
 
 .panel.pane-default
   - if @projects.empty?
@@ -10,7 +16,10 @@
           class: 'btn btn-primary m-l-10'
   - @projects.each do |project|
     .panel-heading
-      %h4= link_to project.repository_name, project_path(project)
+      %h4
+        = link_to project_path(project) do
+          %i.fa.fa-caret-down.m-r-5
+          = project.repository_name
     .panel-body
       .row
         .col-md-12.col-sm-12.col-xs-12
@@ -22,36 +31,27 @@
                 repo_id: project.owner_and_name),
                 class: 'btn btn-primary m-l-10'
           - else
-            .table-responsive
-              %table.table
-                %thead
+            %table.table.table-responsive
+              %thead
+                %tr
+                  %th
+                    .pull-left
+                      Branches
+                  %th
+                  %th
+                    -# TODO: make this work properly
+                    .pull-right
+                      = link_to '', class: 'body-grey' do
+                        %i.fa.fa-plus-circle.m-r-5
+                        Add branch
+              %tbody
+                - project.tracked_branches.each do |branch|
                   %tr
-                    %th Branch
-                    %th Commit message (SHA)
-                    %th Last run
-                    %th Status
-                    %th Actions
-                %tbody
-                  - project.tracked_branches.each do |branch|
-                    %tr
-                      %td= link_to branch.branch_name,
-                          project_branch_test_runs_path(branch.project, branch)
-                      %td
-                        - if branch.last_run
-                          = branch.last_run.decorate.commit_message
-                      %td
-                        - if branch.last_run.try(:completed_at)
-                          = time_ago_in_words(branch.last_run.completed_at)
-                      %td
-                        %span{class: branch.status.try(:css_class)}
-                          = branch.status.try(:text)
-                      - if branch.test_runs.present?
-                        %td= button_to branch.status.cta_text,
-                          project_branch_test_run_path(project.id,
-                          branch.id, branch.try(:last_run).try(:id),
-                          status: branch.status.status_to_set),
-                          class: 'btn btn-primary', method: :put
-                      -else
-                        %td= button_to "Run branch",
-                          project_branch_test_runs_path(project.id, branch.id),
-                          class: 'btn btn-primary', method: :post
+                    %td.col-md-4
+                      = link_to branch.branch_name,
+                        project_branch_test_runs_path(branch.project, branch)
+                    %td.col-md-4
+                      %span{class: branch.status.try(:css_class)}
+                        = branch.status.try(:text)
+                    %td.col-md-4
+                      = branch.last_run.try(:completed_at) || 'No available runs yet'
