@@ -37,6 +37,28 @@ class Project < ActiveRecord::Base
     "#{id}-#{name}"
   end
 
+  def workers_redis_key
+    "project_#{id}_workers"
+  end
+
+  # Updates the project's set of workers with only the active
+  # and returns the list of active worker uuids
+  # Only this method should be called to find the active workers since directly
+  # quering for the key in Redis will not clean up the list
+  # http://stackoverflow.com/a/8833058
+  def update_active_workers
+    redis = Katana::Application.redis
+    key = workers_redis_key
+    active = redis.sort(key, by: 'nosort', get: '*').compact
+    redis.multi do
+      redis.del(key)
+      redis.sadd(key, active) if active.any?
+    end
+
+    active
+  end
+  alias :active_workers :update_active_workers
+
   def owner_and_name
     "#{repository_owner}/#{repository_name}"
   end
@@ -92,16 +114,6 @@ class Project < ActiveRecord::Base
                  }
                }
     techs.merge(language).to_yaml
-  end
-
-  # We assume the number of live workers is the number of
-  # Doorkeeper::AccessTokens that where access less than
-  # ACTIVE_WORKER_THRESHOLD_SECONDS time ago
-  def active_workers
-    Doorkeeper::AccessToken.joins(:application).
-      where(oauth_applications: { owner_id: id }).
-      where("last_used_at >= ?", ACTIVE_WORKER_THRESHOLD_SECONDS.seconds.ago).
-      count
   end
 
   private

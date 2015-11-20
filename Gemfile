@@ -5,6 +5,7 @@ ruby '2.2.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.3'
 gem 'pg'
+gem 'redis'
 
 gem 'wicked'
 gem 'sidekiq'

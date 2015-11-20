@@ -9,6 +9,8 @@ Bundler.require(*Rails.groups)
 module Katana
   class Application < Rails::Application
 
+    cattr_accessor :redis
+
     # we will be using this url for the api in order to avoid buying our
     # own ssl certificate. Also in order to create an OauthApplication the
     # redirect_uri must be https. There is a validation for that.

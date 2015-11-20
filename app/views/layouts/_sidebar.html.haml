@@ -8,7 +8,7 @@
   - if current_project
     .text-center
       %span.nav-label Live workers:
-      %span.badge.badge-sm.bg-purple.count= current_project.active_workers
+      %span.badge.badge-sm.bg-purple.count= current_project.active_workers.count
   %nav.navigation
     %ul.list-unstyled
       - if current_project

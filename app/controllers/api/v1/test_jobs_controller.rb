@@ -16,7 +16,7 @@ module Api
         preferred_jobs_sql = current_project.test_jobs.queued.
           where(test_runs: { status: [TestStatus::RUNNING,TestStatus::QUEUED] }).
           order("test_runs.status DESC"). # Prefer "running" runs
-          limit(workload / [current_project.active_workers, 1].max).to_sql
+          limit(workload / [current_project.active_workers.count, 1].max).to_sql
 
         sql = <<-SQL
           UPDATE test_jobs SET status = #{TestStatus::RUNNING}
