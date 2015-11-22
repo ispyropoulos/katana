@@ -9,17 +9,22 @@ class OptimizedWorkerUsage
     avg = (job_cost.sum / @workers).to_f
     batches = []
     chunk = []
+    job_cost = job_cost.sort.reverse
 
     (@workers - 1).times do |t|
-      idx_of_max = job_cost.index(job_cost.max)
-      chunk << job_cost.slice!(idx_of_max)
-
-      while job_cost.any? && job_cost.min <= (avg - chunk.sum) do
-        idx_of_min = job_cost.index(job_cost.min)
-        chunk << job_cost.slice!(idx_of_min)
-      end
-      batches << chunk
+      idx = 0
       chunk = []
+      chunk << job_cost.slice!(idx)
+
+      while (sum = chunk.sum) <= avg && job_cost[idx] do
+        if job_cost[idx] > (avg - sum)
+          idx = idx + 1
+        else
+          chunk << job_cost.slice!(idx)
+        end
+      end
+
+      batches << chunk
     end
 
     batches << job_cost
@@ -27,7 +32,7 @@ class OptimizedWorkerUsage
 
   def self.benchmark(workers, times, array_elements)
     a = []
-    array_elements.times {  a << rand(100) }
+    array_elements.times { a << rand(100) }
     n = times
     Benchmark.bmbm do |x|
       x.report(:test) { n.times { OptimizedWorkerUsage.new(workers, a).create_equal_batches } }
