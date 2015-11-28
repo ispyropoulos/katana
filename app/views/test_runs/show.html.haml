@@ -3,7 +3,7 @@
 - content_for :page_title do
   = link_to project_branch_test_runs_path do
     = "Test Run ##{@run.id}"
-.panel.panel-default
+.panel.panel-default{ data: { events_url: events_project_branch_test_run_path } }
   .panel-heading.test-run-panel-heading
     .pull-left
       %h3
@@ -32,17 +32,17 @@
                 %th='Actions'
             %tbody
               - @test_jobs.each do |test_job|
-                %tr
+                %tr{ id: "test-job-#{test_job.id}" }
                   %td= test_job.command
-                  %td
+                  %td.status
                     %span{class: test_job.status.css_class}= test_job.status.text
-                  %td= test_job.test_errors
-                  %td= test_job.failures
-                  %td= test_job.count
-                  %td= test_job.assertions
-                  %td= test_job.skips
-                  %td= l(test_job.completed_at, format: :short) if test_job.completed_at
-                  %td
+                  %td.errors= test_job.test_errors
+                  %td.failures= test_job.failures
+                  %td.count= test_job.count
+                  %td.assertions= test_job.assertions
+                  %td.skips= test_job.skips
+                  %td.completed_at= l(test_job.completed_at, format: :short) if test_job.completed_at
+                  %td.running_time
                     - if test_job.total_running_time
                       = distance_of_time_in_words(0, test_job.total_running_time, include_seconds: true)
                   %td

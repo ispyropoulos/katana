@@ -28,7 +28,7 @@
               %th= "Actions"
           %tbody
             - @tracked_branch.test_runs.order("created_at DESC").each do |test_run|
-              %tr
+              %tr{ id: "#{test_run.id}" }
                 %td.col-md-1= link_to "##{test_run.id}",
                   project_branch_test_run_path(current_project, test_run.tracked_branch_id, test_run)
                 %td.col-md-5
