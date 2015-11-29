@@ -8,24 +8,32 @@ class Testributor.Pages.TestRuns
 
 
   show: ->
+    jobTemplate = """
+      <tr id="test-job-<%= id %>" >
+        <td><%= command %></td>
+        <td class="status">
+          <span class="<%= status_css_class %>"><%= status_text %></span>
+        </td>
+        <td class="errors"><%= test_errors %></td>
+        <td class="failures"><%= failures %></td>
+        <td class="count"><%= count %></td>
+        <td class="assertions"><%= assertions %></td>
+        <td class="skips"><%= skips %></td>
+        <td class="completed_at"><%= completed_at %></td>
+        <td class="running_time">
+          <%= total_running_time %>
+        </td>
+        <td>
+          <a class="#btn btn-primary btn-xs m-b-5" rel="nofollow" data-method="put" href="<%= retry_url %>"><i class="fa fa-refresh"></i>
+          <span>Retry</span>
+          </a>
+        </td>
+      </tr>
+    """
+    compiled = _.template(jobTemplate)
     eventsUrl = $("[data-events-url]").data("events-url")
     source = new EventSource(eventsUrl)
     source.addEventListener 'testRun.update', (e) ->
       testJob = $.parseJSON(e.data)
-      console.log testJob.status
-      if testJob.status == 3
-        status = "<span class='label label-danger'>Failed</span>"
-      if testJob.status == 2
-        status = "<span class='label label-success'>Passed</span>"
-
-      $testJobRow = $("#test-job-#{testJob.id}")
-      $testJobRow.find(".status").html(status)
-      $testJobRow.find(".errors").html(testJob.test_errors)
-      $testJobRow.find(".failures").html(testJob.failures)
-      $testJobRow.find(".tests").html(testJob.count)
-      $testJobRow.find(".assertions").html(testJob.assertions)
-      completedAt = new Date(testJob.completed_at).toISOString()
-      runningTime = "#{testJob.total_running_time} s"
-      $testJobRow.find(".completed_at").html(completedAt)
-      $testJobRow.find(".running_time").html(testJob.total_running_time)
-
+      $tr = $("#test-job-#{testJob.id}")
+      $tr.replaceWith(compiled(testJob))
