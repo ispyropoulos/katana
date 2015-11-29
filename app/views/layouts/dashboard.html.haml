@@ -28,12 +28,12 @@
           .alert.alert-info= flash[:notice]
         - if flash[:alert].present?
           .alert.alert-danger= flash[:alert].html_safe
-        .pull-right
-          = breadcrumbs pretext: "You are here: ", style: :bootstrap,
-            display_single_fragment: true
+        = breadcrumbs pretext: "You are here: ", style: :bootstrap,
+          display_single_fragment: true
         - if content_for?(:page_title)
-          .page-title
-            %h3= yield :page_title
+          .pull-right
+            .page-title
+              %h3= yield :page_title
         .row
           .col-md-12
             = yield
