@@ -24,7 +24,7 @@ class Testributor.Pages.TestRuns
           <%= total_running_time %>
         </td>
         <td>
-          <a class="#btn btn-primary btn-xs m-b-5" rel="nofollow" data-method="put" href="<%= retry_url %>"><i class="fa fa-refresh"></i>
+          <a class="btn btn-primary btn-xs m-b-5" rel="nofollow" data-method="put" href="<%= retry_url %>"><i class="fa fa-refresh"></i>
           <span>Retry</span>
           </a>
         </td>
