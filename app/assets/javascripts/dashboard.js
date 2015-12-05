@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui/effect
 //= require jquery.cookies
 //= require bootstrap
 //= require underscore

@@ -1,0 +1,31 @@
+<div class="progress status" id="{{ id }}" data-length="{{ statuses.length }}" data-pink="{{ statuses.pink }}"
+  data-danger="{{ statuses.danger }}" data-success="{{ statuses.success }}">
+
+  <div class="progress-bar progress-bar-success {{ active }}"
+    data-toggle="popover"
+    data-content="<i class='fa fa-check' style='color: green;'></i>
+      <span> Passed: </span><span class='success' >{{ statuses.success }}</span>"
+    data-html="true"
+    data-placement="top"
+    data-trigger="hover"
+    style="width:{{percentage statuses.success statuses.length }}%">
+  </div>
+  <div class="progress-bar progress-bar-danger {{ active }}"
+    style="width:{{percentage statuses.danger statuses.length }}%"
+    data-toggle="popover"
+    data-placement="top"
+    data-trigger="hover"
+    data-content="<i class='fa fa-times' style='color: crimson;'></i>
+      <span> Failed: </span><span class='danger' >{{ statuses.danger }}</span>"
+    data-html="true">
+  </div>
+  <div class="progress-bar progress-bar-pink {{ active }}"
+    style="width:{{percentage statuses.pink statuses.length}}%"
+    data-toggle="popover"
+    data-placement="top"
+    data-trigger="hover"
+    data-content="<i class='fa fa-warning' style='color: pink;'></i>
+      <span> Errors: </span><span class='deeppink' >{{ statuses.pink }}</span>"
+    data-html="true">
+  </div>
+</div>

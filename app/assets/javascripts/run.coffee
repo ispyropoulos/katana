@@ -8,6 +8,8 @@ $(document).on 'ready', ->
     result[item]
   ), Testributor.Pages
 
+  # Register Handlebars Helpers
+  new Testributor.Helpers.Helper
 
   # Execute the corresponding method
   klass = module[0]

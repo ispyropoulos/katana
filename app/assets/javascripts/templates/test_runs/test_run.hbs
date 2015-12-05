@@ -1,0 +1,33 @@
+<tr id="test-run-{{ id }}">
+  <td class="col-md-1">
+    <a href="{{ test_run_link }}">#{{ id }}</a>
+  </td>
+  <td class="col-md-4">
+    {{ commit_message }}
+    <br>
+    <i> {{{ commit_info }}} </i>
+  </td>
+  <td class="col-md-1 status">
+    <span class="{{ status_css_class }}">{{ status_text }}</span>
+  </td>
+  <td class="col-md-4">
+    <a href="{{ test_run_link }}">
+     {{> progress_bar progressBarData}}
+    </a>
+  </td>
+  <td class="running_time">
+    {{ total_running_time }}
+  </td>
+  <td class="col-md-2" >
+    {{#if show_retry }}
+      <a class="btn btn-primary btn-xs m-b-5" rel="nofollow" data-method="post" href="{{ retry_url }}">
+        <i class="fa fa-refresh"></i>
+        <span>Retry</span>
+      </a>
+    {{/if}}
+    <a class="btn btn-xs btn-danger m-b-5" rel="nofollow" data-method="put" href="{{ cancel_url }}">
+    <div class="fa fa-times"></div>
+    <span>Cancel</span>
+    </a>
+  </td>
+</tr>

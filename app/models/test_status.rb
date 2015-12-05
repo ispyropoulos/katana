@@ -16,6 +16,15 @@ class TestStatus
     CANCELLED => 'Cancelled'
   }
 
+  STATUS_CLASS_MAP = {
+    CANCELLED => 'default',
+    QUEUED => 'info',
+    RUNNING => 'primary',
+    PASSED => 'success',
+    FAILED => 'danger',
+    ERROR => 'pink'
+  }
+
   def initialize(code)
     @code = code
   end
@@ -66,20 +75,7 @@ class TestStatus
   end
 
   def css_class
-    case @code
-    when CANCELLED
-      'label label-default'
-    when QUEUED
-      'label label-info'
-    when RUNNING
-      'label label-primary running'
-    when PASSED
-      'label label-success'
-    when FAILED
-      'label label-danger'
-    when ERROR
-      'label label-pink'
-    end
+    "label label-#{STATUS_CLASS_MAP[@code]}"
   end
 
   def button_css_class

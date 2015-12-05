@@ -29,6 +29,11 @@ class TestRun < ActiveRecord::Base
     end
   end
 
+  def serialized_run
+    ActiveModel::SerializableResource.new(
+      self, serializer: InternalTestRunsSerializer).serializable_hash
+  end
+
   def status
     TestStatus.new(read_attribute(:status))
   end
@@ -181,6 +186,17 @@ class TestRun < ActiveRecord::Base
     end
 
     @most_relevant_run
+  end
+
+  def self.test_job_statuses(ids=[])
+    sql = select("test_run_id id, "\
+        "SUM( CASE test_jobs.status WHEN 3 THEN 1 ELSE 0 END) danger, "\
+        "SUM( CASE test_jobs.status WHEN 4 THEN 1 ELSE 0 END) pink, "\
+        "SUM( CASE test_jobs.status WHEN 2 THEN 1 ELSE 0 END) success, "\
+        "COUNT(test_jobs.id) length").joins(:test_jobs).group(:test_run_id)
+    sql = sql.where(id: ids) if ids.any?
+
+    sql.map { |t| [t.id, t.attributes.reject! { |k| k == 'id' }] }.to_h
   end
 
   private
