@@ -4,3 +4,5 @@ Katana::Application.redis =
   else
     Redis.new(db: "katana_#{Rails.env}")
   end
+
+$redis = Katana::Application.redis

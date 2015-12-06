@@ -1,4 +1,5 @@
 class TestRunsController < DashboardController
+  include ActionController::Live
   include Controllers::EnsureProject
 
   before_action :set_test_run, only: [:show, :update, :destroy, :retry]
@@ -46,6 +47,22 @@ class TestRunsController < DashboardController
     @test_run.destroy
     redirect_to project_branch_test_runs_url(current_project, tracked_branch_id),
       notice: 'Test run was successfully cancelled.'
+  end
+
+  def events
+    response.headers["Content-Type"] = "text/event-stream"
+    redis = Redis.new(db: "katana_#{Rails.env}")
+    redis.psubscribe('testRun.update') do |on|
+      on.pmessage do |pattern, event, data|
+        response.stream.write("event: #{event}\n")
+        response.stream.write("data: #{data}\n\n")
+      end
+    end
+  rescue IOError
+    logger.info "Stream closed"
+  ensure
+    redis.quit
+    response.stream.close
   end
 
   private

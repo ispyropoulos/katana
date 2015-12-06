@@ -5,9 +5,8 @@ class TestJobsController < DashboardController
   def update
     @test_job = TestJob.find(params[:id])
     if @test_job.update(test_job_params)
+      $redis.publish('testRun.update', 'test_job_update')
       redirect_to :back, notice: 'Test job was successfully updated.'
-    else
-      render :edit
     end
   end
   private

@@ -46,6 +46,7 @@ Rails.application.routes.draw do
       path: :branches, as: :branches do
         resources :test_runs do
           member do
+            get :events
             post :retry
             post :create
           end

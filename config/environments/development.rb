@@ -4,14 +4,17 @@ Rails.application.configure do
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = false
+  config.cache_classes = true
 
   # http://stackoverflow.com/questions/21605318/how-can-i-serve-requests-concurrently-with-rails-4
   # Read this too: http://tenderlovemaking.com/2012/06/18/removing-config-threadsafe.html
   config.allow_concurrency=true
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
+
+  #config.preload_frameworks = true
+  #config.allow_concurrency = true
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
