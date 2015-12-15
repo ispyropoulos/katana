@@ -66,6 +66,13 @@ class TestRunsControllerTest < ActionController::TestCase
       get :show, { project_id: project.id, id: _test_run.id}
       assert_response :ok
     end
+
+    it "returns 404 when requesting a test_run of a different project" do
+      different_project_run = FactoryGirl.create(:testributor_run)
+      ->{
+        get :show, { project_id: project.id, id: different_project_run.id }
+      }.must_raise ActiveRecord::RecordNotFound
+    end
   end
 
   describe "POST#create" do
@@ -93,6 +100,24 @@ class TestRunsControllerTest < ActionController::TestCase
       _test_run = TestRun.last
       _test_run.tracked_branch_id.must_equal branch.id
       _test_run.status.code.must_equal TestStatus::QUEUED
+    end
+  end
+
+  describe "POST#retry" do
+    it "returns 404 when retrying a test_run of a different project" do
+      different_project_run = FactoryGirl.create(:testributor_run)
+      ->{
+        post :retry, { project_id: project.id, id: different_project_run.id }
+      }.must_raise ActiveRecord::RecordNotFound
+    end
+  end
+
+  describe "PUT#update" do
+    it "returns 404 when updating a test_run of a different project" do
+      different_project_run = FactoryGirl.create(:testributor_run)
+      ->{
+        put :update, { project_id: project.id, id: different_project_run.id }
+      }.must_raise ActiveRecord::RecordNotFound
     end
   end
 end

@@ -10,8 +10,7 @@ class TestRunsController < DashboardController
   end
 
   def show
-    @run = TestRun.find(params[:id])
-    @test_jobs = @run.test_jobs.order('status DESC, created_at ASC, id ASC')
+    @test_jobs = @test_run.test_jobs.order('status DESC, created_at ASC, id ASC')
   end
 
   def create
@@ -53,7 +52,7 @@ class TestRunsController < DashboardController
   private
 
   def set_test_run
-    @test_run = TestRun.find(params[:id])
+    @test_run = current_project.test_runs.find(params[:id])
   end
 
   def test_run_params
