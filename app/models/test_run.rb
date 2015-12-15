@@ -142,6 +142,13 @@ class TestRun < ActiveRecord::Base
     SQL
   end
 
+  # https://trello.com/c/ITi9lURr/127
+  # https://trello.com/c/pDr9CgT9/128
+  def retry?
+    ![TestStatus::QUEUED, TestStatus::RUNNING, TestStatus::CANCELLED].include?(
+      read_attribute(:status))
+  end
+
   private
 
   # TODO: this almost the same as ProjectWizard#copy_errors. DRY

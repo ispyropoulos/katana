@@ -1,4 +1,4 @@
-- unless test_run.status.code == TestStatus::PASSED
+- if test_run.retry?
   = link_to retry_project_test_run_path(id: test_run.id,
     project_id: current_project),
     class: 'btn btn-primary btn-xs m-b-5 m-r-5', method: :post do

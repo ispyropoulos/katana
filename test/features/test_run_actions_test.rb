@@ -36,21 +36,70 @@ class TestRunActionsFeatureTest < Capybara::Rails::TestCase
       project_files << FactoryGirl.create(:project_file, path: ProjectFile::JOBS_YML_PATH)
     TrackedBranch.any_instance.stubs(:from_github).returns(branch_github_response)
     login_as owner, scope: :user
-    visit project_branch_test_runs_path(project_id: _test_run.project.id,
-                                        branch_id: _test_run.tracked_branch.id)
   end
 
   describe 'when a user visits the test_runs index' do
-    it 'displays the retry action' do
+    it 'displays the retry action when the run is passed' do
+      _test_run.update_column(:status, TestStatus::PASSED)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
       page.must_have_content('Retry')
     end
 
+    it 'displays the retry action when the run is errored' do
+      _test_run.update_column(:status, TestStatus::ERROR)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+      page.must_have_content('Retry')
+    end
+
+    it 'displays the retry action when the run is failed' do
+      _test_run.update_column(:status, TestStatus::FAILED)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+      page.must_have_content('Retry')
+    end
+
+    it 'does not display the retry action when the run is queued' do
+      _test_run.update_column(:status, TestStatus::QUEUED)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+      page.wont_have_content('Retry')
+    end
+
+    it 'does not display the retry action when the run is running' do
+      _test_run.update_column(:status, TestStatus::RUNNING)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+      page.wont_have_content('Retry')
+    end
+
+    it 'does not display the retry action when the run is cancelled' do
+      _test_run.update_column(:status, TestStatus::CANCELLED)
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+      page.wont_have_content('Retry')
+    end
+
     it 'displays the cancel action' do
+      visit project_branch_test_runs_path(
+        project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
       page.must_have_content('Cancel')
     end
   end
 
   describe 'when a user clicks on delete button' do
+    before do
+      visit project_branch_test_runs_path(project_id: _test_run.project.id,
+        branch_id: _test_run.tracked_branch.id)
+    end
     it 'must delete all test_jobs', js: true do
       _test_run.test_jobs.pluck(:id).must_equal [_test_job.id]
       page.first('td .btn.btn-danger').click

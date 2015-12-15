@@ -36,6 +36,10 @@ class TestRunsController < DashboardController
   end
 
   def retry
+    unless @test_run.retry?
+      return redirect_to :back, alert: "Retrying ##{@test_run.id} test run is not allowed at this time"
+    end
+
     @test_run.test_jobs.destroy_all
     @test_run.build_test_jobs
     @test_run.save

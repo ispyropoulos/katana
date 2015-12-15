@@ -104,6 +104,38 @@ class TestRunsControllerTest < ActionController::TestCase
   end
 
   describe "POST#retry" do
+    it "does not allow retying queued runs" do
+      job_ids = _test_run.test_jobs.pluck(:id).sort
+      _test_run.update_column(:status, TestStatus::QUEUED)
+      post :retry, { project_id: project.to_param, id: _test_run.id }
+      flash[:alert].must_equal 'You cannot retry cancelled test runs'
+
+      _test_run.reload.status.code.must_equal TestStatus::QUEUED
+      _test_run.test_jobs.pluck(:id).sort.must_equal job_ids
+    end
+
+    # https://trello.com/c/pDr9CgT9/128
+    it "does not allow retying cancelled runs" do
+      job_ids = _test_run.test_jobs.pluck(:id).sort
+      _test_run.update_column(:status, TestStatus::CANCELLED)
+      post :retry, { project_id: project.to_param, id: _test_run.id }
+      flash[:alert].must_equal 'You cannot retry cancelled test runs'
+
+      _test_run.reload.status.code.must_equal TestStatus::CANCELLED
+      _test_run.test_jobs.pluck(:id).sort.must_equal job_ids
+    end
+
+    # https://trello.com/c/ITi9lURr/127
+    it "does not allow retying running runs" do
+      job_ids = _test_run.test_jobs.pluck(:id).sort
+      _test_run.update_column(:status, TestStatus::RUNNING)
+      post :retry, { project_id: project.to_param, id: _test_run.id }
+      flash[:alert].must_equal 'You cannot retry cancelled test runs'
+
+      _test_run.reload.status.code.must_equal TestStatus::RUNNING
+      _test_run.test_jobs.pluck(:id).sort.must_equal job_ids
+    end
+
     it "returns 404 when retrying a test_run of a different project" do
       different_project_run = FactoryGirl.create(:testributor_run)
       ->{

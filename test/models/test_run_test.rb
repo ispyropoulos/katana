@@ -17,6 +17,40 @@ class TestRunTest < ActiveSupport::TestCase
     end
   end
 
+  describe "retry?" do
+    subject { FactoryGirl.build(:testributor_run) }
+
+    it "returns false when TestRun is queued" do
+      subject.status = TestStatus::QUEUED
+      subject.wont_be :retry?
+    end
+
+    it "returns false when TestRun is running" do
+      subject.status = TestStatus::RUNNING
+      subject.wont_be :retry?
+    end
+
+    it "returns false when TestRun is cancelled" do
+      subject.status = TestStatus::CANCELLED
+      subject.wont_be :retry?
+    end
+
+    it "returns true when TestRun is passed" do
+      subject.status = TestStatus::PASSED
+      subject.must_be :retry?
+    end
+
+    it "returns true when TestRun is failed" do
+      subject.status = TestStatus::FAILED
+      subject.must_be :retry?
+    end
+
+    it "returns true when TestRun is error" do
+      subject.status = TestStatus::ERROR
+      subject.must_be :retry?
+    end
+  end
+
   describe "#jobs_yml" do
     subject { FactoryGirl.create(:testributor_run) }
     let(:client) { Octokit::Client.new(access_token: "some_token") }
