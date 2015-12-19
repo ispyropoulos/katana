@@ -3,7 +3,7 @@
 - content_for :page_title do
   = link_to project_branch_test_runs_path(current_project,
     @test_run.tracked_branch) do
-    = "Test Run ##{@test_run.id}"
+    = "Build ##{@test_run.id}"
 
 .panel.panel-default{ data: { test_run_id: @test_run.id }}
   .panel-heading.test-run-panel-heading
