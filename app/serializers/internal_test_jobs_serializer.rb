@@ -4,7 +4,8 @@ class InternalTestJobsSerializer < ActiveModel::Serializer
   include ActionView::Helpers::DateHelper
   attributes :command, :id, :status_text,
     :status_css_class, :completed_at, :retry_url, :result, :show_errors,
-    :test_errors, :failures, :count, :assertions, :skips, :total_running_time
+    :test_errors, :failures, :count, :assertions, :skips, :total_running_time,
+    :html_class, :test_run_id
 
 
   # We serialise this attribute as seconds since epoch instead of Datetime to
@@ -39,5 +40,13 @@ class InternalTestJobsSerializer < ActiveModel::Serializer
 
   def retry_url
     project_test_job_retry_path(object.test_run.project, object)
+  end
+
+  def html_class
+    TestStatus::STATUS_CLASS_MAP[object.status.code]
+  end
+
+  def test_run_id
+    object.test_run_id
   end
 end

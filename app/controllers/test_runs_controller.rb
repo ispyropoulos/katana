@@ -7,6 +7,7 @@ class TestRunsController < DashboardController
     @tracked_branch = current_user.tracked_branches.find(params[:branch_id])
     @test_runs = @tracked_branch.test_runs.
       limit(TrackedBranch::OLD_RUNS_LIMIT).order("created_at DESC")
+    @statuses = TestRun.test_job_statuses(@test_runs.select(&:id))
   end
 
   def show
@@ -43,6 +44,7 @@ class TestRunsController < DashboardController
     @test_run.test_jobs.destroy_all
     @test_run.build_test_jobs
     @test_run.save
+    Broadcaster.publish(@test_run.redis_live_update_resource_key, { retry: true, test_run_id: @test_run.id })
     redirect_to :back, notice: 'Test run was successfully updated.'
   end
 
