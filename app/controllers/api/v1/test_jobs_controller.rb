@@ -25,8 +25,9 @@ module Api
           WHERE test_jobs.id = t.id
           RETURNING test_jobs.*
         SQL
+        test_jobs = nil
+        TestJob.transaction { test_jobs = TestJob.find_by_sql(sql) }
 
-        test_jobs = TestJob.find_by_sql(sql)
         render json: test_jobs, include: "test_run.project"
       end
 

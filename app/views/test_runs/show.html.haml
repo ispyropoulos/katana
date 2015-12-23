@@ -24,12 +24,10 @@
               %tr
                 %th='File'
                 %th='Status'
-                %th='Errors'
-                %th='Failures'
-                %th='Tests'
-                %th='Assertions'
-                %th='Skips'
-                %th='Completed at (UTC)'
+                %th='Sent at'
+                %th='Chunk index'
+                %th='Cost prediction'
+                %th='Worker command seconds'
                 %th='Total running time'
                 %th='Actions'
             %tbody
@@ -38,15 +36,13 @@
                   %td= test_job.command
                   %td
                     %span{class: test_job.status.css_class}= test_job.status.text
-                  %td= test_job.test_errors
-                  %td= test_job.failures
-                  %td= test_job.count
-                  %td= test_job.assertions
-                  %td= test_job.skips
-                  %td= l(test_job.completed_at, format: :short) if test_job.completed_at
+                  %td= l(test_job.sent_at, format: :short) if test_job.sent_at
+                  %td= test_job.chunk_index
+                  %td= "#{test_job.avg_worker_command_run_seconds.try(:round, 2)} seconds"
+                  %td= "#{test_job.worker_command_run_seconds.try(:round, 2)} seconds"
                   %td
                     - if test_job.total_running_time
-                      = distance_of_time_in_words(0, test_job.total_running_time, include_seconds: true)
+                      = "#{test_job.total_running_time.try(:round, 2)} seconds"
                   %td
                     - if test_job.status.terminal?
                       = link_to project_test_job_retry_path(current_project,
