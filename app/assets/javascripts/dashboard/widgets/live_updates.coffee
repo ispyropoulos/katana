@@ -4,20 +4,20 @@
 # an argument.
 Testributor.Widgets ||= {}
 class Testributor.Widgets.LiveUpdates
-  constructor: (resourceId, callback)->
-    @resourceId = resourceId
+  constructor: (resourceIds, callback)->
+    @resourceIds = resourceIds
     @callback = callback
 
-    subscribe = (uid, resourceId)->
+    subscribe = (uid, resourceIds)->
       # Subscribe to live updates
       $.post(Testributor.Config.LIVE_UPDATES_SUBSCRIBE_URL, {
-        uid: uid, resource_id: resourceId
+        uid: uid, resource_ids: resourceIds
       }).done((data)->
       )
 
     # Trigger "connect" manually if socket is already connected to subscribe
     if(socket = io(Testributor.Config.SOCKETIO_URL))["id"]
-      subscribe(socket["id"], @resourceId)
+      subscribe(socket["id"], @resourceIds)
 
     # NOTE: Don't move this definition away from the connection or it might not
     # run (if connect event comes before we set the callback).
@@ -28,9 +28,12 @@ class Testributor.Widgets.LiveUpdates
     # We would not attach a new callback if an otherone already exists for the
     # same resource.
     socket.on("connect", =>
-      subscribe(socket["id"], @resourceId)
+      subscribe(socket["id"], @resourceIds)
     )
 
-    socket.on(resourceId, (msg)=>
-      @callback(msg)
-    )
+    resourceName = resourceIds.split("#")[0]
+    parsedResourceIds = _.map(resourceIds.split("#")[1].split(","), (id) -> parseInt(id))
+    for resourceId in parsedResourceIds
+      socket.on("#{resourceName}##{resourceId}", (msg)=>
+        @callback(msg)
+      )

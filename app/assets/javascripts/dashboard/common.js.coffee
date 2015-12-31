@@ -30,3 +30,21 @@ $(document).on 'ready', ->
     # so this event is attached last (so run first)
     $.cookie('left_panel_collapsed', !$('aside.left-panel').hasClass('collapsed'),
       { expires: 1000, path: '/' })
+
+  testRunIds = $('[data-test-run-ids]').data('test-run-ids')
+
+  # Desktop notifications
+  desktopNotificationsEnabled = $("[data-desktop-notifications-enabled]")
+    .data("desktop-notifications-enabled")
+
+  if desktopNotificationsEnabled
+    desktopNotifier = new Testributor.Widgets.PushNotifications
+    new Testributor.Widgets.LiveUpdates("TestRun#" + testRunIds, (msg) ->
+      testRun = msg.test_run
+      # Display desktop notifications only if TestRun finished and
+      # user has indicated that he wants to be notified via desktop notifications
+      if testRun.terminal_status
+        desktopNotifier.notify("Build #{testRun.status_text}",
+        testRun.commit_message, Testributor.Assets.testributorLogo, testRun.url)
+    )
+

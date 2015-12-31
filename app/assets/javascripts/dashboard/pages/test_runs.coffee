@@ -5,7 +5,7 @@ class Testributor.Pages.TestRuns
     progressBar = new Testributor.Widgets.ProgressBar(display_stats: true)
     Handlebars.registerPartial('progress_bar', HandlebarsTemplates["progress_bar"])
 
-    Testributor.Widgets.LiveUpdates("TestRun#" + $('.progress')[0].id, (msg) ->
+    new Testributor.Widgets.LiveUpdates("TestRun#" + $('.progress')[0].id, (msg) ->
       if msg.retry
         progressBar.reset(msg.test_run_id)
       else
