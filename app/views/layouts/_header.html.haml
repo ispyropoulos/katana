@@ -20,5 +20,6 @@
             = link_to(destroy_user_session_path, method: :delete) do
               %i.fa.fa-sign-out
               Sign out
-  = mail_to "info@testributor.com", "Send us feedback",
-    subject: "Feedback", class: "btn btn-default pull-right m-t-10 m-r-15"
+  = link_to 'Send us feedback', '#',
+    class: "btn btn-default pull-right m-t-10 m-r-15",
+    data: { toggle: 'modal', target: '#feedback-modal' }

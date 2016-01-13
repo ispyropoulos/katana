@@ -41,3 +41,29 @@
 
     = javascript_include_tag 'dashboard'
     = yield(:in_page_js) if content_for?(:in_page_js)
+
+.modal.fade#feedback-modal
+  .modal-dialog
+    .modal-content
+      = form_for FeedbackSubmission.new, remote: true do |f|
+        .modal-header
+          = button_tag "&times".html_safe, class: 'close', data: { dismiss: 'modal' }
+          %h4 This product is still young. Your input will help it grow.
+        .modal-body
+          .form-group
+            = f.label :category, "What kind of feedback do you have?"
+            = f.select :category, FeedbackSubmission::CATEGORIES, {},
+                class: 'form-control'
+          .form-group
+            = f.label :body, "Provide details here: "
+            = f.text_area :body, class: 'form-control'
+          .form-group
+            = f.label :rating, "How would you rate your experience so far?"
+            .ratings
+              - FeedbackSubmission::RATINGS.each do |label, rating|
+                = f.label :hello, class: 'radio-inline', for: nil do
+                  = f.radio_button :rating, rating
+                  = label
+        .modal-footer
+          = f.submit "Submit", class: 'btn btn-primary btn-lg w-lg',
+            data: { disable_with: "Please wait..." }
