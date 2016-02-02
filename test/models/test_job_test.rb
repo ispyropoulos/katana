@@ -218,7 +218,7 @@ class TestJobTest < ActiveSupport::TestCase
          TestStatus::FAILED, TestStatus::ERROR, TestStatus::CANCELLED].each do |status|
           _test_run.test_jobs.update_all(:status => status)
 
-          _test_run.test_jobs.size.must_equal 2
+          _test_run.test_jobs.count.must_equal 2
           _test_run.update_status!
           _test_run.reload.status.code.must_equal status
         end
@@ -284,7 +284,7 @@ class TestJobTest < ActiveSupport::TestCase
           FactoryGirl.create(:testributor_job, test_run: _test_run, status: status)
         end
 
-        _test_run.test_jobs.size.must_equal 4
+        _test_run.test_jobs.count.must_equal 4
         _test_run.update_status!
         _test_run.reload.status.code.must_equal 5
       end
@@ -296,7 +296,7 @@ class TestJobTest < ActiveSupport::TestCase
           FactoryGirl.create(:testributor_job, test_run: _test_run, status: status)
         end
 
-        _test_run.test_jobs.size.must_equal 4
+        _test_run.test_jobs.count.must_equal 4
         _test_run.update_status!
         _test_run.reload.status.code.must_equal 1
       end

@@ -313,4 +313,21 @@ class TestRunTest < ActiveSupport::TestCase
       end
     end
   end
+
+  describe "#add_chunks_to_redis_queue (private)" do
+    subject { FactoryGirl.build(:testributor_run) }
+    before do
+      10.times {
+        subject.test_jobs.build(command: "ls", status: TestStatus::QUEUED)
+      }
+      Katanomeas.new(subject).assign_chunk_indexes_to_test_jobs
+    end
+
+    it "adds the chunk in Redis queue" do
+      subject.save!
+      Katana::Application.redis.lrange(
+        subject.project.test_runs_chunks_redis_key, 0, -1
+      ).must_equal((0..9).to_a.reverse.map{|i| "#{subject.id}_#{i}"})
+    end
+  end
 end

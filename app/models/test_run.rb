@@ -20,6 +20,8 @@ class TestRun < ActiveRecord::Base
   after_save :cancel_test_jobs,
     if: ->{ status_changed? && self[:status] == TestStatus::CANCELLED }
 
+  after_create :add_chunks_to_redis_queue
+
   before_create :cancel_queued_runs_of_same_branch
 
   def total_running_time
@@ -239,5 +241,12 @@ class TestRun < ActiveRecord::Base
     }).update_all(status: TestStatus::CANCELLED)
     TestRun.queued.where(tracked_branch_id: tracked_branch.id).
       update_all(status: TestStatus::CANCELLED)
+  end
+
+  def add_chunks_to_redis_queue
+    test_jobs.map{|j| j.chunk_index}.uniq.sort.each do |chunk_index|
+      Katana::Application.redis.lpush(
+        project.test_runs_chunks_redis_key, "#{id}_#{chunk_index}")
+    end
   end
 end

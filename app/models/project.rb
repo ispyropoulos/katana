@@ -50,6 +50,10 @@ class Project < ActiveRecord::Base
     "project_#{id}_workers"
   end
 
+  def test_runs_chunks_redis_key
+    "project_#{id}_test_run_chunks"
+  end
+
   # Updates the project's set of workers with only the active
   # and returns the list of active worker uuids
   # Only this method should be called to find the active workers since directly

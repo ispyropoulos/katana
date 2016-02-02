@@ -22,7 +22,7 @@ end
 class ActionController::TestCase
   include Devise::TestHelpers
 
-  def setup
+  before do
     # Clean everything in "test" redis database before each test
     Katana::Application.redis.flushdb
     # Stub client_id with a random id so that

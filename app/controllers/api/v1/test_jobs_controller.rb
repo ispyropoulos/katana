@@ -5,37 +5,34 @@ module Api
       # To avoid race conditions, the selected jobs should be marked as running
       # in an atomic operation.
       # http://stackoverflow.com/questions/11532550/atomic-update-select-in-postgres
-      # TODO: Write tests for this action
       def bind_next_batch
-        sample_job_sql = current_project.test_jobs.
-          where(test_runs: { status: [TestStatus::RUNNING, TestStatus::QUEUED]}).
-          where(status: TestStatus::QUEUED).
-          order("test_runs.status DESC, test_runs.created_at DESC, test_jobs.chunk_index ASC").
-          limit(1).to_sql
-        sql = <<-SQL
-          UPDATE test_jobs SET status = #{TestStatus::RUNNING}
-          FROM (
-            WITH preferred_jobs AS (#{sample_job_sql})
-            SELECT test_jobs.* FROM test_jobs, preferred_jobs
-            WHERE test_jobs.test_run_id = preferred_jobs.test_run_id
-            AND test_jobs.chunk_index = preferred_jobs.chunk_index
-          FOR UPDATE) t
-          WHERE test_jobs.id = t.id
-          RETURNING test_jobs.*
-        SQL
-        test_jobs = nil
-
-        begin
-          # Prevent "cannot set transaction isolation in a nested transaction"
-          # error in tests (tests run inside a transaction)
-          TestJob.transaction(isolation: Rails.env.test? ? nil : :serializable) do
-            test_jobs = TestJob.find_by_sql(sql)
+        no_jobs_or_found = false
+        test_run = nil
+        chunk_index = nil
+        until no_jobs_or_found do
+          next_chunk = Katana::Application.redis.rpop(
+            current_project.test_runs_chunks_redis_key)
+          if next_chunk
+            test_run_id, chunk_index = next_chunk.split("_")
+            test_run =
+              current_project.test_runs.where(
+                id: test_run_id, status: [TestStatus::RUNNING, TestStatus::QUEUED]
+              ).first
+            # If test_run in nil it means it is already in terminal state
+            # (cancelled maybe?). We move to the next in the queue.
+            no_jobs_or_found = true if test_run
+          else
+            no_jobs_or_found = true
           end
-        rescue ActiveRecord::StatementInvalid => e
-          raise e unless e.original_exception.is_a?(PG::TRSerializationFailure)
-          # Prevent all threads from retrying simultaneously
-          sleep rand(0.020..1)
-          retry
+        end
+
+        test_jobs = []
+        if test_run && chunk_index
+          test_jobs_relation =
+            test_run.test_jobs.where(chunk_index: chunk_index,
+                                     status: TestStatus::QUEUED)
+          test_jobs = test_jobs_relation.to_a
+          test_jobs_relation.update_all(status: TestStatus::RUNNING)
         end
 
         render json: test_jobs, include: "test_run.project"
