@@ -1,7 +1,11 @@
 - breadcrumb :tracked_branch, current_project, @tracked_branch
 
 - content_for :page_title do
-  = link_to @tracked_branch.branch_name, project_path(id: current_project.id)
+  Build history for
+  %strong
+    #{@tracked_branch.branch_name}
+  branch of project
+  = link_to current_project.owner_and_name, project_path(current_project)
 
 .panel.panel-default
   .panel-heading

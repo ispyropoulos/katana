@@ -1,7 +1,7 @@
 - breadcrumb :project, current_project
 
 - content_for :page_title do
-  Branches
+  The branches of project "#{current_project.owner_and_name}"
 .panel.panel-default
   - if @branches.empty?
     .panel-heading
