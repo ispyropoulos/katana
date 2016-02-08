@@ -22,7 +22,8 @@ class TestRun < ActiveRecord::Base
   before_create :cancel_queued_runs_of_same_branch
   after_save :cancel_test_jobs,
     if: ->{ status_changed? && self[:status] == TestStatus::CANCELLED }
-
+  after_save :send_status_to_github, if: -> { status_changed? }
+  after_create :send_status_to_github
 
   def total_running_time
     if completed_at = test_jobs.maximum(:completed_at)
@@ -140,8 +141,8 @@ class TestRun < ActiveRecord::Base
   end
 
   def update_status!
-    old_status = self.status.code
-    result = ActiveRecord::Base.connection.execute <<-SQL
+    previous_status_code = status.code
+    db_return = ActiveRecord::Base.connection.execute <<-SQL
       UPDATE test_runs SET status = (
          SELECT COALESCE (
           CASE array_length(sub.status, 1)
@@ -158,25 +159,16 @@ class TestRun < ActiveRecord::Base
           WHERE test_run_id = #{id}
           GROUP BY test_run_id) sub)
         WHERE test_runs.id = #{id}
-        RETURNING test_runs.status
+        RETURNING test_runs.status AS status
     SQL
 
 
-    new_status = result.first["status"].to_i
-    # Only the first time the status changes to a terminal one
-    if old_status != new_status &&
-      # TODO: Include CANCELLED? Does the user care about cancelled runs?
-      [TestStatus::ERROR, TestStatus::FAILED, TestStatus::PASSED,
-       TestStatus::CANCELLED].include?(new_status)
+    # http://www.rubydoc.info/gems/pg/0.17.1/PG%2FResult%3Avalues
+    new_status_code = db_return.values.flatten[0].to_i
+    if previous_status_code != new_status_code
 
-      previous_status = tracked_branch.test_runs.
-        where("created_at < ?", self.created_at).
-        where(status: [TestStatus::FAILED, TestStatus::PASSED, TestStatus::ERROR]).
-        order("created_at DESC").limit(1).pluck(:status).first
-
-      tracked_branch.notifiable_users(previous_status, new_status).each do |user|
-        TestRunNotificationMailer.test_run_complete(self.id, user.email).deliver_later
-      end
+      reload
+      GithubStatusNotificationService.new(self).publish
     end
   end
 
@@ -267,5 +259,11 @@ class TestRun < ActiveRecord::Base
     }).update_all(status: TestStatus::CANCELLED)
     TestRun.queued.where(tracked_branch_id: tracked_branch.id).
       update_all(status: TestStatus::CANCELLED)
+  end
+
+  def send_status_to_github
+    GithubStatusNotificationService.new(self).publish
+
+    true
   end
 end
