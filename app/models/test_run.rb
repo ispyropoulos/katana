@@ -166,9 +166,7 @@ class TestRun < ActiveRecord::Base
     # http://www.rubydoc.info/gems/pg/0.17.1/PG%2FResult%3Avalues
     new_status_code = db_return.values.flatten[0].to_i
     if previous_status_code != new_status_code
-
-      reload
-      GithubStatusNotificationService.new(self).publish
+      VcsStatusNotifier.perform_later(id)
     end
   end
 
@@ -262,7 +260,7 @@ class TestRun < ActiveRecord::Base
   end
 
   def send_status_to_github
-    GithubStatusNotificationService.new(self).publish
+    VcsStatusNotifier.perform_later(id)
 
     true
   end

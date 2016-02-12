@@ -89,6 +89,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.action_mailer.default_url_options = { host: 'testributor.com', port: 80 }
+  routes.default_url_options[:host] = 'http://testributor.com'
 
   ActionMailer::Base.smtp_settings = {
     :address        => 'smtp.sendgrid.net',
