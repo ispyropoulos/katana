@@ -12,6 +12,7 @@ gem 'handlebars_assets'
 gem 'rails-observers'
 gem 'wicked'
 gem 'sidekiq'
+gem 'sinatra', require: false
 gem 'select2-rails'
 gem 'draper'
 gem 'haml-rails'
