@@ -9,6 +9,7 @@ gem 'redis'
 gem 'connection_pool'
 gem 'handlebars_assets'
 
+gem 'rails-observers'
 gem 'wicked'
 gem 'sidekiq'
 gem 'select2-rails'

@@ -143,30 +143,28 @@ class TestRun < ActiveRecord::Base
   def update_status!
     previous_status_code = status.code
     db_return = ActiveRecord::Base.connection.execute <<-SQL
-      UPDATE test_runs SET status = (
-         SELECT COALESCE (
-          CASE array_length(sub.status, 1)
-          WHEN 1 THEN status[1]
-          ELSE ( CASE WHEN #{TestStatus::CANCELLED} = ANY(sub.status) THEN #{TestStatus::CANCELLED}
-                      WHEN #{TestStatus::QUEUED} = ANY(sub.status) THEN #{TestStatus::RUNNING}
-                      WHEN #{TestStatus::RUNNING} = ANY(sub.status) THEN #{TestStatus::RUNNING}
-                      WHEN #{TestStatus::ERROR} = ANY(sub.status) THEN #{TestStatus::ERROR}
-                      ELSE #{TestStatus::FAILED} END )
-          END, 0)
-        FROM (
-          SELECT uniq(array_agg(status)) status
-          FROM test_jobs
-          WHERE test_run_id = #{id}
-          GROUP BY test_run_id) sub)
-        WHERE test_runs.id = #{id}
-        RETURNING test_runs.status AS status
+       SELECT COALESCE (
+        CASE array_length(sub.status, 1)
+        WHEN 1 THEN status[1]
+        ELSE ( CASE WHEN #{TestStatus::CANCELLED} = ANY(sub.status) THEN #{TestStatus::CANCELLED}
+                    WHEN #{TestStatus::QUEUED} = ANY(sub.status) THEN #{TestStatus::RUNNING}
+                    WHEN #{TestStatus::RUNNING} = ANY(sub.status) THEN #{TestStatus::RUNNING}
+                    WHEN #{TestStatus::ERROR} = ANY(sub.status) THEN #{TestStatus::ERROR}
+                    ELSE #{TestStatus::FAILED} END )
+        END, 0)
+      FROM (
+        SELECT uniq(array_agg(status)) status
+        FROM test_jobs
+        WHERE test_run_id = #{id}
+        GROUP BY test_run_id) sub
     SQL
 
 
     # http://www.rubydoc.info/gems/pg/0.17.1/PG%2FResult%3Avalues
     new_status_code = db_return.values.flatten[0].to_i
     if previous_status_code != new_status_code
-      VcsStatusNotifier.perform_later(id)
+      self.status = new_status_code
+      save
     end
   end
 
