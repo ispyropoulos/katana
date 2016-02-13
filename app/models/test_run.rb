@@ -22,8 +22,6 @@ class TestRun < ActiveRecord::Base
   before_create :cancel_queued_runs_of_same_branch
   after_save :cancel_test_jobs,
     if: ->{ status_changed? && self[:status] == TestStatus::CANCELLED }
-  after_save :send_status_to_github, if: -> { status_changed? }
-  after_create :send_status_to_github
 
   def total_running_time
     if completed_at = test_jobs.maximum(:completed_at)
