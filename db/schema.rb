@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160210143700) do
+ActiveRecord::Schema.define(version: 20160218112424) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -137,7 +137,8 @@ ActiveRecord::Schema.define(version: 20160210143700) do
     t.integer  "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "new_branch_notify_on", default: 0, null: false
+    t.integer  "new_branch_notify_on",         default: 0,     null: false
+    t.boolean  "enable_desktop_notifications", default: false
   end
 
   add_index "projects_users", ["project_id"], name: "index_projects_users_on_project_id", using: :btree
