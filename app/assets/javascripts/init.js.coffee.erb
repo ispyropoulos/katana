@@ -7,7 +7,8 @@ window.Testributor = {
     SOCKETIO_URL: "<%= ENV['SOCKETIO_URL'] || 'http://localhost:9000' %>"
     LIVE_UPDATES_SUBSCRIBE_URL: "<%= url.live_updates_subscribe_path %>"
   }
-  Assets: {}
+  Assets:
+    testributorLogo: <%= image_path('logo.png').inspect %>
   Models: {}
   Widgets: {}
   Routes: {}

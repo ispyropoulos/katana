@@ -16,7 +16,9 @@ module ApplicationHelper
     {
       "js-class" => controller_path.camelize.gsub("::", "."),
       "js-method" => action_name.camelize(:lower),
-      "admin-user" => current_user.try(:admin?).try(:to_json)
+      "admin-user" => current_user.try(:admin?).try(:to_json),
+      "test-run-ids" => current_user.try(:test_runs).try(:pluck, :id),
+      "desktop-notifications-enabled" => desktop_notifications_enabled
     }
   end
 
@@ -86,6 +88,15 @@ module ApplicationHelper
       link_to options, html_options, &block
     else
       capture &block
+    end
+  end
+
+  private
+
+  def desktop_notifications_enabled
+    if current_user && current_project
+      ProjectParticipation.find_by(user: current_user, project: current_project).
+        enable_desktop_notifications.to_json
     end
   end
 end
