@@ -3,17 +3,112 @@
   %main
     %section
       .container
-        .row
-          .col-xs-10.col-xs-offset-1
-            %h1.main-title
+        .col-sm-12
+          .row
+            %h1
               About us
-            %p.inner-text
-              If you are a programmer, you are probably familiar with the joys of
-              code testing. You are probably also aware that, in the real world,
-              test suites can get really big. The bigger and the more complete the
-              test suites are, the more substantial the time penalty that
-              programmers experience is. We are a humble team of programmers who
-              had to deal with exactly this pain as yourself, but no more.
+          .row
+            .panel
+              %p.inner-text
+                If you are a programmer, you are probably familiar with the joys of
+                code testing. You are probably also aware that, in the real world,
+                test suites can get really big. The bigger and the more complete the
+                test suites are, the more substantial the time penalty that
+                programmers experience is. We are a humble team of programmers who
+                had to deal with exactly this pain as yourself, but no more.
+        .row
+          .col-sm-6
+            .panel
+              .panel-body.p-t-10
+                .media-main
+                  = link_to nil, class: "pull-left" do
+                    = image_tag(asset_path('profile-photos/is.jpeg', type: :image), class: "thumb-lg img-circle bx-s", alt: "Ilias Spyropoulos")
+                  .info
+                    %h4= "Ilias Spyropoulos"
+                    %p.text-muted= "Co Founder | Web developer"
+              .clearfix
+              %hr
+              %ul.social-links.list-inline.p-b-10
+                %li
+                  = link_to 'https://gr.linkedin.com/in/ispyropoulos', data: { placement: "top", toggle: "tooltip", original_title: 'Linkedin' }, class: "tooltips" do
+                    %i.fa.fa-linkedin
+                %li
+                  = link_to 'http://github.com/ispyropoulos' , data: { placement: "top", toggle: "tooltip", original_title: 'Github' }, class: "tooltips" do
+                    %i.fa.fa-github
+                %li
+                  = mail_to 'ilias@testributor.com', data: { placement: "top", toggle: "tooltip", original_title: 'E-mail' }, class: "tooltips" do
+                    %i.fa.fa-envelope-o
+          .col-sm-6
+            .panel
+              .panel-body.p-t-10
+                .media-main
+                  = link_to nil, class: "pull-left" do
+                    = image_tag(asset_path('profile-photos/dk.jpeg', type: :image), class: "thumb-lg img-circle bx-s", alt: "Ilias Spyropoulos")
+                  .info
+                    %h4= "Dimitris Karakasilis"
+                    %p.text-muted= "Co Founder | Web developer"
+              .clearfix
+              %hr
+              %ul.social-links.list-inline.p-b-10
+                %li
+                  = link_to 'https://gr.linkedin.com/in/jimmykarily', data: { placement: "top", toggle: "tooltip", original_title: 'Linkedin' }, class: "tooltips" do
+                    %i.fa.fa-linkedin
+                %li
+                  = link_to 'http://github.com/jimmykarily' , data: { placement: "top", toggle: "tooltip", original_title: 'Github' }, class: "tooltips" do
+                    %i.fa.fa-github
+                %li
+                  = mail_to 'dimitris@testributor.com', data: { placement: "top", toggle: "tooltip", original_title: 'E-mail' }, class: "tooltips" do
+                    %i.fa.fa-envelope-o
+          .col-sm-6
+            .panel
+              .panel-body.p-t-10
+                .media-main
+                  = link_to nil, class: "pull-left" do
+                    = image_tag(asset_path('profile-photos/pk.jpeg', type: :image), class: "thumb-lg img-circle bx-s", alt: "Ilias Spyropoulos")
+                  .info
+                    %h4= "Pavlos Kallis"
+                    %p.text-muted= "Co Founder | Web developer"
+              .clearfix
+              %hr
+              %ul.social-links.list-inline.p-b-10
+                %li
+                  = link_to 'https://gr.linkedin.com/in/pakallis' , data: { placement: "top", toggle: "tooltip", original_title: 'Linkedin' }, class: "tooltips" do
+                    %i.fa.fa-linkedin
+                %li
+                  = link_to 'http://twitter.com/pakallis' , data: { placement: "top", toggle: "tooltip", original_title: 'Twitter' }, class: "tooltips" do
+                    %i.fa.fa-twitter
+                %li
+                  = link_to 'http://github.com/pakallis' , data: { placement: "top", toggle: "tooltip", original_title: 'Github' }, class: "tooltips" do
+                    %i.fa.fa-github
+                %li
+                  = mail_to 'pavlos@testributor.com', data: { placement: "top", toggle: "tooltip", original_title: 'E-mail' }, class: "tooltips" do
+                    %i.fa.fa-envelope-o
+          .col-sm-6
+            .panel
+              .panel-body.p-t-10
+                .media-main
+                  = link_to nil, class: "pull-left" do
+                    = image_tag(asset_path('profile-photos/sb.jpeg', type: :image), class: "thumb-lg img-circle bx-s", alt: "Ilias Spyropoulos")
+                  .info
+                    %h4= "Spyros Brilis"
+                    %p.text-muted= "Co Founder | Web developer"
+              .clearfix
+              %hr
+              %ul.social-links.list-inline.p-b-10
+                %li
+                  = link_to 'https://gr.linkedin.com/in/spyrosbrilis' , data: { placement: "top", toggle: "tooltip", original_title: 'Linkedin' }, class: "tooltips" do
+                    %i.fa.fa-linkedin
+                %li
+                  = link_to 'http://twitter.com/spyrbril' , data: { placement: "top", toggle: "tooltip", original_title: 'Twitter' }, class: "tooltips" do
+                    %i.fa.fa-twitter
+                %li
+                  = link_to 'http://github.com/spyrbri' , data: { placement: "top", toggle: "tooltip", original_title: 'Github' }, class: "tooltips" do
+                    %i.fa.fa-github
+                %li
+                  = mail_to 'spyros@testributor.com', data: { placement: "top", toggle: "tooltip", original_title: 'E-mail' }, class: "tooltips" do
+                    %i.fa.fa-envelope-o
+        .row
+          .panel
             %p.inner-text
               We created Testributor - an online service which helps you
               with the time consuming aspect of testing. Testributor will
