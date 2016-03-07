@@ -1,8 +1,9 @@
 class ProjectWizardController < DashboardController
   include Wicked::Wizard
   REDIRECT_MESSAGES = {
-    add_project: "You need to select a repository first",
-    add_branches: "You need to select a branch first",
+    choose_provider: "You need to choose a repository provider first",
+    choose_repo: "You need to select a repository first",
+    choose_branches: "You need to select a branch first",
     configure_testributor: "You need to configure testributor.yml",
     select_technologies: "You need to select technologies first",
   }
@@ -28,8 +29,10 @@ class ProjectWizardController < DashboardController
     end
 
     case step
-    when :add_project
-    when :add_branches
+    when :choose_provider
+    when :choose_repo
+    when :choose_branches
+      # TODO: Make this asynchronous, as in choose_repo
       @branches = @project_wizard.fetch_branches
     when :configure_testributor
     when :select_technologies
@@ -40,9 +43,11 @@ class ProjectWizardController < DashboardController
 
   def update
     case step
-    when :add_project
+    when :choose_provider
+      @project_wizard.assign_attributes({repository_provider: params[:repository_provider]})
+    when :choose_repo
       @project_wizard.assign_attributes({repo_name: params[:repo_name]})
-    when :add_branches
+    when :choose_branches
       # We use the overriden branch_names= method because postgres
       # array type requires branch_names_will_change! in order to save
       # branch_names to DB
@@ -77,7 +82,7 @@ class ProjectWizardController < DashboardController
   end
 
   def fetch_repos
-    redirect_to project_wizard_path(:add_project) and return if !request.xhr?
+    redirect_to project_wizard_path(:choose_repo) and return if !request.xhr?
 
     @repos = @project_wizard.fetch_repos(params[:page])
     render 'fetch_repos', layout: false

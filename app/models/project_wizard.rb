@@ -1,11 +1,12 @@
 class ProjectWizard < ActiveRecord::Base
 
-  ORDERED_STEPS = [:add_project, :add_branches, :configure_testributor,
-    :select_technologies]
+  ORDERED_STEPS = [:choose_provider, :choose_repo, :choose_branches,
+                   :configure_testributor, :select_technologies]
   PROJECTS_PER_PAGE = 20
   STEP_REQUIREMENTS = {
-    add_project: "repo_name",
-    add_branches: "branch_names",
+    choose_provider: "repository_provider",
+    choose_repo: "repo_name",
+    choose_branches: "branch_names",
     configure_testributor: "testributor_yml",
     select_technologies: "docker_image_id"
   }
@@ -16,12 +17,14 @@ class ProjectWizard < ActiveRecord::Base
   has_many :technologies, through: :technology_selections
 
   validates :user, presence: true
+  validates :repository_provider,
+    presence: true, on: [:choose_provider, ORDERED_STEPS.last]
   validates :repo_name,
-    presence: true, on: [:add_project, ORDERED_STEPS.last]
+    presence: true, on: [:choose_repo, ORDERED_STEPS.last]
   validates :testributor_yml,
     presence: true, on: [:configure_testributor, ORDERED_STEPS.last]
   validates :branch_names,
-    presence: true, on: [:add_branches, ORDERED_STEPS.last]
+    presence: true, on: [:choose_branches, ORDERED_STEPS.last]
   validates :docker_image_id, presence: true, on: :select_technologies
   validate :valid_testributor_yml_contents, on: :configure_testributor
 
@@ -82,9 +85,10 @@ class ProjectWizard < ActiveRecord::Base
 
     project = user.projects.find_or_create_by!(name: repo.name) do |_project|
       _project.user = user
-      _project.repository_provider = 'github'
+      _project.repository_provider = repository_provider
       _project.repository_id = repo.id
       _project.repository_name = repo.name
+      # TODO: Add a repository url column and remove repository_owner
       _project.repository_owner = repo.owner.login
       _project.docker_image = docker_image
       _project.technologies = technologies

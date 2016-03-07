@@ -18,26 +18,16 @@ class ProjectWizardFeatureTest < Capybara::Rails::TestCase
     login_as user, scope: :user
   end
 
-  it "user can't click on disabled(not-completed) steps", js: true do
-    visit root_path
-    VCR.use_cassette 'repos'  do
-      find('aside').click_on 'Add a project'
-      page.must_have_content repo_name
-    end
-
-    click_on "Select branches"
-
-    page.wont_have_content "You need to select a repository first"
-    page.must_have_content "Select a repository"
-  end
-
   it "creates a project with correct attributes after successful completion",
     js: true do
 
     visit root_path
+    find('aside').click_on 'Add a project'
+    page.must_have_content "GitHub"
+    find('label', text: "GitHub").click
 
     VCR.use_cassette 'repos'  do
-      find('aside').click_on 'Add a project'
+      click_on "Next"
       page.must_have_content repo_name
     end
 

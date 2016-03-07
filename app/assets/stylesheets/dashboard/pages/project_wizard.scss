@@ -1,0 +1,18 @@
+body.project_wizard {
+  &.show {
+    .provider-box {
+      width: 100%;
+      padding: 20px;
+      background: #F9F9F9;
+      font-size: 200%;
+
+      input[type="radio"] {
+        display:none;
+      }
+
+      &.selected {
+        background-color: #CCC;
+      }
+    }
+  }
+}

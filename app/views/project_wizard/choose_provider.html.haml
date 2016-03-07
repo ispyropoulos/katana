@@ -1,0 +1,32 @@
+.panel.panel-default
+  = render 'layouts/wizard_steps'
+
+  .panel-body
+    = form_for @project_wizard, as: '', url: project_wizard_path do |f|
+      .col-sm-6
+        - if current_user.github_client
+          .radio
+            %label.provider-box.btn.btn-default{ class: @project_wizard.repository_provider == "github" ? 'selected' : '' }
+              = f.radio_button "repository_provider", "github"
+              %i.fa.fa-github
+              GitHub
+              %br
+              %small
+        - else
+          = link_to github_oauth_authorize_url do
+            .provider-box.btn.btn-default
+              %i.fa.fa-github
+              GitHub
+              %br
+              %small
+                (You will be redirected to authorize)
+      .col-sm-6
+        -#
+          .radio
+            %label.provider-box.btn.btn-default{ class: @project_wizard.repository_provider == "bitbucket" ? 'selected' : '' }
+              = f.radio_button "repository_provider", "bitbucket"
+              %i.fa.fa-bitbucket
+              BitBucket
+
+      .col-sm-12
+        = f.submit "Next", class: 'btn btn-primary pull-right btn-lg w-lg'

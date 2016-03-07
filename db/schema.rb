@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "docker_image_id"
+    t.string   "repository_provider"
   end
 
   add_index "project_wizards", ["user_id"], name: "index_project_wizards_on_user_id", using: :btree

@@ -10,6 +10,11 @@ class Testributor.Pages.ProjectWizard
     if $fetchRepos
       @performAjaxFor(currentPath, @attachFetchEvent)
 
+    $('.provider-box input[type="radio"]').on "change", (e)->
+      $target = $(e.currentTarget)
+      $target.closest('form').find('label').removeClass('selected')
+      $target.closest('label').addClass('selected')
+
   performAjaxFor: (url, callback) =>
     Pace.ignore =>
       jqxhr = $.ajax

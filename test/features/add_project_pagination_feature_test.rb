@@ -13,9 +13,11 @@ class AddProjectPaginationFeatureTest < Capybara::Rails::TestCase
       # of fetched projects because we already have 11
       ProjectWizard.send(:remove_const, :PROJECTS_PER_PAGE)
       ProjectWizard.const_set(:PROJECTS_PER_PAGE, 3)
+      ProjectWizard.find_or_create_by(user_id: user.id,
+                                      repository_provider: 'github')
 
       VCR.use_cassette 'repos_with_4_pages' do
-        visit project_wizard_path(id: :add_project)
+        visit project_wizard_path(id: :choose_repo)
       end
     end
 
@@ -62,7 +64,7 @@ class AddProjectPaginationFeatureTest < Capybara::Rails::TestCase
   describe 'when users has projects enough for one page' do
     before do
       VCR.use_cassette 'repos_without_page' do
-        visit project_wizard_path(id: :add_project)
+        visit project_wizard_path(id: :choose_repo)
       end
     end
 

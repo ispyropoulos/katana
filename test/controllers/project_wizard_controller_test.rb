@@ -17,7 +17,7 @@ class ProjectWizardControllerTest < ActionController::TestCase
     it "redirects to root_path if projects limit has been reached" do
       user.update_column(:projects_limit, 1)
       # id doesn't matter here. It could be anything
-      get :show, { id: :add_project }
+      get :show, { id: :choose_provider }
 
       flash[:alert].wont_be :empty?
       assert_redirected_to root_path
@@ -25,16 +25,16 @@ class ProjectWizardControllerTest < ActionController::TestCase
 
     it "redirects to another step if a required param is missing" do
       # id doesn't matter here. It could be anything
-      get :show, { id: :add_branches }
+      get :show, { id: :choose_branches }
 
       flash[:alert].wont_be :empty?
-      assert_redirected_to project_wizard_path(:add_project)
+      assert_redirected_to project_wizard_path(:choose_provider)
     end
 
     it "redirects to root_path if current_user.github_client is nil" do
       # id doesn't matter here. It could be anything
       @controller.current_user.stubs(:github_client).returns(nil)
-      get :show, { id: :add_branches }
+      get :show, { id: :choose_branches }
       flash[:alert].wont_be :empty?
       assert_redirected_to root_path
     end
@@ -45,10 +45,10 @@ class ProjectWizardControllerTest < ActionController::TestCase
       sign_in :user, user
     end
 
-    describe ":add_project" do
+    describe ":choose_repo" do
       let(:repo_name) { "pakallis/hello" }
-      let(:step) { :add_project }
-      let(:next_step) { :add_branches }
+      let(:step) { :choose_repo }
+      let(:next_step) { :choose_branches }
 
       it "saves repo_name to ProjectWizard if valid?" do
         put :update, { id: step, repo_name: repo_name }
@@ -70,9 +70,9 @@ class ProjectWizardControllerTest < ActionController::TestCase
       end
     end
 
-    describe ":add_branches" do
+    describe ":choose_branches" do
       let(:branch_names) { ["master", "new-feature"] }
-      let(:current_step) { :add_branches }
+      let(:current_step) { :choose_branches }
 
       it "saves branch_names to ProjectWizard if valid?" do
         put :update, { id: current_step, branch_names: branch_names }
