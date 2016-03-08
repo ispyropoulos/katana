@@ -306,7 +306,7 @@ class TestJobTest < ActiveSupport::TestCase
         _test_run.test_jobs.size.must_equal 4
         _test_run.update_status
         _test_run.save!
-        _test_run.reload.status.code.must_equal 5
+        _test_run.reload.status.code.must_equal TestStatus::CANCELLED
       end
 
       it 'updates to running' do
@@ -319,7 +319,7 @@ class TestJobTest < ActiveSupport::TestCase
         _test_run.test_jobs.size.must_equal 4
         _test_run.update_status
         _test_run.save!
-        _test_run.reload.status.code.must_equal 1
+        _test_run.reload.status.code.must_equal TestStatus::RUNNING
       end
     end
 

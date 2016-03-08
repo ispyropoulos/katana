@@ -28,7 +28,8 @@ class TestJob < ActiveRecord::Base
   before_validation :set_avg_worker_command_run_seconds,
     if: ->{ worker_command_run_seconds_changed? }
   after_commit :update_test_run_status,
-    if: -> { previous_changes.has_key?('status') || previous_changes.has_key?('created_at') }
+    if: -> { previous_changes.has_key?('status') || previous_changes.has_key?('created_at') },
+    on: [:create, :update]
 
   scope :queued, -> { where(status: TestStatus::QUEUED) }
   scope :running, -> { where(status: TestStatus::RUNNING) }

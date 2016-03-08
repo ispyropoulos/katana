@@ -38,8 +38,7 @@ class TestRunStatusNotificationFeatureTest < Capybara::Rails::TestCase
     let(:branch_name) { 'master' }
     let(:commit_sha) { 'a3e2de2r' }
     let(:branch_github_response) do
-      commit_github_response =
-        Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
+      [Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
           {
             name: branch_name,
             sha: commit_sha,
@@ -66,16 +65,13 @@ class TestRunStatusNotificationFeatureTest < Capybara::Rails::TestCase
             }
           }
         )
-      TrackedBranch.any_instance.stubs(:sha_history).returns([
-        commit_github_response,
-        commit_github_response,
-        commit_github_response])
+      ]
     end
 
     before do
       _test_job.test_run.project.
         project_files << FactoryGirl.create(:project_file, path: ProjectFile::JOBS_YML_PATH)
-      TrackedBranch.any_instance.stubs(:from_github).returns(branch_github_response)
+      GithubRepositoryManager.any_instance.stubs(:sha_history).returns(branch_github_response)
       login_as owner, scope: :user
     end
 

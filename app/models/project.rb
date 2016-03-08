@@ -15,7 +15,7 @@ class Project < ActiveRecord::Base
   has_one :docker_image_selection
 
   has_many :tracked_branches, dependent: :destroy, inverse_of: :project
-  has_many :test_runs, through: :tracked_branches
+  has_many :test_runs
   has_many :test_jobs, through: :test_runs
   has_many :project_participations, dependent: :destroy
   has_many :members, through: :project_participations, class_name: "User",

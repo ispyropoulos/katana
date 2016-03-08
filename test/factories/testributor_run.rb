@@ -11,7 +11,17 @@ FactoryGirl.define do
     commit_committer_name 'Donald Duck'
     commit_committer_email 'test@example.com'
     commit_committer_username 'donaldduck'
-    status 0
+    status TestStatus::SETUP
+
+    before(:build, :create) do |run, evaluator|
+      if evaluator.tracked_branch && run.project.blank?
+        run.project = evaluator.tracked_branch.project
+      end
+    end
+
+    trait :queued do
+      status TestStatus::QUEUED
+    end
 
     trait :failed do
       status TestStatus::FAILED

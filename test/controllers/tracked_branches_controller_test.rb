@@ -11,37 +11,42 @@ class TrackedBranchesControllerTest < ActionController::TestCase
   let(:filename_2) { "test/models/hello_test.rb" }
   let(:commit_sha) { "034df43" }
   let(:branch_github_response) do
-    Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
-      {
-        name: branch_name,
+    [Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
+      { sha: commit_sha,
         commit: {
-          sha: commit_sha,
-          commit: {
-            message: 'Some commit messsage',
-            html_url: 'Some url',
-            author: {
-              name: 'Great Author',
-              email: 'great@author.com',
-            },
-            committer: {
-              name: 'Great Committer',
-              email: 'great@committer.com',
-            }
+          author: {
+            name: "Great Author",
+            email: "great@autho.com",
+            date: "2016-02-26 14:34:20 UTC"
           },
-          author: { login: 'authorlogin' },
-          committer: { login: 'committerlogin' }
-        }
+        committer: {
+          name: "Great Commiter",
+          email: "great@comitter.com",
+          date: "2016-03-07 09:29:00 UTC"
+        },
+        message: "Some commit message",
+        tree: {
+          sha: "6dad33ccceed49b4ab376d38565e3c24bf067ae2",
+          url: "https://api.github.com/repos/ispyropoulos/katana/git/trees/6dad33ccceed49b4ab376d38565e3c24bf067ae2"
+        },
+        comment_count: 0
+      },
+      url: "https://api.github.com/repos/ispyropoulos/katana/commits/322598a3b4d8b946202f5cd685a3c774a43d6778",
+      html_url: "Some url",
+      author: {
+        login: "authorlogin",
+      },
+      committer: {
+        login: "committerlogin",
       }
-    )
+    })]
   end
 
   describe "POST#create" do
     before do
       project
-      TrackedBranch.any_instance.stubs(:from_github).
+      GithubRepositoryManager.any_instance.stubs(:sha_history).
         returns(branch_github_response)
-      TestRun.any_instance.stubs(:project_file_names).returns(
-        [filename_1, filename_2])
       sign_in :user, owner
     end
 
@@ -60,7 +65,9 @@ class TrackedBranchesControllerTest < ActionController::TestCase
     end
 
     it "adds errors to flash when build_test_run_and_jobs returns nil" do
-      TrackedBranch.any_instance.stubs(:build_test_run_and_jobs).returns(nil)
+      GithubRepositoryManager.any_instance.stubs(:create_test_run!).returns(nil)
+      RepositoryManager.any_instance.stubs(:errors).returns(
+        ["#{branch_name} doesn't exist anymore on github"])
       post :create, branch_params
       flash[:alert].must_equal "#{branch_name} doesn't exist anymore on github"
     end
@@ -76,16 +83,13 @@ class TrackedBranchesControllerTest < ActionController::TestCase
         _test_run = TestRun.last
 
         _test_run.commit_sha.must_equal commit_sha
-        _test_run.status.code.must_equal TestStatus::QUEUED
+        _test_run.status.code.must_equal TestStatus::SETUP
       end
 
-      it "creates TestJobs" do
+      it "does not create TestJobs" do
         post :create, branch_params
 
-        _test_run = TestRun.last
-
-        _test_run.test_jobs.first.command.must_match filename_1
-        _test_run.test_jobs.last.command.must_match filename_2
+        TestRun.last.test_jobs.count.must_equal 0
       end
 
       it "displays flash notice" do

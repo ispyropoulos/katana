@@ -6,7 +6,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
   # ArgumentError: let 'test_run' cannot begin with 'test'. Please use another name.
   # That's what the _ is for :)
   let(:_test_run) do
-    FactoryGirl.create(:testributor_run, project: project, status: TestStatus::QUEUED)
+    FactoryGirl.create(:testributor_run, :queued, project: project)
   end
   let(:_test_jobs) do
     FactoryGirl.create_list(:testributor_job, 4, test_run: _test_run)

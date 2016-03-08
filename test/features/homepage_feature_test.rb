@@ -6,12 +6,6 @@ class HomepageFeatureTest < Capybara::Rails::TestCase
 
   describe "when user is logged in" do
     before do
-      project
-      owner.update_column(:projects_limit, 2)
-      owner.reload
-    end
-
-    it "displays the branches along with statuses", js: true do
       branches = [
         {
           commit_sha: "344ads",
@@ -46,16 +40,20 @@ class HomepageFeatureTest < Capybara::Rails::TestCase
       ]
 
       branches.each do |branch|
-        tracked_branch = TrackedBranch.new({branch_name: branch[:name]})
-        tracked_branch.test_runs.
-          build(commit_sha: branch[:commit_sha],
-                status: branch[:status],
-                commit_timestamp: branch[:commit_timestamp])
-        project.tracked_branches << tracked_branch
+        project.tracked_branches.build({branch_name: branch[:name]}).test_runs.
+          build(
+            commit_sha: branch[:commit_sha],
+            status: branch[:status],
+            commit_timestamp: branch[:commit_timestamp],
+            project: project
+          )
       end
 
       project.save!
       login_as owner, scope: :user
+    end
+
+    it 'displays the branches along with statuses', js: true do
       visit root_path
 
       page.must_have_content "Queued"

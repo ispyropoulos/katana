@@ -163,7 +163,7 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.integer  "test_run_id"
     t.string   "command",                                                     default: "",    null: false
     t.text     "result",                                                      default: "",    null: false
-    t.integer  "status",                                                      default: 0,     null: false
+    t.integer  "status",                                                      default: 1,     null: false
     t.integer  "test_errors",                                                 default: 0,     null: false
     t.integer  "failures",                                                    default: 0,     null: false
     t.integer  "count",                                                       default: 0,     null: false
@@ -203,6 +203,8 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.string   "commit_committer_username"
     t.text     "sha_history",               default: [], null: false, array: true
     t.integer  "run_index"
+    t.integer  "project_id",                             null: false
+    t.string   "setup_error",               default: "", null: false
   end
 
   add_index "test_runs", ["tracked_branch_id"], name: "index_test_runs_on_tracked_branch_id", using: :btree

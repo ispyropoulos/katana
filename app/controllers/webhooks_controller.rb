@@ -26,9 +26,22 @@ class WebhooksController < ApplicationController
     projects.each do |project|
       branch_name = params[:ref].split('/').last
       if (tracked_branch = project.tracked_branches.find_by_branch_name(branch_name))
-        tracked_branch.
-          build_test_run_and_jobs(head_commit: params[:head_commit])
-        tracked_branch.save!
+        manager = RepositoryManager.new(project)
+        head_commit = params[:head_commit]
+
+        manager.create_test_run!({
+          commit_sha: head_commit[:id],
+          commit_message: head_commit[:message],
+          commit_timestamp: head_commit[:timestamp],
+          commit_url: head_commit[:url],
+          commit_author_name: head_commit[:author][:name],
+          commit_author_email: head_commit[:author][:email],
+          commit_author_username: head_commit[:author][:username],
+          commit_committer_name: head_commit[:committer][:name],
+          commit_committer_email: head_commit[:committer][:email],
+          commit_committer_username: head_commit[:committer][:username],
+          tracked_branch_id: tracked_branch.id,
+        })
       end
     end
   end

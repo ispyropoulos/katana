@@ -34,8 +34,32 @@ class WebhooksControllerTest < ActionController::TestCase
     end
 
     describe "push event" do
+      let(:github_response) do
+        Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
+          {
+            sha: commit_sha,
+            commit: {
+              message: 'Some commit messsage',
+              html_url: 'Some url',
+              author: {
+                name: 'Great Author',
+                email: 'great@author.com',
+              },
+              committer: {
+                name: 'Great Committer',
+                email: 'great@committer.com',
+              }
+            },
+            author: { login: 'authorlogin' },
+            committer: { login: 'committerlogin' }
+          }
+        )
+      end
       before do
         request.headers['HTTP_X_GITHUB_EVENT'] = 'push'
+        GithubRepositoryManager.any_instance.stubs(:sha_history).
+          returns([github_response])
+
         TestRun.any_instance.stubs(:project_file_names).returns(
           [filename_1, filename_2])
         post :github, {
@@ -64,18 +88,7 @@ class WebhooksControllerTest < ActionController::TestCase
       it "creates a test run with correct attributes" do
         @testrun.tracked_branch_id.must_equal tracked_branch.id
         @testrun.commit_sha.must_equal commit_sha
-        @testrun.status.code.must_equal TestStatus::QUEUED
-      end
-
-      it "creates test jobs with correct attributes" do
-        first_job = TestJob.first
-        last_job = TestJob.last
-
-        first_job.test_run_id.must_equal @testrun.id
-        first_job.command.must_match filename_1
-
-        last_job.test_run_id.must_equal @testrun.id
-        last_job.command.must_match filename_2
+        @testrun.status.code.must_equal TestStatus::SETUP
       end
 
       it "responds with :ok" do

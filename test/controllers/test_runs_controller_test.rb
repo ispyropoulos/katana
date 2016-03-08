@@ -1,34 +1,43 @@
 require 'test_helper'
 
 class TestRunsControllerTest < ActionController::TestCase
-  let(:_test_run) { FactoryGirl.create(:testributor_run) }
-  let(:branch) { _test_run.tracked_branch }
+  let(:project) { FactoryGirl.create(:project) }
+  let(:branch) { FactoryGirl.create(:tracked_branch, project: project) }
+  let(:_test_run) do
+    FactoryGirl.create(:testributor_run, tracked_branch: branch, project: project)
+  end
   let(:branch_name) { branch.branch_name }
   let(:commit_sha) { "23423849" }
-  let(:project) { branch.project }
   let(:branch_github_response) do
-    Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
-      {
-        name: branch_name,
+    [Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
+      { sha: commit_sha,
         commit: {
-          sha: commit_sha,
-          commit: {
-            message: 'Some commit messsage',
-            html_url: 'Some url',
-            author: {
-              name: 'Great Author',
-              email: 'great@author.com',
-            },
-            committer: {
-              name: 'Great Committer',
-              email: 'great@committer.com',
-            }
+          author: {
+            name: "Great Author",
+            email: "great@autho.com",
+            date: "2016-02-26 14:34:20 UTC"
           },
-          author: { login: 'authorlogin' },
-          committer: { login: 'committerlogin' }
-        }
+        committer: {
+          name: "Great Commiter",
+          email: "great@comitter.com",
+          date: "2016-03-07 09:29:00 UTC"
+        },
+        message: "Some commit message",
+        tree: {
+          sha: "6dad33ccceed49b4ab376d38565e3c24bf067ae2",
+          url: "https://api.github.com/repos/ispyropoulos/katana/git/trees/6dad33ccceed49b4ab376d38565e3c24bf067ae2"
+        },
+        comment_count: 0
+      },
+      url: "https://api.github.com/repos/ispyropoulos/katana/commits/322598a3b4d8b946202f5cd685a3c774a43d6778",
+      html_url: "Some url",
+      author: {
+        login: "great_author",
+      },
+      committer: {
+        login: "spyrbri",
       }
-    )
+    })]
   end
 
   before do
@@ -76,30 +85,32 @@ class TestRunsControllerTest < ActionController::TestCase
   end
 
   describe "POST#create" do
-    it "sets :notice when TrackedBranch#build_test_run_and_jobs is true" do
-      TrackedBranch.any_instance.stubs(:build_test_run_and_jobs).returns(true)
+    it "sets :notice when RepositoryManager#create_test_run! is true" do
+      RepositoryManager.any_instance.stubs(:create_test_run!).returns(true)
       post :create, { project_id: project.to_param, branch_id: branch.id }
 
-      flash[:notice].must_equal "Your build was added to queue"
+      flash[:notice].must_equal "Your build is being setup"
     end
 
-    it "sets :alert when TrackedBranch#build_test_run_and_jobs is nil" do
-      TrackedBranch.any_instance.stubs(:build_test_run_and_jobs).returns(nil)
+    it "sets :alert when RepositoryManager#create_test_run! is nil" do
+      RepositoryManager.any_instance.stubs(:create_test_run!).returns(nil)
+      RepositoryManager.any_instance.stubs(:errors).returns(
+        ["#{branch.branch_name} doesn't exist anymore on github"])
       post :create, { project_id: project.to_param, branch_id: branch.id }
 
-      flash[:alert].must_equal "#{branch.branch_name} doesn't exist anymore" +
-        " on github"
+      flash[:alert].
+        must_equal("#{branch.branch_name} doesn't exist anymore on github")
     end
 
     it "creates a TestRun with correct attributes" do
-      TrackedBranch.any_instance.stubs(:from_github).
+      GithubRepositoryManager.any_instance.stubs(:sha_history).
         returns(branch_github_response)
       post :create, { project_id: project.to_param, branch_id: branch.id }
 
       TestRun.count.must_equal 2
       _test_run = TestRun.last
       _test_run.tracked_branch_id.must_equal branch.id
-      _test_run.status.code.must_equal TestStatus::QUEUED
+      _test_run.status.code.must_equal TestStatus::SETUP
     end
   end
 

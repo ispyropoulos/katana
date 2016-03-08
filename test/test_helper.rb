@@ -54,31 +54,6 @@ class ActiveSupport::TestCase
       tree: [OpenStruct.new({path: 'test/models/stub_test_1.rb'}),
              OpenStruct.new({path: 'test_models/stub_test_2.rb'})])
     Octokit::Client.any_instance.stubs(:tree).returns(tree)
-
-    commit_github_response =
-      Sawyer::Resource.new(Sawyer::Agent.new('api.example.com'),
-        {
-          sha: '034df43',
-          commit: {
-            message: 'Some commit messsage',
-            html_url: 'Some url',
-            author: {
-              name: 'Great Author',
-              email: 'great@author.com',
-            },
-            committer: {
-              name: 'Great Committer',
-              email: 'great@committer.com',
-            }
-          },
-          author: { login: 'authorlogin' },
-          committer: { login: 'committerlogin' }
-        }
-      )
-    TrackedBranch.any_instance.stubs(:sha_history).returns([
-      commit_github_response,
-      commit_github_response,
-      commit_github_response])
   end
 end
 

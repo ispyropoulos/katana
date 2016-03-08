@@ -16,16 +16,16 @@ class TestRunsController < DashboardController
 
   def create
     branch = current_project.tracked_branches.find(params[:branch_id])
-    build_result = branch.build_test_run_and_jobs
-    if build_result && branch.save
-      flash[:notice] = 'Your build was added to queue'
-    elsif build_result.nil?
-      flash[:alert] = "#{branch.branch_name} doesn't exist anymore on github"
-    else
-      flash[:alert] = branch.errors.messages.values.join(', ')
-    end
+    manager = RepositoryManager.new(branch.project)
+    test_run = manager.create_test_run!({ tracked_branch_id: branch.id })
 
-    redirect_to :back
+    if test_run
+      flash[:notice] = 'Your build is being setup'
+      redirect_to :back
+    else
+      flash[:alert] = manager.errors.join(', ')
+      redirect_to project_path(current_project)
+    end
   end
 
   def update
@@ -42,10 +42,11 @@ class TestRunsController < DashboardController
     end
 
     @test_run.test_jobs.destroy_all
-    @test_run.build_test_jobs
-    @test_run.save
+    @test_run.status = TestStatus::SETUP
+    @test_run.save!
+    RepositoryManager::TestRunSetupJob.perform_later(@test_run.id)
     Broadcaster.publish(@test_run.redis_live_update_resource_key, { retry: true, test_run_id: @test_run.id })
-    redirect_to :back, notice: 'Test run was successfully queued.'
+    redirect_to :back, notice: 'The Build will soon be retried'
   end
 
   def destroy

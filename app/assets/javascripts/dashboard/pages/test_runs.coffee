@@ -11,14 +11,16 @@ class Testributor.Pages.TestRuns
       else
         testJob = msg.test_job
         testRun = msg.test_run
-        progressBar.update(testJob.test_run_id, testJob.html_class)
-        data = {
-          id: testRun.id,
-          active: if progressBar.toggle($("##{testRun.id}")) then 'progress-bar-striped active',
-          statuses: testRun.statuses
-        }
+        if testJob
+          progressBar.update(testJob.test_run_id, testJob.html_class)
+          data = {
+            id: testRun.id,
+            active: if progressBar.toggle($("##{testRun.id}")) then 'progress-bar-striped active',
+            statuses: testRun.statuses
+          }
 
-        testRun.progressBarData = data
+          testRun.progressBarData = data
+
         $("#test-run-#{testRun.id}").replaceWith(testRunTemplate(testRun))
         $('[data-toggle="popover"]').popover()
     )

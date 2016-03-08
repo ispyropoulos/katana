@@ -1,50 +1,60 @@
 class TestStatus
   attr_reader :code
-  QUEUED = 0
-  RUNNING = 1
-  PASSED = 2
-  FAILED = 3
-  ERROR = 4
-  CANCELLED = 5
+
+  SETUP     = 0 # Doesn't have test jobs yet
+  QUEUED    = 1 # Has TestJobs, chunked, waiting to be sent to workers
+  RUNNING   = 2 # At least on TestJob is already sent to a worker
+  PASSED    = 3 # All TestJobs are PASSED
+  FAILED    = 4 # At least one TestJob is FAILED and none is ERROR
+  ERROR     = 5 # At least one TestJob is ERROR
+  CANCELLED = 6 # TestRun is CANCELLED. All TestJobs are CANCELLED
 
   STATUS_MAP = {
-    QUEUED => 'Queued',
-    RUNNING => 'Running',
-    PASSED => "Passed",
-    FAILED => 'Failed',
-    ERROR => 'Error',
+    SETUP     => 'Setup',
+    QUEUED    => 'Queued',
+    RUNNING   => 'Running',
+    PASSED    => 'Passed',
+    FAILED    => 'Failed',
+    ERROR     => 'Error',
     CANCELLED => 'Cancelled'
   }
 
   STATUS_CLASS_MAP = {
+    SETUP     => 'info',
+    QUEUED    => 'info',
+    RUNNING   => 'primary',
+    PASSED    => 'success',
+    FAILED    => 'danger',
+    ERROR     => 'pink',
     CANCELLED => 'default',
-    QUEUED => 'info',
-    RUNNING => 'primary',
-    PASSED => 'success',
-    FAILED => 'danger',
-    ERROR => 'pink'
   }
 
-   GITHUB_STATUS_MAP = {
-     FAILED => 'failure',
-     QUEUED => 'pending',
-     RUNNING => 'pending',
-     ERROR => 'error',
-     CANCELLED => 'error',
-     PASSED => 'success'
-   }
+  GITHUB_STATUS_MAP = {
+    SETUP     => 'pending',
+    QUEUED    => 'pending',
+    RUNNING   => 'pending',
+    PASSED    => 'success',
+    FAILED    => 'failure',
+    ERROR     => 'error',
+    CANCELLED => 'error'
+  }
 
-   GITHUB_DESCRIPTION_MAP = {
-     FAILED => 'Some specs are failing.',
-     QUEUED => 'Build is going to be testributed soon.',
-     RUNNING => 'Build is being testributed.',
-     ERROR => 'There are some errors in your build.',
-     CANCELLED => 'Your build has been cancelled.',
-     PASSED => 'All checks have passed!'
-   }
+  GITHUB_DESCRIPTION_MAP = {
+    SETUP     => 'Build is going to be testributed soon.',
+    QUEUED    => 'Build is going to be testributed soon.',
+    RUNNING   => 'Build is being testributed.',
+    PASSED    => 'All checks have passed!',
+    FAILED    => 'Some specs are failing.',
+    ERROR     => 'There are some errors in your build.',
+    CANCELLED => 'Your build has been cancelled.'
+  }
 
   def initialize(code)
     @code = code
+  end
+
+  def setup?
+    @code == SETUP
   end
 
   def queued?
@@ -73,7 +83,7 @@ class TestStatus
 
   def cta_text
     case @code
-    when QUEUED, RUNNING
+    when SETUP, QUEUED, RUNNING
       "Cancel"
     when ERROR, FAILED, PASSED
       "Retry"
@@ -100,7 +110,7 @@ class TestStatus
     case
     when @code.in?([CANCELLED, FAILED, ERROR])
       'btn btn-success'
-    when @code.in?([QUEUED, RUNNING])
+    when @code.in?([SETUP, QUEUED, RUNNING])
       'btn btn-primary'
     end
   end

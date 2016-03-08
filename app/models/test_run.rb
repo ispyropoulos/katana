@@ -2,7 +2,7 @@ class TestRun < ActiveRecord::Base
   # For redis_live_update_resource_key
   include Models::RedisLiveUpdates
   belongs_to :tracked_branch
-  has_one :project, through: :tracked_branch
+  belongs_to :project
   has_many :test_jobs, dependent: :delete_all, inverse_of: :test_run
 
   delegate :completed_at, to: :last_file_run, allow_nil: true
@@ -17,15 +17,19 @@ class TestRun < ActiveRecord::Base
     where(status: [TestStatus::PASSED, TestStatus::FAILED, TestStatus::ERROR])
   }
 
+  validates :project_id, presence: true
+  validates :commit_sha, presence: true
+
   before_validation :set_run_index,
     if: ->{ run_index.nil? && tracked_branch.present? }
-  before_create :cancel_queued_runs_of_same_branch
+  before_create :cancel_queued_runs_of_same_branch, if: -> { tracked_branch }
   after_save :cancel_test_jobs,
     if: ->{ status_changed? && self[:status] == TestStatus::CANCELLED }
 
   #https://github.com/mperham/sidekiq/wiki/Problems-and-Troubleshooting#cannot-find-modelname-with-id12345
   after_commit :send_notifications,
-    if: -> { previous_changes.has_key?('status') || previous_changes.has_key?('created_at') }
+    if: -> { previous_changes.has_key?('status') || previous_changes.has_key?('created_at') },
+    on: [:update, :create]
 
   def total_running_time
     if completed_at = test_jobs.maximum(:completed_at)
@@ -41,96 +45,6 @@ class TestRun < ActiveRecord::Base
 
   def status
     TestStatus.new(read_attribute(:status))
-  end
-
-  # Example yml file:
-  # each:
-  #   pattern: 'test/*/**_test.rb'
-  #   command: 'bin/rake test %{file}'
-  #   before: 'some_command'
-  # javascript:
-  #   command: 'bin/rake test_javascript'
-  #   after: "some_cleanup_command"
-  #
-  # We assume that the JOBS_YML_PATH exists and has valid commands.
-  # @raise JOBS_YML_PATH not found if it doesn't exist
-  # @returns false if JOBS_YML_PATH is invalid?
-  # @raises "JOBS_YML_PATH not found" if JOBS_YML_PATH doesn't exist?
-  # if JOBS_YML_PATH is invalid, then the JOBS_YML_PATH errors are copied
-  # to self. As a result, self.errors can be used to display errors to the user
-  def build_test_jobs
-    yml_contents = jobs_yml
-    raise "#{ProjectFile::JOBS_YML_PATH} not found" unless yml_contents
-    testributor_yml = ProjectFile.new(path: ProjectFile::JOBS_YML_PATH,
-                                      contents: yml_contents)
-    if testributor_yml.invalid?
-      copy_errors(testributor_yml.errors)
-      return false
-    end
-
-    jobs_description = YAML.load(yml_contents)
-
-    if each_description = jobs_description.delete("each")
-      pattern = each_description["pattern"]
-      command = each_description["command"]
-      before = each_description["before"].to_s
-      after = each_description["after"].to_s
-
-      file_names = project_file_names
-      file_names.select{|f| f.match(pattern)}.each do |f|
-        test_jobs.build(
-          job_name: f,
-          command: command.gsub(/%{file}/, f),
-          before: before,
-          after: after
-        )
-      end
-    end
-
-    jobs_description.each do |job_name, description|
-      command = description["command"]
-      before = description["before"].to_s
-      after = description["after"].to_s
-      test_jobs.build(
-        job_name: job_name,
-        command: command,
-        before: before,
-        after: after
-      )
-    end
-    Katanomeas.new(self).assign_chunk_indexes_to_test_jobs
-
-    true
-  end
-
-  # Returns the content of ProjectFile::JOBS_YML_PATH file. The file can either be defined
-  # in Project's files (project_files association) or it can be checked in the
-  # git repository. If defined both ways the repo version wins to let the users
-  # use a customized file in specific branches (e.g. if they don't want to run
-  # all tests on some feature branch they can commit this file to override the
-  # global project configuration).
-  def jobs_yml
-    file = nil
-
-    if github_client.present?
-      repo = project.repository_id
-      file =
-        begin
-          file =
-            github_client.contents(repo, path: ProjectFile::JOBS_YML_PATH, ref: commit_sha)
-
-          Base64.decode64(file.content)
-        rescue Octokit::NotFound
-          nil
-        end
-    end
-
-    if file.blank?
-      file =
-        project.project_files.where(path: ProjectFile::JOBS_YML_PATH).first.try(:contents)
-    end
-
-    file
   end
 
   # This method returns all filenames for this repo and ref from github.
@@ -171,8 +85,8 @@ class TestRun < ActiveRecord::Base
   # https://trello.com/c/ITi9lURr/127
   # https://trello.com/c/pDr9CgT9/128
   def retry?
-    ![TestStatus::QUEUED, TestStatus::RUNNING, TestStatus::CANCELLED].include?(
-      read_attribute(:status))
+    ![TestStatus::SETUP, TestStatus::QUEUED, TestStatus::RUNNING,
+      TestStatus::CANCELLED].include?(read_attribute(:status))
   end
 
   # For the SHAs in sha_history, this method returns the first matching TestRun.

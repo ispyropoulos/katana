@@ -35,7 +35,7 @@ class TestRunActionsFeatureTest < Capybara::Rails::TestCase
           }
         }
       )
-    TrackedBranch.any_instance.stubs(:sha_history).returns([
+    GithubRepositoryManager.any_instance.stubs(:sha_history).returns([
       commit_github_response,
       commit_github_response,
       commit_github_response])
