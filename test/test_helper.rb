@@ -42,6 +42,7 @@ class ActiveSupport::TestCase
 
   ActiveRecord::Migration.check_pending!
   before do
+    ActionMailer::Base.deliveries.clear
     yaml = <<-YAML
       each:
         pattern: ".*"
