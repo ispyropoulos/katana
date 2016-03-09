@@ -17,20 +17,20 @@ class Testributor.Pages.ProjectWizard
 
   performAjaxFor: (url, callback) =>
     Pace.ignore =>
-      jqxhr = $.ajax
+      jqxhr = $.ajax(
         url: url,
         beforeSend: ->
           $('.js-fetching-repos').show()
-        success: (data)->
-          $('.js-fetch-repos').html(data).fadeIn('slow')
-        fail: ->
-          alert('Connection with github interrupted!')
-          $('.js-fetch-repos').append('We were not able to complete this action.').fadeIn('slow')
-        error: ->
-          $('.js-fetch-repos').append('Oops! Something went wrong. We are working on it.').fadeIn('slow')
-        complete: ->
+      ).done((data)->
+        $('.js-fetch-repos').html(data).fadeIn('slow')
+      ).fail(->
+        $('.js-fetch-repos').
+          append('Oops! Something went wrong. We are working on it.').
+          fadeIn('slow')
+      ).always(->
           $('.js-fetching-repos').hide()
           callback()
+      )
 
   attachFetchEvent: () =>
     $('.pagination li a').on 'click', (e) =>

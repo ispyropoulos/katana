@@ -84,8 +84,10 @@ class ProjectWizardController < DashboardController
   def fetch_repos
     redirect_to project_wizard_path(:choose_repo) and return if !request.xhr?
 
-    @repos = @project_wizard.fetch_repos(params[:page])
-    render 'fetch_repos', layout: false
+    manager = RepositoryManager.new({ project_wizard: @project_wizard })
+    @response_data = manager.fetch_repos(params[:page])
+
+    render "#{@project_wizard.repository_provider}_fetch_repos", layout: false
   end
 
   private

@@ -1,8 +1,8 @@
 require 'test_helper'
 
 class RepositoryManagerTest < ActiveSupport::TestCase
-  let(:project) { Project.new(repository_provider: "github") }
-  subject { RepositoryManager.new(project) }
+  let(:project) { FactoryGirl.build(:project, repository_provider: "github") }
+  subject { RepositoryManager.new({project: project}) }
 
   describe "manager" do
     it "is initialized based on project's repository_provider" do
@@ -11,7 +11,7 @@ class RepositoryManagerTest < ActiveSupport::TestCase
 
     it "raises if repository_manager is not implemented" do
       project.repository_provider = "dummy_provider"
-      ->{ RepositoryManager.new(project) }.must_raise "Unknown repository provider"
+      ->{ RepositoryManager.new({project: project}) }.must_raise "Unknown repository provider"
     end
   end
 end

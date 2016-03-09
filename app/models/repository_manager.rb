@@ -3,12 +3,19 @@
 class RepositoryManager
   attr_reader :manager # the adaptee object
 
-  delegate :create_test_run!, to: :manager
+  delegate :create_test_run!, :fetch_repos, to: :manager
 
-  def initialize(project)
-    case project.repository_provider
+  # Can be initialized either with a project of a project_wizard
+  # @option options [Hash]
+  #
+  # E.g. { project: <Project> } or { project_wizard: <ProjectWizard> }
+  def initialize(options)
+    repository_provider =
+      (options[:project] || options[:project_wizard]).repository_provider
+
+    case repository_provider
     when "github"
-      @manager = GithubRepositoryManager.new(project)
+      @manager = GithubRepositoryManager.new(options)
     else
       raise "Unknown repository provider"
     end

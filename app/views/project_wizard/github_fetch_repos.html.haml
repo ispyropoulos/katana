@@ -1,11 +1,11 @@
-- if @repos
-  - if @repos.any?
+- if @response_data
+  - if @response_data[:repos].any?
     .panel-title
       %h2 Select a repository:
     .panel-body
       .list-group
       - user_repos = current_user.participating_projects.pluck(:repository_id)
-      - @repos[:repos].each do |repo|
+      - @response_data[:repos].each do |repo|
         = link_to_if_with_block !repo[:id].in?(user_repos),
           project_wizard_path(repo_name: repo[:name]), method: :put do
           %li.list-group-item
@@ -14,7 +14,7 @@
               %strong= "[FORK]"
             - if repo[:id].in?(user_repos)
               %i= ' - This repository is already tracked.'
-      - page_manager = GithubRepoPageManager.new(@repos[:last_response])
+      - page_manager = GithubRepoPageManager.new(@response_data[:last_response])
       - if page_manager.all_pages_number > 1
         %ul.pagination.m-b-5
           - if previous_page = page_manager.previous_page_number

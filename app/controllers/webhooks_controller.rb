@@ -26,7 +26,7 @@ class WebhooksController < ApplicationController
     projects.each do |project|
       branch_name = params[:ref].split('/').last
       if (tracked_branch = project.tracked_branches.find_by_branch_name(branch_name))
-        manager = RepositoryManager.new(project)
+        manager = RepositoryManager.new({project: project})
         head_commit = params[:head_commit]
 
         manager.create_test_run!({

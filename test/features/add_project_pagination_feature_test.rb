@@ -11,8 +11,8 @@ class AddProjectPaginationFeatureTest < Capybara::Rails::TestCase
     before do
       # instead of creating 60 projects we change the number
       # of fetched projects because we already have 11
-      ProjectWizard.send(:remove_const, :PROJECTS_PER_PAGE)
-      ProjectWizard.const_set(:PROJECTS_PER_PAGE, 3)
+      GithubRepositoryManager.send(:remove_const, :REPOSITORIES_PER_PAGE)
+      GithubRepositoryManager.const_set(:REPOSITORIES_PER_PAGE, 3)
       ProjectWizard.find_or_create_by(user_id: user.id,
                                       repository_provider: 'github')
 
@@ -22,8 +22,8 @@ class AddProjectPaginationFeatureTest < Capybara::Rails::TestCase
     end
 
     after do
-      ProjectWizard.send(:remove_const, :PROJECTS_PER_PAGE)
-      ProjectWizard.const_set(:PROJECTS_PER_PAGE, 20)
+      GithubRepositoryManager.send(:remove_const, :REPOSITORIES_PER_PAGE)
+      GithubRepositoryManager.const_set(:REPOSITORIES_PER_PAGE, 20)
     end
 
     it 'displays pagination according to the number of projects', js: true do

@@ -11,7 +11,7 @@ class GithubRepositoryManagerTest < ActiveSupport::TestCase
       file
     end
 
-    subject { GithubRepositoryManager.new(_test_run.project) }
+    subject { GithubRepositoryManager.new({project: _test_run.project}) }
 
     before do
       subject.stubs(:github_client).returns(client)
@@ -91,7 +91,7 @@ class GithubRepositoryManagerTest < ActiveSupport::TestCase
 
   describe "#setup_test_run" do
     let(:_test_run) { FactoryGirl.create(:testributor_run) }
-    subject { GithubRepositoryManager.new(_test_run.project) }
+    subject { GithubRepositoryManager.new({project: _test_run.project}) }
 
     before do
       subject.stubs(:project_file_names).returns(

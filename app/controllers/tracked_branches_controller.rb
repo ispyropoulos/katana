@@ -17,7 +17,7 @@ class TrackedBranchesController < DashboardController
       tracked_branches.create(branch_name: params[:branch_name])
 
     if tracked_branch.persisted?
-      manager = RepositoryManager.new(tracked_branch.project)
+      manager = RepositoryManager.new({project: tracked_branch.project})
       test_run =
         manager.create_test_run!({ tracked_branch_id: tracked_branch.id })
 

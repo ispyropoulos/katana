@@ -16,7 +16,7 @@ class TestRunsController < DashboardController
 
   def create
     branch = current_project.tracked_branches.find(params[:branch_id])
-    manager = RepositoryManager.new(branch.project)
+    manager = RepositoryManager.new({project: branch.project})
     test_run = manager.create_test_run!({ tracked_branch_id: branch.id })
 
     if test_run

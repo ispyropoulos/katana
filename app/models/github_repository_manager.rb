@@ -2,14 +2,20 @@
 # This is an adaptee class for RepositoryManager
 class GithubRepositoryManager
   HISTORY_COMMITS_LIMIT = 30
+  REPOSITORIES_PER_PAGE = 20
 
-  attr_reader :project, :errors
+  attr_reader :project, :project_wizard, :github_client, :errors
 
-  def initialize(project)
-    @project = project
-    unless @project.is_a?(Project)
-      raise "GithubRepositoryProvider needs a project to be initialized"
+  def initialize(options)
+    @project = options[:project] if options[:project]
+    @project_wizard = options[:project_wizard] if options[:project_wizard]
+
+    unless @project.is_a?(Project) || @project_wizard.is_a?(ProjectWizard)
+      raise "GithubRepositoryProvider needs a project or a project wizard to be initialized"
     end
+
+    @github_client =
+      @project ? @project.user.github_client : @project_wizard.user.github_client
   end
 
   # Adds a new TestRun for the given commit in the current project
@@ -127,11 +133,23 @@ class GithubRepositoryManager
     file
   end
 
-  private
+  # When github client is not set, this method returns false.
+  # We should prompt the user to connect to github.
+  def fetch_repos(page=0)
+    page = page.to_i
+    return false unless github_client.present?
 
-  def github_client
-    @github_client ||= project.user.github_client
+    #https://developer.github.com/v3/repos/#list-user-repositories
+    repos = github_client.repos(nil,
+      { type: "owner", per_page: REPOSITORIES_PER_PAGE }.
+        merge(page > 0 ? { page: page } : {})
+    ).map { |repo| { id: repo.id, fork: repo.fork?, name: repo.full_name } }
+
+    { repos: repos, last_response: github_client.last_response }
   end
+
+
+  private
 
   # Fetches the requested branch HEAD with the last 30 commits in history
   # If sha is set, it will be used instead of the branch name.
