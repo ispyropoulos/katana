@@ -7,7 +7,7 @@
       - user_repos = current_user.participating_projects.pluck(:repository_id)
       - @response_data[:repos].each do |repo|
         = link_to_if_with_block !repo[:id].in?(user_repos),
-          project_wizard_path(repo_name: repo[:name]), method: :put do
+          project_wizard_path(repo_name: repo[:name], repo_id: repo[:id]), method: :put do
           %li.list-group-item
             #{repo[:name]}
             - if repo[:fork]

@@ -149,17 +149,17 @@ class GithubRepositoryManager
   end
 
   def fetch_branches
-    return false if repository_name.blank? || github_client.blank?
+    return false if repository_id.blank? || github_client.blank?
 
-    github_client.branches(repository_name).map do |b|
+    github_client.branches(repository_id).map do |b|
       TrackedBranch.new(branch_name: b.name)
     end
   end
 
   def repository_data
-    return false if repository_name.blank? || github_client.blank?
+    return false if repository_id.blank? || github_client.blank?
 
-    repo_data = github_client.repo(repository_name)
+    repo_data = github_client.repo(repository_id)
 
     OpenStruct.new({
       repository_id: repo_data.id,
@@ -176,8 +176,8 @@ class GithubRepositoryManager
 
   private
 
-  def repository_name
-    project.try(:repository_name) || project_wizard.try(:repo_name)
+  def repository_id
+    project.try(:repository_id) || project_wizard.try(:repository_id)
   end
 
   # Fetches the requested branch HEAD with the last 30 commits in history

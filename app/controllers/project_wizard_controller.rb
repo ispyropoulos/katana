@@ -47,7 +47,10 @@ class ProjectWizardController < DashboardController
     when :choose_provider
       @project_wizard.assign_attributes({repository_provider: params[:repository_provider]})
     when :choose_repo
-      @project_wizard.assign_attributes({repo_name: params[:repo_name]})
+      @project_wizard.assign_attributes({
+        repo_name: params[:repo_name],
+        repository_id: params[:repo_id]
+      })
     when :choose_branches
       # We use the overriden branch_names= method because postgres
       # array type requires branch_names_will_change! in order to save

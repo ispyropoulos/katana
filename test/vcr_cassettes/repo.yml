@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.github.com/repos/ispyropoulos/katana
+    uri: https://api.github.com/repositories/40374264
     body:
       encoding: US-ASCII
       string: ''
