@@ -33,7 +33,8 @@ class ProjectWizardController < DashboardController
     when :choose_repo
     when :choose_branches
       # TODO: Make this asynchronous, as in choose_repo
-      @branches = @project_wizard.fetch_branches
+      manager = RepositoryManager.new({ project_wizard: @project_wizard })
+      @branches = manager.fetch_branches
     when :configure_testributor
     when :select_technologies
     end

@@ -29,15 +29,6 @@ class ProjectWizard < ActiveRecord::Base
 
   after_save :reset_fields
 
-  # When repo_name is blank or client is blank, this method returns false.
-  def fetch_branches
-    client = user.github_client
-    return false if repo_name.blank? || client.blank?
-
-    client.branches(repo_name).
-      map { |b| TrackedBranch.new(branch_name: b.name) }
-  end
-
   # Which step we need to show to the user according to the missing attributes
   def step_to_show
     ORDERED_STEPS.each do |step|

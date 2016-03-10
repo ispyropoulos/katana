@@ -148,6 +148,16 @@ class GithubRepositoryManager
     { repos: repos, last_response: github_client.last_response }
   end
 
+  def fetch_branches
+    repository_name =
+      project.try(:repository_name) || project_wizard.try(:repo_name)
+
+    return false if repository_name.blank? || github_client.blank?
+
+    github_client.branches(repository_name).map do |b|
+      TrackedBranch.new(branch_name: b.name)
+    end
+  end
 
   private
 
