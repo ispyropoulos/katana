@@ -20,7 +20,7 @@ class WebhooksControllerTest < ActionController::TestCase
     describe "delete event" do
       before do
         request.headers['HTTP_X_GITHUB_EVENT'] = 'delete'
-        TestRun.any_instance.stubs(:project_file_names).returns(
+        GithubRepositoryManager.any_instance.stubs(:project_file_names).returns(
           [filename_1, filename_2])
         post :github,
           { repository: { id: project.repository_id },
@@ -60,7 +60,7 @@ class WebhooksControllerTest < ActionController::TestCase
         GithubRepositoryManager.any_instance.stubs(:sha_history).
           returns([github_response])
 
-        TestRun.any_instance.stubs(:project_file_names).returns(
+        GithubRepositoryManager.any_instance.stubs(:project_file_names).returns(
           [filename_1, filename_2])
         post :github, {
           head_commit: {

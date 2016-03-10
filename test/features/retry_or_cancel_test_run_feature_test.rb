@@ -8,7 +8,7 @@ class RetryOrCancelTestRunFeatureTest < Capybara::Rails::TestCase
   let(:owner) { project.user }
 
   before do
-    TestRun.any_instance.stubs(:project_file_names).
+    GithubRepositoryManager.any_instance.stubs(:project_file_names).
       returns(['test/controllers/shitty_test.rb'])
     _test_job.test_run.project.
       project_files << FactoryGirl.create(:project_file,

@@ -47,15 +47,6 @@ class TestRun < ActiveRecord::Base
     TestStatus.new(read_attribute(:status))
   end
 
-  # This method returns all filenames for this repo and ref from github.
-  # TODO: Github limit is something like 1000 files per request.
-  # Refactor this method so that it always returns all filenames no matter
-  # how many (or find some better solution).
-  def project_file_names
-    repo = tracked_branch.project.repository_id
-    github_client.tree(repo, commit_sha, recursive: true)[:tree].map(&:path)
-  end
-
   def update_status
     previous_status_code = status.code
     db_return = ActiveRecord::Base.connection.execute <<-SQL
@@ -147,10 +138,6 @@ class TestRun < ActiveRecord::Base
 
   def last_file_run
     test_jobs.reject { |j| j.completed_at.nil? }.sort_by(&:completed_at).last
-  end
-
-  def github_client
-    tracked_branch.project.user.github_client
   end
 
   def failed?
