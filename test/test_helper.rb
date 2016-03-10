@@ -100,6 +100,31 @@ class Capybara::Rails::TestCase
     DatabaseCleaner.clean
     Warden.test_reset!
   end
+
+  def wait_for_requests_to_finish
+    if metadata[:js]
+      Timeout.timeout(Capybara.default_max_wait_time) do
+        sleep 0.1 until pending_requests.empty?
+      end
+    end
+  end
+
+  def pending_requests
+    if page.driver.respond_to?(:network_traffic)
+
+      page.driver.network_traffic.select do |r|
+        r.url.slice(0..15) == 'http://127.0.0.1' && # only app URLS
+          r.url.match(/\/assets\//).nil? && # ignore assets
+          #r.url.match(/\/test_uploads\//).nil? && # ignore uploads
+          ((r.response_parts.size > 0 &&
+            (200..399).cover?(r.response_parts.first.status) && # ignore errors
+            r.response_parts.last.instance_variable_get('@data')['stage'] != 'end') ||
+          r.response_parts.empty?) # pending requests
+      end
+    else
+      []
+    end
+  end
 end
 require 'minitest/unit'
 require 'mocha/mini_test'
