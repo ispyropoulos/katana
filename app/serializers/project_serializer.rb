@@ -8,10 +8,10 @@ class ProjectSerializer < ActiveModel::Serializer
   # instead of constructing them ourselves, as they may change at some point.
   def repository_ssh_url
     case object.repository_provider
-      when 'github'
-        "git@github.com:#{object.repository_owner}/#{object.repository_name}.git"
-      else
-        nil # don't know how to construct the SSH url
+    when 'github'
+      "git@github.com:#{object.repository_owner}/#{object.repository_name}.git"
+    else
+      nil # don't know how to construct the SSH url
     end
   end
 
