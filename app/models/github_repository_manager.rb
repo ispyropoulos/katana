@@ -180,6 +180,26 @@ class GithubRepositoryManager
     github_client.remove_hook(project.repository_id, project.webhook_id)
   end
 
+  # Creates webhooks on GitHub
+  def post_add_repository_setup
+    begin
+      hook = github_client.create_hook(repository_id, 'web',
+        {
+          secret: ENV['GITHUB_WEBHOOK_SECRET'],
+          url: webhook_url, content_type: 'json'
+        }, events: %w(push delete))
+    rescue Octokit::UnprocessableEntity => e
+      if e.message =~ /hook already exists/i
+        hooks = github_client.hooks(repository_id)
+        hook = hooks.select do |h|
+          h.config.url == webhook_url && h.events == %w(push delete)
+        end.first
+      else
+        raise e
+      end
+    end
+  end
+
   private
 
   def repository_id

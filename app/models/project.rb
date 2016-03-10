@@ -76,25 +76,6 @@ class Project < ActiveRecord::Base
     "#{repository_owner}/#{repository_name}"
   end
 
-  def create_webhooks!
-    begin
-      hook = user.github_client.create_hook(repository_id, 'web',
-        {
-          secret: ENV['GITHUB_WEBHOOK_SECRET'],
-          url: webhook_url, content_type: 'json'
-        }, events: %w(push delete))
-    rescue Octokit::UnprocessableEntity => e
-      if e.message =~ /hook already exists/i
-        hooks = user.github_client.hooks(repository_id)
-        hook = hooks.select do |h|
-          h.config.url == webhook_url && h.events == %w(push delete)
-        end.first
-      else
-        raise e
-      end
-    end
-  end
-
   def create_oauth_application!
     WorkerGroup.transaction do
       oauth_application = oauth_applications.create!(

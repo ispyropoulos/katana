@@ -56,7 +56,7 @@ class ProjectWizard < ActiveRecord::Base
 
   def to_project
     # TODO: check the response with a random name
-    return false unless (repo = repository_data)
+    return false unless (repo = repository_manager.repository_data)
 
     project = user.projects.find_or_create_by!(name: repo.repository_name) do |_project|
       _project.user = user
@@ -71,7 +71,8 @@ class ProjectWizard < ActiveRecord::Base
 
     project.project_files.create!(path: "testributor.yml",
                                   contents: testributor_yml)
-    project.create_webhooks!
+
+    repository_manager.post_add_repository_setup
     project.create_oauth_application!
 
     project
@@ -103,14 +104,13 @@ class ProjectWizard < ActiveRecord::Base
     end
   end
 
-  def repository_data
-    @repository_data ||=
-      RepositoryManager.new({ project_wizard: self }).repository_data
-  end
-
   def reset_fields
     if repo_name_changed? && !persisted?
       update_column(:branch_names, [])
     end
+  end
+
+  def repository_manager
+    @repository_manager ||= RepositoryManager.new({ project_wizard: self })
   end
 end

@@ -4,7 +4,8 @@ class RepositoryManager
   attr_reader :manager # the adaptee object
 
   delegate :create_test_run!, :fetch_repos, :fetch_branches, :fetch_branch_names,
-    :repository_data, :cleanup_for_removal, to: :manager
+    :repository_data, :cleanup_for_removal, :post_add_repository_setup,
+    to: :manager
 
   # Can be initialized either with a project of a project_wizard
   # @option options [Hash]
