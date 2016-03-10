@@ -26,28 +26,12 @@ class WorkerGroup < ActiveRecord::Base
   end
 
   private
-  def set_ssh_key_in_repo
-    case project.repository_provider
-    when 'github'
-      begin
-        deploy_key = project.user.github_client.add_deploy_key(
-          project.repository_id,
-          friendly_name,
-          ssh_key_public,
-          read_only: true
-        )
-      rescue Octokit::UnprocessableEntity => ex
-        if ex.errors.count {|e| e[:message] =~ /key is already in use/} > 0
-          return
-        else
-          raise ex
-        end
-      end
 
-      self.ssh_key_provider_reference_id = deploy_key.id
-    else
-      raise "Don't know how to set the SSH key."
-    end
+  def set_ssh_key_in_repo
+    deploy_key_id = repository_manager.set_deploy_key(ssh_key_public,
+      { friendly_name: friendly_name, read_only: true })
+
+    self.ssh_key_provider_reference_id = deploy_key.id
   end
 
   def generate_ssh_keys
@@ -57,16 +41,16 @@ class WorkerGroup < ActiveRecord::Base
   end
 
   def remove_ssh_key_from_repo
-    # This API call will return a boolean upon success or failure to remove
-    # the deploy key. A false return value will not stop the record destruction.
-    project.user.github_client.remove_deploy_key(
-      project.repository_id,
-      ssh_key_provider_reference_id
-    )
+    repository_manager.remove_deploy_key(ssh_key_provider_reference_id)
   end
 
   def rename_ssh_key_in_repo
     remove_ssh_key_from_repo
     set_ssh_key_in_repo
+  end
+
+  def repository_manager
+    @repository_manager ||=
+      RepositoryManager.new({ project: project })
   end
 end

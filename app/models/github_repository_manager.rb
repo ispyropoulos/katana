@@ -205,6 +205,18 @@ class GithubRepositoryManager
     end
   end
 
+  def set_deploy_key(key, options={})
+    deploy_key = github_client.add_deploy_key(
+      repository_id, options[:friendly_name], key,
+      read_only: options[:read_only])
+
+    deploy_key.id
+  end
+
+  def remove_deploy_key(key_id)
+    github_client.remove_deploy_key(repository_id, key_id)
+  end
+
   private
 
   def repository_id
