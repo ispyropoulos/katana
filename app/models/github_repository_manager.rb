@@ -217,6 +217,10 @@ class GithubRepositoryManager
     github_client.remove_deploy_key(repository_id, key_id)
   end
 
+  def publish_status_notification(test_run)
+    GithubStatusNotificationService.new(test_run).publish
+  end
+
   private
 
   def repository_id

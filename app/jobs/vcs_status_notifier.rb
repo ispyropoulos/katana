@@ -4,6 +4,7 @@ class VcsStatusNotifier < ActiveJob::Base
   def perform(test_run_id)
     test_run = TestRun.find(test_run_id)
 
-    GithubStatusNotificationService.new(test_run).publish
+    manager = RepositoryManager.new({ project: test_run.project }).
+      publish_status_notification(test_run)
   end
 end
