@@ -168,6 +168,12 @@ class GithubRepositoryManager
     })
   end
 
+  def cleanup_for_removal
+    return false unless project
+
+    github_client.remove_hook(project.repository_id, project.webhook_id)
+  end
+
   private
 
   def repository_name

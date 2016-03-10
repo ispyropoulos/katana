@@ -29,11 +29,10 @@ class ProjectsController < DashboardController
   def destroy
     project = current_user.projects.find(params[:id])
 
-    repo_id = project.repository_id
-    webhook_id = project.webhook_id
-
     if project.destroy
-      current_user.github_client.remove_hook(repo_id, webhook_id)
+      manager = RepositoryManager.new({ project: project })
+      manager.cleanup_for_removal
+
       flash[:notice] =
         "Successfully destroyed '#{project.name}' project."
     else
