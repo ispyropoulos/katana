@@ -156,6 +156,12 @@ class GithubRepositoryManager
     end
   end
 
+  def fetch_branch_names
+    return false if repository_id.blank? || github_client.blank?
+
+    github_client.branches(repository_id).map(&:name)
+  end
+
   def repository_data
     return false if repository_id.blank? || github_client.blank?
 

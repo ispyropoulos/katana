@@ -2,14 +2,12 @@ class TrackedBranchesController < DashboardController
   include Controllers::EnsureProject
 
   def new
-    if client = current_user.github_client
-      branch_names_to_reject = current_project.
-        tracked_branches.map(&:branch_name)
-      @branches = client.
-        branches(current_project.repository_id).reject do |branch|
-          branch.name.in?(branch_names_to_reject)
-        end.map { |b| TrackedBranch.new(branch_name: b.name) }
-    end
+    manager = RepositoryManager.new({ project: current_project })
+    branch_names_to_reject = current_project.tracked_branches.map(&:branch_name)
+
+    @branches = manager.fetch_branch_names.reject do |branch_name|
+      branch_name.in?(branch_names_to_reject)
+    end.map { |b| TrackedBranch.new(branch_name: b.name) }
   end
 
   def create
@@ -47,10 +45,6 @@ class TrackedBranchesController < DashboardController
   end
 
   private
-
-  def github_client
-    current_user.github_client
-  end
 
   def branch_params
     params.require(:tracked_branch).permit(:branch_name)
