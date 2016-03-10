@@ -4,6 +4,9 @@ class GithubRepositoryManager
   HISTORY_COMMITS_LIMIT = 30
   REPOSITORIES_PER_PAGE = 20
 
+  # We want this for github_webhook_url
+  include Rails.application.routes.url_helpers
+
   attr_reader :project, :project_wizard, :github_client, :errors
 
   def initialize(options)
@@ -163,11 +166,13 @@ class GithubRepositoryManager
   end
 
   def repository_data
+    return @repository_data if @repository_data
+
     return false if repository_id.blank? || github_client.blank?
 
     repo_data = github_client.repo(repository_id)
 
-    OpenStruct.new({
+    @repository_data = OpenStruct.new({
       repository_id: repo_data.id,
       repository_name: repo_data.name,
       repository_owner: repo_data.owner.login,
@@ -204,6 +209,10 @@ class GithubRepositoryManager
 
   def repository_id
     project.try(:repository_id) || project_wizard.try(:repository_id)
+  end
+
+  def webhook_url
+    ENV['GITHUB_WEBHOOK_URL'] || github_webhook_url(host: "www.testributor.com")
   end
 
   # Fetches the requested branch HEAD with the last 30 commits in history

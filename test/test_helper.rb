@@ -76,7 +76,7 @@ class Capybara::Rails::TestCase
   self.use_transactional_fixtures = false
 
   before do
-    Project.any_instance.stubs(:create_webhooks!).returns(1)
+    RepositoryManager.any_instance.stubs(:post_add_repository_setup).returns(1)
     # Stub client_id with a random id so that
     # ApplicationHelper#github_oauth_authorize_url won't break
     Octokit.stubs(:client_id).returns("aRandomID")

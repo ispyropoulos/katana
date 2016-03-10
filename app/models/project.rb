@@ -2,8 +2,6 @@ class Project < ActiveRecord::Base
   attr_accessor :about_to_be_destroyed
 
   include Models::RedisLiveUpdates
-  # We want this for github_webhook_url
-  include Rails.application.routes.url_helpers
 
   ACTIVE_WORKER_THRESHOLD_SECONDS = 20
 
@@ -155,11 +153,6 @@ class Project < ActiveRecord::Base
     if user && !user.can_create_new_project?
       errors.add(:base, :project_limit_reached)
     end
-  end
-
-  def webhook_url
-    ENV['GITHUB_WEBHOOK_URL'] ||
-      github_webhook_url(host: "www.testributor.com")
   end
 
   # TODO: Add tests for this
