@@ -149,9 +149,6 @@ class GithubRepositoryManager
   end
 
   def fetch_branches
-    repository_name =
-      project.try(:repository_name) || project_wizard.try(:repo_name)
-
     return false if repository_name.blank? || github_client.blank?
 
     github_client.branches(repository_name).map do |b|
@@ -159,7 +156,23 @@ class GithubRepositoryManager
     end
   end
 
+  def repository_data
+    return false if repository_name.blank? || github_client.blank?
+
+    repo_data = github_client.repo(repository_name)
+
+    OpenStruct.new({
+      repository_id: repo_data.id,
+      repository_name: repo_data.name,
+      repository_owner: repo_data.owner.login,
+    })
+  end
+
   private
+
+  def repository_name
+    project.try(:repository_name) || project_wizard.try(:repo_name)
+  end
 
   # Fetches the requested branch HEAD with the last 30 commits in history
   # If sha is set, it will be used instead of the branch name.

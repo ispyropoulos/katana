@@ -56,15 +56,15 @@ class ProjectWizard < ActiveRecord::Base
 
   def to_project
     # TODO: check the response with a random name
-    return false unless repo
+    return false unless (repo = repository_data)
 
-    project = user.projects.find_or_create_by!(name: repo.name) do |_project|
+    project = user.projects.find_or_create_by!(name: repo.repository_name) do |_project|
       _project.user = user
       _project.repository_provider = repository_provider
-      _project.repository_id = repo.id
-      _project.repository_name = repo.name
+      _project.repository_id = repo.repository_id
+      _project.repository_name = repo.repository_name
       # TODO: Add a repository url column and remove repository_owner
-      _project.repository_owner = repo.owner.login
+      _project.repository_owner = repo.repository_owner
       _project.docker_image = docker_image
       _project.technologies = technologies
     end
@@ -78,7 +78,9 @@ class ProjectWizard < ActiveRecord::Base
   end
 
   def create_branches
-    project = user.projects.find_by!(name: repo.name)
+    project = user.projects.find_by!(
+      name: repository_manager.repository_data.repository_name)
+
     branch_names.each do |branch_name|
       project.tracked_branches.find_or_create_by!(branch_name: branch_name)
     end
@@ -101,8 +103,9 @@ class ProjectWizard < ActiveRecord::Base
     end
   end
 
-  def repo
-    @repo ||= user.github_client.repo(repo_name)
+  def repository_data
+    @repository_data ||=
+      RepositoryManager.new({ project_wizard: self }).repository_data
   end
 
   def reset_fields
