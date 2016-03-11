@@ -7,7 +7,7 @@ class Testributor.Pages.ProjectWizard
 
     $fetchRepos = $('.js-fetch-repos')
     currentPath = $fetchRepos.data('current-path')
-    if $fetchRepos
+    if $fetchRepos.length > 0
       @performAjaxFor(currentPath, @attachFetchEvent)
 
     $('.provider-box input[type="radio"]').on "change", (e)->
