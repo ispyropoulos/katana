@@ -1,23 +1,20 @@
-# This class implements all GitHub integration related methods.
+# This class implements all BitBucket integration related methods.
 # This is an adaptee class for RepositoryManager
-class GithubRepositoryManager
+class BitbucketRepositoryManager
   HISTORY_COMMITS_LIMIT = 30
   REPOSITORIES_PER_PAGE = 20
 
-  # We want this for github_webhook_url
-  include Rails.application.routes.url_helpers
-
-  attr_reader :project, :project_wizard, :github_client, :errors
+  attr_reader :project, :project_wizard, :bitbucket_client, :errors
 
   def initialize(options)
     @project = options[:project] if options[:project]
     @project_wizard = options[:project_wizard] if options[:project_wizard]
 
     unless @project.is_a?(Project) || @project_wizard.is_a?(ProjectWizard)
-      raise "GithubRepositoryProvider needs a Project or a ProjectWizard to be initialized"
+      raise "BitbucketRepositoryProvider needs a Project or a ProjectWizard to be initialized"
     end
 
-    @github_client = (@project || @project_wizard).user.github_client
+    @bitbucket_client = (@project || @project_wizard).user.bitbucket_client
   end
 
   # Adds a new TestRun for the given commit in the current project
@@ -28,7 +25,7 @@ class GithubRepositoryManager
 
     test_run.save!
 
-    GithubRepositoryManager::TestRunSetupJob.perform_later(test_run.id)
+    BitbucketRepositoryManager::TestRunSetupJob.perform_later(test_run.id)
 
     test_run
   end
@@ -52,7 +49,7 @@ class GithubRepositoryManager
     yml_contents = jobs_yml(test_run.commit_sha)
     raise "#{ProjectFile::JOBS_YML_PATH} not found" unless yml_contents
     testributor_yml = ProjectFile.new(path: ProjectFile::JOBS_YML_PATH,
-                                      contents: yml_contents)
+      contents: yml_contents)
 
     # If testributor.yml comes from the repo it might be invalid
     if testributor_yml.invalid?
@@ -114,10 +111,10 @@ class GithubRepositoryManager
   def jobs_yml(commit_sha)
     file =
       begin
-        file = github_client.contents(repository_id,
-          path: ProjectFile::JOBS_YML_PATH, ref: commit_sha)
+        file = bitbucket_client.repos.sources.get(username, repository_slug,
+          commit_sha, ProjectFile::JOBS_YML_PATH)
         Base64.decode64(file.content)
-      rescue Octokit::NotFound
+      rescue BitBucket::Error::NotFound
         nil
       end
 
@@ -129,85 +126,56 @@ class GithubRepositoryManager
     file
   end
 
-  # When GitHub client is not set, this method returns false.
-  # We should prompt the user to connect to GitHub.
   def fetch_repos(page=0)
-    page = page.to_i
-    # https://developer.github.com/v3/repos/#list-user-repositories
-    repos =
-      github_client.repos(nil, { type: 'owner', per_page: REPOSITORIES_PER_PAGE }.
-        merge(page > 0 ? { page: page } : {})).
-        map do |repo|
-        {
-          id: repo.id,
-          fork: repo.fork?,
-          full_name: repo.full_name,
-          owner: repo.owner.login,
-          name: repo.name
-        }
-      end
+    # https://confluence.atlassian.com/display/BITBUCKET/user+Endpoint#userEndpoint-GETauserprofile
+    repos = bitbucket_client.user_api.profile.repositories.map do |repo|
+      {
+        slug: repo['slug'],
+        fork: repo['is_fork'],
+        full_name: "#{repo['owner']}/#{repo['name']}",
+        owner: repo['owner'],
+        name: repo['name']
+      }
+    end
 
-    { repos: repos, last_response: github_client.last_response }
+    { repos: repos }
   end
 
   def fetch_branches
-    github_client.branches(repository_id).map do |b|
-      TrackedBranch.new(branch_name: b.name)
+    bitbucket_client.repos.branches(username, repository_slug).map do |name, _|
+      TrackedBranch.new(branch_name: name)
     end
   end
 
-  def cleanup_for_removal
-    github_client.remove_hook(repository_id, project.webhook_id)
-  end
-
-  # Creates webhooks on GitHub
   def post_add_repository_setup
-    begin
-      github_client.create_hook(repository_id, 'web',
-        {
-          secret: ENV['GITHUB_WEBHOOK_SECRET'],
-          url: webhook_url, content_type: 'json'
-        }, events: %w(push delete))
-    rescue Octokit::UnprocessableEntity => e
-      if e.message =~ /hook already exists/i
-        hooks = github_client.hooks(repository_id)
-        hooks.select do |h|
-          h.config.url == webhook_url && h.events.to_set == %w(push delete).to_set
-        end.first
-      else
-        raise e
-      end
-    end
+    # TODO We need to implement this and submit a PR to the BitBucketAPI gem
   end
 
   def set_deploy_key(key, options={})
-    github_client.add_deploy_key(
-      repository_id, options[:friendly_name], key,
-      read_only: options[:read_only])
+    bitbucket_client.repos.keys.create(username, repository_slug,
+      label: options[:friendly_name],
+      key: key)
   end
 
   def remove_deploy_key(key_id)
-    github_client.remove_deploy_key(repository_id, key_id)
+    bitbucket_client.repos.keys.delete(username, repository_slug, key_id)
   end
 
   def publish_status_notification(test_run)
-    GithubStatusNotificationService.new(test_run).publish
+    # TODO We need to implement this and submit a PR to the BitBucketAPI gem
   end
 
   private
 
-  def repository_id
-    project.try(:repository_id) || project_wizard.try(:repository_id)
-  end
-
-  def webhook_url
-    ENV['GITHUB_WEBHOOK_URL'] || github_webhook_url(host: "www.testributor.com")
+  def repository_slug
+    project.try(:repository_slug) || project_wizard.try(:repository_slug)
   end
 
   # Fetches the requested branch HEAD with the last 30 commits in history
   # If sha is set, it will be used instead of the branch name.
   def sha_history(sha_or_branch_name)
-    github_client.commits(project.repository_id, sha_or_branch_name).
+    bitbucket_client.repos.commits.
+      list(username, repository_slug, nil, include: sha_or_branch_name)['values'].
       first(HISTORY_COMMITS_LIMIT)
   end
 
@@ -216,17 +184,17 @@ class GithubRepositoryManager
   def complete_test_run_params(test_run)
     test_run.project = project
 
-    # At least commit_sha or branch must be defines to setup a new test run
+    # At least commit_sha or branch must be defined to setup a new test run
     begin
       history =
         sha_history(test_run.commit_sha || test_run.tracked_branch.branch_name)
-    rescue Octokit::NotFound
+    rescue BitBucket::Error::NotFound
       @errors ||= []
       @errors <<
         if test_run.commit_sha
-          ["Commit doesn't exist anymore on GitHub"]
+          ["Commit doesn't exist anymore on BitBucket"]
         else
-          ["Branch doesn't exist anymore on GitHub"]
+          ["Branch doesn't exist anymore on BitBucket"]
         end
 
       return nil
@@ -238,17 +206,17 @@ class GithubRepositoryManager
     # we reassign them (we could reverse merge but that should produce the same
     # result).
     test_run.assign_attributes({
-      commit_sha: latest_commit.sha,
-      commit_message: latest_commit.commit.message,
-      commit_timestamp: latest_commit.commit.committer.date,
-      commit_url: latest_commit.html_url,
-      commit_author_name: latest_commit.commit.author.name,
-      commit_author_email: latest_commit.commit.author.email,
-      commit_author_username: latest_commit.author.login,
-      commit_committer_name: latest_commit.commit.committer.name,
-      commit_committer_email: latest_commit.commit.committer.email,
-      commit_committer_username: latest_commit.committer.login,
-      sha_history: history.map(&:sha)
+      commit_sha: latest_commit['hash'],
+      commit_message: latest_commit.message,
+      commit_timestamp: latest_commit['date'],
+      commit_url: latest_commit['links'].html.href,
+      commit_author_name: latest_commit.author.user.display_name,
+      commit_author_email: latest_commit.author.raw,
+      commit_author_username: latest_commit.author.user.username,
+      commit_committer_name: latest_commit.author.user.display_name,
+      commit_committer_email: latest_commit.author.raw,
+      commit_committer_username: latest_commit.author.user.username,
+      sha_history: history.map{|c|c['hash']}
     })
 
     test_run
@@ -256,11 +224,32 @@ class GithubRepositoryManager
 
   # This method returns all filenames and paths for this repo.
   #
-  # TODO GitHub limit is something like 1000 files per request.
-  # Refactor this method so that it always returns all filenames no matter
-  # how many (or find some better solution).
-  def project_file_names(commit_sha)
-    repo = project.repository_id
-    github_client.tree(repo, commit_sha, recursive: true)[:tree].map(&:path)
+  # As BitBucket API does not currently offer a way to retrieve the filenames in
+  # single call, recursively, we do implement the recursion ourselves. This means
+  # that we "hit" the BitBucket multiple times and in a very short time window.
+  # For this reason, we deliberately limit the directory depth for the recursive
+  # loop, as a sanity measure for avoiding an excessive number of requests.
+  #
+  # Here are some actual benchmarks, starting from the root of typical Rails repo
+  #
+  # level = 0 ->  9.43 sec
+  # level = 1 -> 33.44 sec
+  # level = 2 -> 60.81 sec
+  # level = 3 -> 78.52 sec
+  #
+  def project_file_names(commit_sha, path='/', level=3)
+    sources = bitbucket_client.repos.sources.list(username, repository_slug, commit_sha, path)
+    paths = sources['files'].map { |file| file['path'] }
+    if level > -1
+      sources['directories'].each do |directory|
+        paths += project_file_names(commit_sha, "#{sources['path']}/#{directory}/", level - 1)
+      end
+    end
+
+    paths
+  end
+
+  def username
+    @username ||= bitbucket_client.user_api.profile.user.username
   end
 end

@@ -1,0 +1,23 @@
+- if @response_data[:repos].any?
+  .panel-title
+    %h2 Select a BitBucket repository:
+  .panel-body
+    .list-group
+    - user_repos = current_user.participating_projects.pluck(:repository_slug)
+    - @response_data[:repos].each do |repo|
+      = link_to_if_with_block !repo[:slug].in?(user_repos),
+        project_wizard_path(repo_owner: repo[:owner], repo_name: repo[:name], repo_slug: repo[:slug]), method: :put do
+        %li.list-group-item
+          #{repo[:full_name]}
+          - if repo[:fork]
+            %strong= "[FORK]"
+          - if repo[:slug].in?(user_repos)
+            %i= ' - This repository is already tracked.'
+    -# TODO Add pagination support when migrate to using BitBucket API v2
+- else
+  .panel-title
+    %h2 No repositories found! None. Zero. Zilch. Nada.
+    We were unable to find any repositories. If this is unexpected for you,
+    please check if you need to manually approve access of Testributor to
+    those organisations you are member of or create at least one personal
+    repository and then refresh this page.

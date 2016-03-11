@@ -12,7 +12,7 @@ class WorkerGroup < ActiveRecord::Base
   before_validation :generate_ssh_keys, on: :create,
     if: ->{ ssh_key_private.blank? }
   before_create :set_ssh_key_in_repo, unless: ->{ Rails.env.test? }
-  before_save :rename_ssh_key_in_repo,
+  before_update :rename_ssh_key_in_repo,
     if: ->{ friendly_name_changed? && !Rails.env.test? }
   after_destroy :remove_ssh_key_from_repo,
     if: ->{ ssh_key_provider_reference_id_was }
@@ -28,7 +28,7 @@ class WorkerGroup < ActiveRecord::Base
   private
 
   def set_ssh_key_in_repo
-    deploy_key_id = repository_manager.set_deploy_key(ssh_key_public,
+    deploy_key = repository_manager.set_deploy_key(ssh_key_public,
       { friendly_name: friendly_name, read_only: true })
 
     self.ssh_key_provider_reference_id = deploy_key.id

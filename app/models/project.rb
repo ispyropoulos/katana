@@ -77,7 +77,7 @@ class Project < ActiveRecord::Base
   def create_oauth_application!
     WorkerGroup.transaction do
       oauth_application = oauth_applications.create!(
-        name: repository_id,
+        name: repository_id || repository_slug,
         redirect_uri: Katana::Application::HEROKU_URL
       )
       worker_groups.create!(oauth_application: oauth_application,

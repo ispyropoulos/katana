@@ -64,6 +64,9 @@ class AddProjectPaginationFeatureTest < Capybara::Rails::TestCase
 
   describe 'when users has projects enough for one page' do
     before do
+      ProjectWizard.find_or_create_by(user_id: user.id,
+        repository_provider: 'github')
+
       VCR.use_cassette 'repos_without_page' do
         visit project_wizard_path(id: :choose_repo)
       end

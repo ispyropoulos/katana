@@ -12,6 +12,10 @@ class ProjectWizardFeatureTest < Capybara::Rails::TestCase
   let(:technology) { FactoryGirl.create(:docker_image) }
 
   before do
+    webhook = Sawyer::Resource.new(
+      Sawyer::Agent.new('api.example.com'), { id: 1 }
+    )
+    RepositoryManager.any_instance.stubs(:post_add_repository_setup).returns(webhook)
     language
     language2
     technology
@@ -22,7 +26,9 @@ class ProjectWizardFeatureTest < Capybara::Rails::TestCase
     js: true do
 
     visit root_path
-    find('aside').click_on 'Add a project'
+    VCR.use_cassette 'bitbucket_oauth_authorize_url' do
+      find('aside').click_on 'Add a project'
+    end
     page.must_have_content "GitHub"
     find('label', text: "GitHub").click
 

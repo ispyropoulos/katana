@@ -25,6 +25,24 @@ module ApplicationHelper
                          redirect_uri: github_callback_url)
   end
 
+  # The Ruby library we use for accessing the BitBucket API does not support
+  # any of the OAuth1/OAuth2 authorisation flows. For this reason we do this
+  # semi-manually, using the OAuth gem. We are using OAuth v1.
+  def bitbucket_oauth_authorize_url
+    consumer = OAuth::Consumer.new(ENV['BITBUCKET_CLIENT_ID'],
+      ENV['BITBUCKET_CLIENT_SECRET'], site: 'https://bitbucket.org',
+      request_token_path: '/api/1.0/oauth/request_token',
+      authorize_path: '/api/1.0/oauth/authenticate',
+      access_token_path: '/api/1.0/oauth/access_token')
+
+    # triggers external POST
+    request_token = consumer.get_request_token(oauth_callback: bitbucket_callback_url)
+    session[:request_token] = request_token.token
+    session[:request_token_secret] = request_token.secret
+
+    request_token.authorize_url
+  end
+
   def wizard_step_class(step)
     class_str = "current" if current_step?(step)
     class_str = "disabled" if future_step?(step)

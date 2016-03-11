@@ -3,11 +3,10 @@ class TrackedBranchesController < DashboardController
 
   def new
     manager = RepositoryManager.new({ project: current_project })
-    branch_names_to_reject = current_project.tracked_branches.map(&:branch_name)
 
-    @branches = manager.fetch_branch_names.reject do |branch_name|
-      branch_name.in?(branch_names_to_reject)
-    end.map { |b| TrackedBranch.new(branch_name: b.name) }
+    @branches = manager.fetch_branches.reject do |branch|
+      branch.branch_name.in?(current_project.tracked_branches.map(&:branch_name))
+    end
   end
 
   def create

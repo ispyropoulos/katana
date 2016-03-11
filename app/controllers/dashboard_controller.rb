@@ -1,11 +1,27 @@
 class DashboardController < ApplicationController
   layout "dashboard"
-  rescue_from Octokit::Unauthorized, with: :redirect_reconnect_to_github
   before_filter :authenticate_user!
-  before_filter :check_for_active_providers, unless: ->{
-    action_name == "create" ||
-    request.path == project_wizard_path(id: :choose_provider)
-  }
+  # Skip setting the redirect_url in cookies in order to avoid redirecting the
+  # user to this intermediate warning page, after returning from the provider's
+  # authorization flow.
+  skip_before_filter :set_redirect_url_in_cookie,
+    only: [:github_authorization_required, :bitbucket_authorization_required]
+
+  rescue_from Octokit::Unauthorized do |exception|
+    if request.xhr?
+      render json: { redirect_path: github_authorization_required_dashboard_path }
+    else
+      render action: :github_authorization_required
+    end
+  end
+
+  rescue_from BitBucket::Error::Unauthorized do |exception|
+    if request.xhr?
+      render json: {redirect_path: bitbucket_authorization_required_dashboard_path }
+    else
+      render action: :bitbucket_authorization_required
+    end
+  end
 
   def index
     @projects = current_user.participating_projects.
@@ -17,36 +33,7 @@ class DashboardController < ApplicationController
     @current_ability ||= Ability.new(current_user, current_project)
   end
 
-  protected
+  def github_authorization_required; end
 
-  def check_for_active_providers
-    unless current_user.github_client
-      redirect_to_reconnect_to_github_page and return
-    end
-  end
-
-  def redirect_reconnect_to_github
-    if request.xhr?
-      render text: reconnect_message and return
-    end
-
-    redirect_to_reconnect_to_github_page and return
-  end
-
-  private
-
-  def redirect_to_reconnect_to_github_page
-    path = request.env['PATH_INFO']
-    if path != root_path
-      flash[:alert] = reconnect_message.html_safe
-      redirect_to root_path
-    end
-  end
-
-  def reconnect_message
-    "It seems that we need some authorization for your Github account. "\
-    "Please #{view_context.link_to 'click here',
-    view_context.github_oauth_authorize_url} to proceed.".
-      html_safe
-  end
+  def bitbucket_authorization_required; end
 end

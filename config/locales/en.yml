@@ -39,7 +39,7 @@ en:
           attributes:
             base:
               project_limit_reached: >
-                You can't add other projects as you have reached your <strong>project limit</strong>.
+                You cannot add other projects as you have reached your <strong>project limit</strong>.
                 Please upgrade your plan.
         email_submission:
           attributes:

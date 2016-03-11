@@ -30,14 +30,6 @@ class ProjectWizardControllerTest < ActionController::TestCase
       flash[:alert].wont_be :empty?
       assert_redirected_to project_wizard_path(:choose_provider)
     end
-
-    it "redirects to root_path if current_user.github_client is nil" do
-      # id doesn't matter here. It could be anything
-      @controller.current_user.stubs(:github_client).returns(nil)
-      get :show, { id: :choose_branches }
-      flash[:alert].wont_be :empty?
-      assert_redirected_to root_path
-    end
   end
 
   describe "PUT#update" do

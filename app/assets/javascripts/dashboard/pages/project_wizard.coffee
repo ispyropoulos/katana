@@ -22,8 +22,13 @@ class Testributor.Pages.ProjectWizard
         beforeSend: ->
           $('.js-fetching-repos').show()
       ).done((data)->
+        # If redirect_path is present it means that the provider's client
+        # (e.g. GitHub, BitBucket, etc.) was unauthorized, so follow the
+        # redirection.
+        window.location.href = data['redirect_path'] if data['redirect_path']
+
         $('.js-fetch-repos').html(data).fadeIn('slow')
-      ).fail(->
+      ).fail((jqXHR, textStatus, errorThrown) ->
         $('.js-fetch-repos').
           append('Oops! Something went wrong. We are working on it.').
           fadeIn('slow')

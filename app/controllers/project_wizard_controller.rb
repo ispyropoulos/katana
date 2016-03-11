@@ -12,10 +12,9 @@ class ProjectWizardController < DashboardController
 
   def show
     # Inform user that he has reached project limit
-    if !current_user.can_create_new_project?
-      flash[:alert] = I18n.t(
-        'activerecord.errors.models.'\
-        'project.attributes.base.project_limit_reached')
+    unless current_user.can_create_new_project?
+      flash[:alert] =
+        I18n.t('activerecord.errors.models.project.attributes.base.project_limit_reached')
 
       redirect_to root_path and return
     end
@@ -28,15 +27,10 @@ class ProjectWizardController < DashboardController
       redirect_to project_wizard_path(step_to_show) and return
     end
 
-    case step
-    when :choose_provider
-    when :choose_repo
-    when :choose_branches
-      # TODO: Make this asynchronous, as in choose_repo
+    # TODO Make this asynchronous, as in choose_repo
+    if step ==  :choose_branches
       manager = RepositoryManager.new({ project_wizard: @project_wizard })
       @branches = manager.fetch_branches
-    when :configure_testributor
-    when :select_technologies
     end
 
     render_wizard
@@ -45,11 +39,15 @@ class ProjectWizardController < DashboardController
   def update
     case step
     when :choose_provider
-      @project_wizard.assign_attributes({repository_provider: params[:repository_provider]})
+      @project_wizard.assign_attributes({
+        repository_provider: params[:repository_provider]
+      })
     when :choose_repo
       @project_wizard.assign_attributes({
+        repository_owner: params[:repo_owner],
         repo_name: params[:repo_name],
-        repository_id: params[:repo_id]
+        repository_id: params[:repo_id],
+        repository_slug: params[:repo_slug]
       })
     when :choose_branches
       # We use the overriden branch_names= method because postgres

@@ -4,14 +4,12 @@
   .panel-body
     = form_for @project_wizard, as: '', url: project_wizard_path do |f|
       .col-sm-6
-        - if current_user.github_client
+        - if current_user.github_access_token
           .radio
             %label.provider-box.btn.btn-default{ class: @project_wizard.repository_provider == "github" ? 'selected' : '' }
               = f.radio_button "repository_provider", "github"
               %i.fa.fa-github
               GitHub
-              %br
-              %small
         - else
           = link_to github_oauth_authorize_url do
             .provider-box.btn.btn-default
@@ -21,12 +19,20 @@
               %small
                 (You will be redirected to authorize)
       .col-sm-6
-        -#
+        - if current_user.bitbucket_access_token
           .radio
             %label.provider-box.btn.btn-default{ class: @project_wizard.repository_provider == "bitbucket" ? 'selected' : '' }
               = f.radio_button "repository_provider", "bitbucket"
               %i.fa.fa-bitbucket
               BitBucket
+        - else
+          = link_to bitbucket_oauth_authorize_url do
+            .provider-box.btn.btn-default
+              %i.fa.fa-bitbucket
+              BitBucket
+              %br
+              %small
+                (You will be redirected to authorize)
 
       .col-sm-12
         = f.submit "Next", class: 'btn btn-primary pull-right btn-lg w-lg'

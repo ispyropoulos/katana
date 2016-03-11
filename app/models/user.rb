@@ -13,7 +13,8 @@ class User < ActiveRecord::Base
     attr_encrypted_options.merge!(
       key: ENV['ENCRYPTED_TOKEN_SECRET'], mode: :per_attribute_iv_and_salt)
   end
-  attr_encryptor :github_access_token
+  attr_encryptor :github_access_token, :bitbucket_access_token,
+    :bitbucket_access_token_secret
 
   has_many :user_invitations, dependent: :destroy
   has_many :projects # on which this user is an owner
@@ -36,11 +37,16 @@ class User < ActiveRecord::Base
   end
 
   def github_client
-    if github_access_token.present?
-      Octokit::Client.new(access_token: github_access_token)
-    end
-  rescue Octokit::Unauthorized
-    return
+    # The use of #to_s is intentional, as we never want to pass a nil value to
+    # the :access_token option, because the Octokit client will raise an
+    # Octokit::NotFound error instead of an Octokit::Unauthorized. The latter is
+    # handled at a controller level.
+    Octokit::Client.new(access_token: github_access_token.to_s)
+  end
+
+  def bitbucket_client
+    BitBucket.new(oauth_token: bitbucket_access_token,
+      oauth_secret: bitbucket_access_token_secret)
   end
 
   def self.from_omniauth(auth)

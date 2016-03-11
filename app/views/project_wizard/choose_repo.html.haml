@@ -3,17 +3,9 @@
   .panel-body{style: 'min-height: 300px;'}
     .row
       .col-sm-12
-        - if current_user.github_client
-          .js-fetching-repos.text-center.github-fetch-overlay
-            .panel-title
-              %h3 Fetching your repositories from Github. This will take a while. Please wait...
-            .panel-body
-              %p= image_tag(asset_path('github.svg'), width: '100')
-          .js-fetch-repos{ data: { current_path: fetch_repos_project_wizard_path(page: params[:page]) }, style: 'position: relative;'}
-        - else
+        .js-fetching-repos.text-center.github-fetch-overlay
           .panel-title
-            %h2 Your Testributor account is not connected to GitHub.
-          %p
-            We're going to now talk to the GitHub API. Ready?
-            = link_to 'Click here', github_oauth_authorize_url
-            to begin!
+            %h3 Fetching your repositories. Please give us a few seconds...
+          .panel-body
+            %p= image_tag('loading_spinner.gif')
+        .js-fetch-repos{ data: { current_path: fetch_repos_project_wizard_path(page: params[:page]) }, style: 'position: relative;'}

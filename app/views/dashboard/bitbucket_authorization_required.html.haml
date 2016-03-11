@@ -1,0 +1,25 @@
+.panel.panel-warning
+  .panel-heading
+    .panel-title
+      %h2 Access to your BitBucket account was denied!
+  .panel-body
+    %h3
+      It seems that you need to re-authorise Testributor to access your BitBucket
+      account.
+    %p
+      There are two possible explanations for this:
+    %p
+      %ol
+        %li
+          You have manually revoked access to the Testributor OAuth application
+          from your
+          -# TODO We need to raise/rescue our own exception in order to pass
+          -# additional information and correctly construct the following URL.
+          #{link_to 'BitBucket Settings', 'https://bitbucket.org/account', target: '_blank'}.
+        %li
+          The action you just attempted requires you to approve additional
+          BitBucket permissions for Testributor.
+    %p
+      Please
+      = link_to 'click here', bitbucket_oauth_authorize_url
+      to proceed.

@@ -64,12 +64,5 @@ class ProjectsControllerTest < ActionController::TestCase
       Octokit::Client.any_instance.expects(:remove_hook).never
       delete :destroy, { id: project.id }
     end
-
-    it "redirects to root_path and flashes if github_client.blank?" do
-      @controller.current_user.stubs(:github_client).returns(nil)
-      delete :destroy, { id: project.id }
-      assert_redirected_to root_path
-      flash[:alert].wont_be :empty?
-    end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160311093211) do
+ActiveRecord::Schema.define(version: 20160317112416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,6 +114,8 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.integer  "docker_image_id"
     t.string   "repository_provider"
     t.integer  "repository_id"
+    t.string   "repository_slug"
+    t.string   "repository_owner"
   end
 
   add_index "project_wizards", ["user_id"], name: "index_project_wizards_on_user_id", using: :btree
@@ -131,6 +133,7 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.string   "repository_owner",    default: "",    null: false
     t.integer  "docker_image_id"
     t.boolean  "in_demo_mode",        default: false, null: false
+    t.string   "repository_slug"
   end
 
   add_index "projects", ["user_id", "repository_provider", "repository_id"], name: "index_projects_on_user_and_provider_and_repository_id", unique: true, using: :btree
@@ -233,12 +236,12 @@ ActiveRecord::Schema.define(version: 20160311093211) do
   add_index "user_invitations", ["project_id"], name: "index_user_invitations_on_project_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "email",                              default: "",    null: false
-    t.string   "encrypted_password",                 default: "",    null: false
+    t.string   "email",                                        default: "",    null: false
+    t.string   "encrypted_password",                           default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                      default: 0,     null: false
+    t.integer  "sign_in_count",                                default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.inet     "current_sign_in_ip"
@@ -247,15 +250,21 @@ ActiveRecord::Schema.define(version: 20160311093211) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.datetime "created_at",                                         null: false
-    t.datetime "updated_at",                                         null: false
+    t.datetime "created_at",                                                   null: false
+    t.datetime "updated_at",                                                   null: false
     t.string   "encrypted_github_access_token"
     t.string   "encrypted_github_access_token_salt"
     t.string   "encrypted_github_access_token_iv"
-    t.boolean  "admin",                              default: false
-    t.integer  "projects_limit",                     default: 1,     null: false
+    t.boolean  "admin",                                        default: false
+    t.integer  "projects_limit",                               default: 1,     null: false
     t.string   "provider"
     t.string   "uid"
+    t.string   "encrypted_bitbucket_access_token"
+    t.string   "encrypted_bitbucket_access_token_salt"
+    t.string   "encrypted_bitbucket_access_token_iv"
+    t.string   "encrypted_bitbucket_access_token_secret"
+    t.string   "encrypted_bitbucket_access_token_secret_salt"
+    t.string   "encrypted_bitbucket_access_token_secret_iv"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

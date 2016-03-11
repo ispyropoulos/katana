@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   end
 
   get 'oauth/github_callback' => 'oauth#github_callback', as: :github_callback
+  get 'oauth/bitbucket_callback' => 'oauth#bitbucket_callback', as: :bitbucket_callback
   post 'webhooks/github' => 'webhooks#github', as: :github_webhook
 
   authenticated :user do
@@ -90,9 +91,14 @@ Rails.application.routes.draw do
 
   resources :email_submissions, only: :create
   resources :feedback_submissions, only: :create
-  resources :project_wizard do
+  resources :project_wizard, only: [:show, :update] do
+    get :fetch_repos, on: :member
+  end
+
+  resource :dashboard, controller: :dashboard, only: [] do
     member do
-      get :fetch_repos
+      get :github_authorization_required
+      get :bitbucket_authorization_required
     end
   end
 

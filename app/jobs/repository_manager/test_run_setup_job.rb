@@ -7,6 +7,8 @@ class RepositoryManager::TestRunSetupJob < ActiveJob::Base
     case test_run.project.repository_provider
     when "github"
       GithubRepositoryManager::TestRunSetupJob.perform_now(test_run)
+    when "bitbucket"
+      BitbucketRepositoryManager::TestRunSetupJob.perform_now(test_run)
     else
       raise "Unknown repository provider"
     end
