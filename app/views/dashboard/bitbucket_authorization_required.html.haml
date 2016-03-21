@@ -1,7 +1,7 @@
-.panel.panel-warning
+.panel.panel-color.panel-warning
   .panel-heading
     .panel-title
-      %h2 Access to your BitBucket account was denied!
+      Access to your BitBucket account was denied!
   .panel-body
     %h3
       It seems that you need to re-authorise Testributor to access your BitBucket
@@ -20,6 +20,4 @@
           The action you just attempted requires you to approve additional
           BitBucket permissions for Testributor.
     %p
-      Please
-      = link_to 'click here', bitbucket_oauth_authorize_url
-      to proceed.
+      = link_to "Authorize access", bitbucket_oauth_authorize_url, class: 'btn btn-primary'

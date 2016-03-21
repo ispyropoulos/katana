@@ -1,7 +1,7 @@
-.panel.panel-warning
+.panel.panel-color.panel-warning
   .panel-heading
     .panel-title
-      %h2 Access to your GitHub account was denied!
+      Access to your GitHub account was denied!
   .panel-body
     %h3
       It seems that you need to re-authorise Testributor to access your GitHub
@@ -18,6 +18,4 @@
           The action you just attempted requires you to approve additional
           GitHub permissions for Testributor.
     %p
-      Please
-      = link_to 'click here', github_oauth_authorize_url
-      to proceed.
+      = link_to "Authorize access", github_oauth_authorize_url, class: 'btn btn-primary'
