@@ -27,6 +27,10 @@ class DashboardController < ApplicationController
     @projects = current_user.participating_projects.
       includes(tracked_branches: { test_runs: :test_jobs }).
       order(:repository_owner, :name)
+
+    if @projects.empty?
+      redirect_to project_wizard_path(:choose_provider)
+    end
   end
 
   def current_ability
