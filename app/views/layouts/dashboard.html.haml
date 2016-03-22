@@ -42,12 +42,15 @@
         - if content_for?(:page_title)
           .page-title
             %h3= yield :page_title
-        %div.breadcrumb-bar
-          %div.breadcrumb-left-side
-            = breadcrumbs pretext: "You are here: ", style: :bootstrap,
-              display_single_fragment: true
-          %div.breadcrumb-actions
-            = yield :page_actions
+        - if breadcrumbs.any? || content_for?(:page_actions)
+          %div.breadcrumb-bar
+            - if breadcrumbs.any?
+              %div.breadcrumb-left-side
+                = breadcrumbs pretext: "You are here: ", style: :bootstrap,
+                  display_single_fragment: true
+            - if content_for?(:page_actions)
+              %div.breadcrumb-actions
+                = yield :page_actions
         = yield
 
     = javascript_include_tag 'dashboard'

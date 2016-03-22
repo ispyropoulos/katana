@@ -1,18 +1,20 @@
-.panel.panel-default
+.col-xs-12
   = render 'layouts/wizard_steps'
-  .row
-    .panel-body
-      = form_for @project_wizard, url: project_wizard_path do |f|
-        .col-xs-6
-          %h3 Select language and version
-          = f.select :docker_image_id,
-            grouped_options_for_select(grouped_languages_options,
-            f.object.docker_image_id)
-        .col-xs-6
-          %h3 Select technologies
-          = select_tag :technology_ids,
-            options_for_select(technologies_options, f.object.technology_ids),
-            multiple: true, class: 'multi-select'
-        .col-xs-12
-          .pull-right.m-t-15
-            = f.submit "Create project", class: 'btn btn-primary w-lg btn-lg'
+.col-xs-12
+  .panel.panel-default
+    .row
+      .panel-body
+        = form_for @project_wizard, url: project_wizard_path do |f|
+          .col-xs-6
+            %h3 Select language and version
+            = f.select :docker_image_id,
+              grouped_options_for_select(grouped_languages_options,
+              f.object.docker_image_id)
+          .col-xs-6
+            %h3 Select technologies
+            = select_tag :technology_ids,
+              options_for_select(technologies_options, f.object.technology_ids),
+              multiple: true, class: 'multi-select'
+          .col-xs-12
+            .pull-right.m-t-15
+              = f.submit "Create project", class: 'btn btn-primary w-lg btn-lg'

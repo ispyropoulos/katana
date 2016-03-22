@@ -1,10 +1,15 @@
-.panel-heading
-  .wizard
-    .steps.clearfix
-      %ul
-        - wizard_steps.each_with_index do |step, i|
-          - step_class = wizard_step_class(step)
-          %li{ class: step_class }
-            = link_to project_wizard_path(step), class: step_class do
-              %span.number #{i + 1}.
+%ol.step-progress{ "data-steps" => wizard_steps.count }
+  - wizard_steps.each_with_index do |step, i|
+    - step_class = wizard_step_class(step)
+    %li{ class: step_class }
+      - if past_step?(step)
+        = link_to project_wizard_path(step), class: step_class, title: I18n.t(step) do
+          %span.name
+            %div{ class: current_step?(step) ? '' : 'hidden-xs' }
               = I18n.t(step)
+          %span.step
+      - else
+        %span.name
+          %div{ class: current_step?(step) ? '' : 'hidden-xs' }
+            = I18n.t(step)
+        %span.step

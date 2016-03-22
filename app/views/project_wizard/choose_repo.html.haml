@@ -1,11 +1,13 @@
-.panel.panel-default
+.col-xs-12
   = render 'layouts/wizard_steps'
-  .panel-body{style: 'min-height: 300px;'}
-    .row
-      .col-sm-12
-        .js-fetching-repos.text-center.github-fetch-overlay
-          .panel-title
-            %h3 Fetching your repositories. Please give us a few seconds...
-          .panel-body
-            %p= image_tag('loading_spinner.gif')
-        .js-fetch-repos{ data: { current_path: fetch_repos_project_wizard_path(page: params[:page]) }, style: 'position: relative;'}
+.col-xs-12
+  .panel.panel-default
+    .panel-body{style: 'min-height: 300px;'}
+      .row
+        .col-sm-12
+          .js-fetching-repos.text-center.github-fetch-overlay
+            .panel-title
+              %h3 Fetching your repositories. Please give us a few seconds...
+            .panel-body
+              %p= image_tag('loading_spinner.gif')
+          .js-fetch-repos{ data: { current_path: fetch_repos_project_wizard_path(page: params[:page]) }, style: 'position: relative;'}

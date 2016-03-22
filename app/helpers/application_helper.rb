@@ -44,8 +44,8 @@ module ApplicationHelper
   end
 
   def wizard_step_class(step)
-    class_str = "current" if current_step?(step)
-    class_str = "disabled" if future_step?(step)
+    class_str = "active" if current_step?(step)
+    class_str = "" if future_step?(step)
     class_str = "done" if past_step?(step)
 
     class_str

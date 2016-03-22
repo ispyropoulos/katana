@@ -1,0 +1,101 @@
+/* Progress Tracker v2 */
+/* http://stackoverflow.com/questions/5213753/build-step-progress-bar-css-and-jquery/32284749#32284749 */
+ol.step-progress[data-steps="2"] li { width: 49%; }
+ol.step-progress[data-steps="3"] li { width: 33%; }
+ol.step-progress[data-steps="4"] li { width: 24%; }
+ol.step-progress[data-steps="5"] li { width: 19%; }
+ol.step-progress[data-steps="6"] li { width: 16%; }
+ol.step-progress[data-steps="7"] li { width: 14%; }
+ol.step-progress[data-steps="8"] li { width: 12%; }
+ol.step-progress[data-steps="9"] li { width: 11%; }
+
+.step-progress {
+    width: 100%;
+    list-style: none;
+    list-style-image: none;
+    margin: 20px 0 20px 0;
+    padding-bottom: 100px;
+}
+
+.step-progress li {
+    float: left;
+    text-align: center;
+    position: relative;
+}
+
+.step-progress .name {
+    display: block;
+    white-space: nowrap;
+    vertical-align: bottom;
+    text-align: center;
+    margin-bottom: 1em;
+    color: black;
+    opacity: 0.3;
+    min-height: 30px;
+}
+
+.step-progress .step {
+    color: black;
+    border: 3px solid silver;
+    background-color: silver;
+    border-radius: 50%;
+    line-height: 1.2;
+    width: 2em;
+    height: 2em;
+    display: inline-block;
+    z-index: 0;
+}
+
+.step-progress .step span {
+    opacity: 0.3;
+}
+
+.step-progress .active .name,
+.step-progress .active .step span {
+    opacity: 1;
+}
+
+.step-progress .step:before {
+    content: "";
+    display: block;
+    background-color: silver;
+    height: 0.4em;
+    width: 50%;
+    position: absolute;
+    bottom: 1.1em;
+    left: 0;
+    z-index: -1;
+}
+
+.step-progress .step:after {
+    content: "";
+    display: block;
+    background-color: silver;
+    height: 0.4em;
+    width: 50%;
+    position: absolute;
+    bottom: 1.1em;
+    right: 0;
+    z-index: -1;
+}
+
+.step-progress li:first-of-type .step:before {
+    display: none;
+}
+
+.step-progress li:last-of-type .step:after {
+    display: none;
+}
+
+.step-progress .done .step,
+.step-progress .done .step:before,
+.step-progress .done .step:after,
+.step-progress .active .step,
+.step-progress .active .step:before {
+    background-color: yellowgreen;
+}
+
+.step-progress .done .step,
+.step-progress .active .step {
+    border: 3px solid yellowgreen;
+}

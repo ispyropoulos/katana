@@ -1,16 +1,18 @@
-.panel.panel-default
+.col-xs-12
   = render 'layouts/wizard_steps'
-  - if @branches.empty?
-    %h3 No branches found! None. Zero. Zilch. Nada.
-    We were unable to find any branches.
-    Please make sure you have selected a repository first.
-  - else
-    %h3 Select branches from '#{@project_wizard.repo_name}':
-    .panel-body
-      .list-group
-        = simple_form_for @project_wizard, as: '',
-          url: project_wizard_path do |f|
-          = f.input :branch_names, as: :check_boxes,
-            collection: @branches.map(&:branch_name),
-            checked: @project_wizard.branch_names | ["master"]
-          = f.submit "Next", class: 'btn btn-primary pull-right btn-lg w-lg'
+.col-xs-12
+  .panel.panel-default
+    - if @branches.empty?
+      %h3 No branches found! None. Zero. Zilch. Nada.
+      We were unable to find any branches.
+      Please make sure you have selected a repository first.
+    - else
+      %h3 Select branches from '#{@project_wizard.repo_name}':
+      .panel-body
+        .list-group
+          = simple_form_for @project_wizard, as: '',
+            url: project_wizard_path do |f|
+            = f.input :branch_names, as: :check_boxes,
+              collection: @branches.map(&:branch_name),
+              checked: @project_wizard.branch_names | ["master"]
+            = f.submit "Next", class: 'btn btn-primary pull-right btn-lg w-lg'
