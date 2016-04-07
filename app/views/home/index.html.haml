@@ -5,19 +5,17 @@
       .container
         .row.hero-content
           .col-lg-12.text-center
-            %h1.main-title Faster testing on your hardware
+            %h1.main-title Faster testing in multiple resources
 
             %p.main-text
-              Testributor will help you slice up your test suite efficiently and run all
-              its “pieces” in parallel, on your computers or ours.
+              Testributor helps development teams run their tests in parallel using their spare resources
 
           .col-lg-12.text-center.cta-container
             %a.btn.btn-cta.btn-primary.flat-logo{ href: new_user_registration_path }
               = image_tag('flat-logo.png', width: '50', class: 'm-r-10')
-              Sign up
-            %p.m-t-20
-              != "Every beta user will be able to use Testributor's #{ link_to 'starter pack for free', pages_path('pricing'), class: 'main-link'}  for 6 months."
-          .col-lg-12.text-center.m-t-20
+              Get Started
+
+          .col-lg-12.text-center.m-t-30
             #macbook
               #tour.carousel.slide{ 'data-ride' => "carousel" }
                 %ol.carousel-indicators
@@ -39,87 +37,89 @@
         .row.hero-content
           .col-xs-12.text-center
             %h2 Features
-          .col-xs-12
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-th-list
-                  Smart distribution
-                Use simple configuration to split your test suite in multiple jobs
-                to run them in parallel.
+            .col-xs-12
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-laptop
-                  Use your own resources
-                Utilise your spare CPU cores to easily run your own workers.
-                We provide near-zero configuration for worker setup.
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-cloud
-                  Use managed resources
-                Opt for completely hassle-free managed cloud workers (coming soon).
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-television
+                    Unified test output
+                  Watch your test results in a single page no matter how many workers you use.
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-bug
-                  Re-run a test unit
-                Almost every suite has some testing isolation holes. You can
-                just re-run an individual test when in doubt.
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-bug
+                    Re-run a test unit
+                  Almost every suite has some testing isolation holes. You can
+                  just re-run an individual test when in doubt.
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-envelope
-                  Notifications
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-code
+                    Multi-language support
+                  Select your prefered code language and start testing in some
+                  minutes
 
-                Get notified about breaking tests. If our intelligent defaults don't suit you, you can
-                adjust them at any time.
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-code-fork
+                    Multiple SVCs to choose from
+                  Import your projects and watch
+                  your build passes in your prefered SVC
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-docker
-                  Docker Support
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-th-list
+                    Smart distribution
+                  Use simple configuration to split your test suite in multiple jobs
+                  to run them in parallel with <strong> automatic load balancing.</strong>
 
-                Architectured using
-                #{link_to "Docker", "https://www.docker.com/what-docker", target: "_blank"}
-                technology to support a limitless range of dependencies.
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-code
-                  Multi-language support
-                Select your prefered code language and start testing in some
-                minutes
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-laptop
+                    Use your own resources
+                  Utilise your spare CPU cores to easily run your own workers.
+                  We provide near-zero configuration for worker setup.
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-code-fork
-                  Multiple SVCs to choose from
-                Import your projects and watch
-                your build passes in your prefered SVC
-                (Coming soon, we are currently supporting Github)
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-cloud
+                    Use managed resources
+                  Use your docker-compose file to run your tests in parallel using your cloud resources.
 
-            .col-sm-6.col-lg-4
-              .feature
-                %h3
-                  %i.fa.fa-television
-                  Unified test output
-                Watch your test results in a single page no matter how many workers you use.
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-envelope
+                    Notifications
+
+                  Get notified about breaking tests. If our intelligent defaults don't suit you, you can
+                  adjust them at any time.
+
+              .col-sm-6.col-lg-4
+                .feature
+                  %h3
+                    %i.fa.fa-docker
+                    Docker Support
+
+                  Architectured using
+                  #{link_to "Docker", "https://www.docker.com/what-docker", target: "_blank"}
+                  technology to support a limitless range of dependencies.
     %section#how.section.bg-white
       .container.text-center
         .row
           .col-sm-12
             %h2.title How It Works ?
             %p.slogan
-              All you have to do is create a project, select your technologies and run the docker-compose file.
-              You can have as many workers running as your hardware can handle.
+              Use your spare cloud or local resources to run your tests in parallel saving time and money.
+              All you need to do is to follow the following steps.
         / End row
         .row.pt80
           .col-sm-4
@@ -140,29 +140,29 @@
             .features-2
               = image_tag 'how-it-works/clock.png'
             %div
-              %h3 Run tests on your hardware
+              %h3 Run your tests on multiple CPUs
               %p
-                Either you choose to run concurrent buids or run builds in parallel, your automated testing will be much faster.
-                Just type
-                %code docker-compose up
-                in a docker environment and you are good to go.
+                Either you choose to run concurrent buids or run builds in parallel,
+                your automated testing will be much faster.
+                Use multiple workers on your computer either on your workstation or in your cloud resources.
 
     %section
       .container
         .row.hero-content
           .col-xs-10.col-xs-offset-1.text-center
-            %h2 Can I skip the Beta phase and sign up later? No problem!
+            %h2 Having problems with a slow test suite?
             %p.submit-email-content
-              Just pop in your email address in the box below and click Subscribe.
-              That’s it! We’ll keep you posted about our release plans and
-              we - obviously - promise that we’ll never share your details or spam you.
+              Our team is ready to answer your questions and help you setup our workers to your
+              infrastructure either this is an unused computer or some cloud resources.
+              Just pop in your email address in the box below and we will get in touch us soon us possible.
+
             .row
               .col-xs-12
                 .submit-email-group
                   = form_for @submission, remote: true do |f|
                     = f.text_field :email, class: 'submit-email-input',
                       placeholder: "Your e-mail"
-                    = f.submit "Subscribe",
+                    = f.submit "Contact us",
                       class: 'btn-cta btn-tb-primary w-lg btn-lg m-l-10',
                       data: { disable_with: "Please wait..." }
 = render partial: 'layouts/footer_front'
