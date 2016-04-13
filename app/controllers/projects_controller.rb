@@ -2,7 +2,9 @@ class ProjectsController < DashboardController
   include ApplicationHelper
   include Controllers::EnsureProject
 
-  skip_before_action :ensure_project_exists!, only: [:destroy]
+  # skip devise method
+  skip_before_filter :authenticate_user!, :only => [:show]
+  before_action :authorize_resource!
 
   def show
     @branches = current_project.tracked_branches.
@@ -65,6 +67,14 @@ class ProjectsController < DashboardController
       disposition: 'attachment; filename=docker-compose.yml'
   end
 
+  def toggle_private
+    current_project.is_private = !current_project.is_private
+    if current_project.save
+      flash[:notice] = "Your project is now #{ current_project.is_private? ? 'private' : 'public'}."
+      redirect_to :back
+    end
+  end
+
   private
 
   def current_project
@@ -78,5 +88,19 @@ class ProjectsController < DashboardController
   def api_client_params
     params.require(:api_client).permit(:oauth_application_id, :ssh_key_private,
       :ssh_key_provider_friendly_name)
+  end
+
+  def authorize_resource!
+    action_map = {
+      retry: :update,
+      update: :update,
+      destroy: :destroy,
+      show: :read,
+      instructions: :read_instructions,
+      docker_compose: :read_docker_compose,
+      toggle_private: :manage # we are being deliberately strict
+    }
+
+    authorize!(action_map[action_name.to_sym], current_project)
   end
 end

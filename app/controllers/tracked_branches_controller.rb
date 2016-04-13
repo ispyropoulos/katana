@@ -1,6 +1,8 @@
 class TrackedBranchesController < DashboardController
   include Controllers::EnsureProject
 
+  before_action :authorize_resource!
+
   def new
     manager = RepositoryManager.new(current_project)
 
@@ -47,5 +49,11 @@ class TrackedBranchesController < DashboardController
 
   def branch_params
     params.require(:tracked_branch).permit(:branch_name)
+  end
+
+  def authorize_resource!
+    action_map = { create: :create, destroy: :destroy }
+
+    authorize!(action_map[action_name.to_sym], @tracked_branch || TrackedBranch)
   end
 end

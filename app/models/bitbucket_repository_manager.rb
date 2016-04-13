@@ -183,7 +183,8 @@ class BitbucketRepositoryManager
         full_name: "#{repo.owner}/#{repo.name}",
         owner: repo.owner,
         name: repo.name,
-        cannot_import_message: cannot_import_message
+        cannot_import_message: cannot_import_message,
+        is_private: repo.is_private
       }
     end
 

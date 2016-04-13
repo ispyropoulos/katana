@@ -4,10 +4,11 @@
   Branches
 
 - content_for :page_actions do
-  = link_to new_project_branch_path(current_project),
-    class: 'btn btn-xs btn-success' do
-    %i.fa.fa-plus
-    %span= 'Track a branch'
+  - if can?(:create, TrackedBranch)
+    = link_to new_project_branch_path(current_project),
+      class: 'btn btn-xs btn-success' do
+      %i.fa.fa-plus
+      %span= 'Track a branch'
 
 .panel.panel-default
   - if @branches.empty?

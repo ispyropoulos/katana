@@ -2,6 +2,7 @@ class ProjectParticipationsController < DashboardController
   include Controllers::EnsureProject
 
   before_action :set_participation, only: [:update, :destroy]
+  before_action :authorize_resource!
 
   def index
     @participations = current_project.project_participations.includes(:user)
@@ -9,8 +10,6 @@ class ProjectParticipationsController < DashboardController
   end
 
   def destroy
-    authorize! :destroy, @participation
-
     if @participation.destroy
       if @participation.user == current_user
         flash[:notice] =
@@ -27,8 +26,6 @@ class ProjectParticipationsController < DashboardController
   end
 
   def update
-    authorize! :update, @participation
-
     if @participation.update(participation_params)
       flash[:notice] = "Your options were saved"
     else
@@ -48,5 +45,15 @@ class ProjectParticipationsController < DashboardController
     params.require(:project_participation).
       permit(:new_branch_notify_on,
              branch_notification_settings_attributes: [:notify_on, :tracked_branch_id, :id])
+  end
+
+  def authorize_resource!
+    action_map = {
+      update: :update,
+      destroy: :destroy,
+      index: :read
+    }
+
+    authorize!(action_map[action_name.to_sym], @participation || ProjectParticipation)
   end
 end

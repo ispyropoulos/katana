@@ -39,6 +39,7 @@ class ProjectWizardFeatureTest < Capybara::Rails::TestCase
     project.repository_provider.must_equal 'github'
     project.repository_name.must_equal 'katana'
     project.repository_owner.must_equal 'ispyropoulos'
+    project.is_private.must_equal true
 
     # 'Configure Testributor' page
     yaml = <<-YAML

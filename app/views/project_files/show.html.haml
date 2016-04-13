@@ -1,4 +1,4 @@
-- content_for :page_title do
+ content_for :page_title do
   Project Files
 
 %div.panel.panel-default{ class: @docs.present? ? 'col-lg-8' : 'col-xs-12' }
@@ -17,35 +17,35 @@
           %i.fa.fa-plus-circle
           = 'Add file'
     .panel.body
-      - form_path = @file.persisted? ? project_file_path(current_project, @file) : project_files_path(current_project)
-      = form_for [current_project, @file], url: form_path do |f|
+      - form_path = @project_file.persisted? ? project_file_path(current_project, @project_file) : project_files_path(current_project)
+      = form_for [current_project, @project_file], url: form_path do |f|
         .row
           .col-xs-12
             = f.text_field :path, class: 'text form-control m-b-10',
               placeholder: "Enter file name.",
-              readonly: @file.testributor_yml? || @file.build_commands?
+              readonly: @project_file.testributor_yml? || @project_file.build_commands?
           .col-xs-12
             .code-edit-wrap.m-b-10
               = f.text_area :contents, class: 'text form-control code code-shell',
                 placeholder: "Enter file contents"
         = f.submit "Save", class: 'btn btn-primary w-lg btn-lg'
-        - if @file.persisted? && !@file.testributor_yml? && !@file.build_commands?
+        - if @project_file.persisted? && !@project_file.testributor_yml? && !@project_file.build_commands?
           = link_to 'Destroy',
-            project_file_path(current_project, @file),
+            project_file_path(current_project, @project_file),
             method: :delete, class: 'btn btn-danger m-l-15',
             data: { confirm: "File will be deleted. Are your sure?" }
 
-      - if @file.path == ProjectFile::BUILD_COMMANDS_PATH
+      - if @project_file.path == ProjectFile::BUILD_COMMANDS_PATH
         %hr
         = render 'build_commands_documentation'
 
-      -elsif @file.path == ProjectFile::JOBS_YML_PATH
+      -elsif @project_file.path == ProjectFile::JOBS_YML_PATH
         %br
         Read the
         = link_to "documentation", "http://documentation.testributor.com/testributoryml/"
         for more details about the syntax and what you can do in this file.
 
-  - if @file.testributor_yml? || @file.build_commands?
+  - if @project_file.testributor_yml? || @project_file.build_commands?
     - content_for :in_page_js do
       = javascript_include_tag asset_path 'codemirror.js'
       = javascript_include_tag asset_path 'formatting.js'

@@ -3,9 +3,10 @@
 - content_for :page_title do
   Build ##{@test_run.run_index}
 - content_for :page_actions do
-  = render partial: 'test_run_actions', locals: { test_run: @test_run }
+  - if can?(:manage, @test_run)
+    = render partial: 'test_run_actions', locals: { test_run: @test_run }
 
-.panel.panel-default{ data: { test_run_id: @test_run.id }}
+.panel.panel-default{ data: { test_run_id: @test_run.id, user_can_manage_run: can?(:manage, @test_run) }}
   .panel-heading.test-run-panel-heading
     .pull-left
       .commit-info
@@ -32,7 +33,7 @@
                 %th='Status'
                 %th='Sent at (UTC)'
                 %th='Worker UUID'
-                - if current_user.admin?
+                - if current_user && current_user.admin?
                   %th='Chunk index'
                   %th='Cost prediction'
                   %th='Worker command seconds'
@@ -52,7 +53,7 @@
                         = 'Toggle logs'
                   %td= l(test_job.sent_at, format: :short) if test_job.sent_at
                   %td= test_job.worker_uuid_short
-                  - if current_user.admin?
+                  - if current_user && current_user.admin?
                     %td= test_job.chunk_index
                     %td
                       = test_job.avg_worker_command_run_seconds
@@ -61,7 +62,7 @@
                   %td
                     = test_job.total_running_time
                   %td
-                    - if test_job.status.terminal?
+                    - if test_job.status.terminal? && can?(:manage, @test_run)
                       = link_to project_test_job_retry_path(current_project,
                         test_job),
                         class: "btn btn-primary btn-xs m-b-5", method: :put do

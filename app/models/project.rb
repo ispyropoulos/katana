@@ -46,6 +46,7 @@ class Project < ActiveRecord::Base
 
   scope :bitbucket, ->{ where(repository_provider: 'bitbucket') }
   scope :github, ->{ where(repository_provider: 'github') }
+  scope :non_private, ->{ where(is_private: false) }
 
   def to_param
     "#{id}-#{name.gsub(/[^a-z0-9]+/i, '-').downcase}"
@@ -154,6 +155,10 @@ class Project < ActiveRecord::Base
       File.join(Rails.root, 'app', 'file_templates', ProjectFile::JOBS_YML_PATH))
 
     testributor_yml_file.save!
+  end
+
+  def is_public?
+    !is_private
   end
 
   private

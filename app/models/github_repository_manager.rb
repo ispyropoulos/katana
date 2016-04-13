@@ -167,7 +167,8 @@ class GithubRepositoryManager
         full_name: repo.full_name,
         owner: repo.owner.login,
         name: repo.name,
-        cannot_import_message: cannot_import_message
+        cannot_import_message: cannot_import_message,
+        is_private: repo.private
       }
     end
 

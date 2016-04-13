@@ -3,10 +3,10 @@ var TestRun = React.createClass({
     var testRunCtas = [];
 
     if (this.props.testRun.id == this.props.maxIndexRunId || this.props.testRun.is_running) {
-      if (!this.props.testRun.cancelled) {
+      if (this.props.testRun.can_be_cancelled && this.props.userCanManageRun) {
         testRunCtas.push(<TestRunCancelButton cancelUrl={ this.props.testRun.cancel_url } key={1}/>)
       }
-      if (this.props.testRun.can_be_retried) {
+      if (this.props.testRun.can_be_retried && this.props.userCanManageRun) {
         testRunCtas.push(<TestRunRetryButton retryUrl={ this.props.testRun.retry_url } key={2}/>)
       }
     }

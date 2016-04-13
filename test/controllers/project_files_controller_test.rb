@@ -3,6 +3,7 @@ require 'test_helper'
 class ProjectFilesControllerTest < ActionController::TestCase
   let(:project) { FactoryGirl.create(:project) }
   let(:user) { project.user }
+  let(:registered_user) { FactoryGirl.create(:user) }
 
   before do
     project
@@ -16,6 +17,28 @@ class ProjectFilesControllerTest < ActionController::TestCase
       get :index, project_id: project.id
       response.status.must_equal 302
       response.redirect_url.must_match /users\/sign_in/
+    end
+
+    it "redirects to testributor.yml" do
+      contents = <<-YAML
+        each:
+          command: 'bin/rake test'
+          pattern: 'test/models/*_test.rb'
+      YAML
+      testributor = project.project_files.
+        create(path: "testributor.yml", contents: contents)
+      project.project_files.create(path: "two", contents: "two contents")
+
+      get :index, project_id: project.id
+
+      assert_redirected_to project_file_path(project, testributor.id)
+    end
+
+    it "prevents not logged users" do
+      sign_out :user
+      sign_in :user, registered_user
+      -> { get :index, project_id: project.id }.must_raise
+        CanCan::AccessDenied
     end
 
     it "redirects to testributor.yml" do

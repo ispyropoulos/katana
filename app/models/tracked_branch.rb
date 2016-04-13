@@ -11,6 +11,8 @@ class TrackedBranch < ActiveRecord::Base
   # TODO : Write tests for this validation
   validates :branch_name, uniqueness: { scope: :project_id }
 
+  scope :non_private, -> { joins(:project).where('projects.is_private = false') }
+
   after_create :create_branch_notification_settings
 
   delegate :status, :total_running_time, :commit_sha, to: :last_run,

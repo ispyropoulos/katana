@@ -2,6 +2,7 @@ class WorkerGroupsController < DashboardController
   include Controllers::EnsureProject
 
   before_action :fetch_worker_group, only: [:update, :destroy, :reset_ssh_key]
+  before_action :authorize_resource!
 
   def create
     current_project.create_oauth_application!
@@ -11,7 +12,9 @@ class WorkerGroupsController < DashboardController
   end
 
   def update
-    head :bad_request unless request.xhr?
+    unless request.xhr?
+      head :bad_request and return
+    end
 
     @worker_group.update!(worker_group_params)
 
@@ -43,5 +46,15 @@ class WorkerGroupsController < DashboardController
 
   def worker_group_params
     params.require(:worker_group).permit(:friendly_name)
+  end
+
+  def authorize_resource!
+    action_map = {
+      update: :update,
+      reset_ssh_key: :create,
+      destroy: :destroy,
+      create: :create}
+
+    authorize!(action_map[action_name.to_sym], @worker_group || WorkerGroup)
   end
 end

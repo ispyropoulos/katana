@@ -14,6 +14,7 @@
           else
             url = project_wizard_path(repository_owner: repo[:owner],
               repository_name: repo[:name], repository_slug: repo[:slug],
+              is_private: repo[:is_private],
               repository_provider: 'bitbucket')
             klass = ""
             link_method = :put

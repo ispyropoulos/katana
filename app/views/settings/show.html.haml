@@ -2,13 +2,39 @@
 
 = render 'settings_common_header'
 
-.tab-content
+.tab-content.col-xs-12
   - if can? :manage, current_project
-    .well
-      %strong Delete project from Testributor (cannot be reverted): 
-      = link_to "Delete", project_path(current_project), method: :delete,
-        data: { confirm: "'#{current_project.name}' project will be deleted. Are you sure?" },
-        class: 'btn btn-danger'
+    .row
+      - if current_project.is_private?
+        .well.col-xs-6
+          .col-md-10
+            %strong Make your project public: <br>
+            Anyone will be able to access your public pages.
+            Users who do not participate will not have access to project configuration,
+            credentials or be able to add/remove builds.
+          .col-md-2
+            = button_to "Public", toggle_private_project_path(current_project), method: :post,
+              data: { confirm: "'#{current_project.name}' project will become public. Are you sure?" },
+              class: 'btn btn-md btn-success'
+      - else
+        .well.col-xs-6
+          .col-md-10
+            %strong Make your project private: <br>
+            User which are not members of this project will <strong> NOT </strong> be able
+            to access your pages.
+          .col-md-2
+            = button_to "Private", toggle_private_project_path(current_project), method: :post,
+              data: { confirm: "'#{current_project.name}' project will become private. Are you sure?" },
+              class: 'btn btn-md btn-danger'
+    .row
+      .well.col-xs-6
+        .col-md-10
+          %strong Delete project from Testributor: <br>
+          This action cannot be reverted. All your builds will be discarded.
+        .col-md-2
+          = button_to "Delete", project_path(current_project), method: :delete,
+            data: { confirm: "'#{current_project.name}' project will be deleted. Are you sure?" },
+            class: 'btn btn-md btn-danger'
   - else
     - # Remove this when we add general settings which the non-owner users can change
     .alert.alert-danger Only the owner of this project can edit these settings

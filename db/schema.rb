@@ -117,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160421071551) do
     t.integer  "docker_image_id"
     t.boolean  "in_demo_mode",        default: false, null: false
     t.string   "repository_slug"
+    t.boolean  "is_private",          default: true,  null: false
   end
 
   add_index "projects", ["user_id", "repository_provider", "repository_id"], name: "index_projects_on_user_and_provider_and_repository_id", unique: true, using: :btree

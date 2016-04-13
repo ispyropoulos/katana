@@ -32,9 +32,9 @@ var TestRunPresenter = React.createClass({
     _this.subscribe(this.props.branchId)
   },
 
- render: function () {
-    return (
-      <TestRunList testRuns={ this.state.testRuns } />
-    );
+  render: function () {
+     return (
+       <TestRunList testRuns={ this.state.testRuns } userCanManageRun={ this.props.userCanManageRun } />
+     )
   }
 })

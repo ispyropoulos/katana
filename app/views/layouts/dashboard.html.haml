@@ -46,8 +46,11 @@
           %div.breadcrumb-bar
             - if breadcrumbs.any?
               %div.breadcrumb-left-side
-                = breadcrumbs pretext: "You are here: ", style: :bootstrap,
-                  display_single_fragment: true
+                = breadcrumbs(pretext: "You are here: ", style: :bootstrap,
+                  display_single_fragment: true).tap do |links|
+                  - links.each do |link|
+                    - if !user_signed_in?
+                      - link.url = nil if link.key == :root
             - if content_for?(:page_actions)
               %div.breadcrumb-actions
                 = yield :page_actions

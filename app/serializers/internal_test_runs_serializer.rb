@@ -7,8 +7,7 @@ class InternalTestRunsSerializer < ActiveModel::Serializer
     :retry_url, :total_running_time, :html_class, :cancel_url,
     :statuses, :test_run_link, :commit_message, :branch_id,
     :terminal_status, :commit_author, :commit_timestamp, :commit_time_ago,
-    :can_be_retried, :is_running, :cancelled, :commit_info
-
+    :can_be_retried, :can_be_cancelled, :is_running, :commit_info
 
   def retry_url
     retry_project_test_run_path(object.project_id, object)
@@ -58,12 +57,12 @@ class InternalTestRunsSerializer < ActiveModel::Serializer
     object.status.can_be_retried?
   end
 
-  def is_running
-    object.status.code == TestStatus::RUNNING
+  def can_be_cancelled
+    object.status.can_be_cancelled?
   end
 
-  def cancelled
-    object.status.cancelled?
+  def is_running
+    object.status.code == TestStatus::RUNNING
   end
 
   def decorated_object

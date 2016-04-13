@@ -134,4 +134,8 @@ class TestStatus
   def can_be_retried?
     !@code.in? [CANCELLED, RUNNING, QUEUED, SETUP]
   end
+
+  def can_be_cancelled?
+    @code.in? [RUNNING, QUEUED, SETUP]
+  end
 end

@@ -9,38 +9,39 @@
     .text-center
       %span.nav-label Live workers:
       %span.badge.badge-sm.bg-purple.count= current_project.active_workers.count
-  %nav.navigation
-    %ul.list-unstyled
+  - if user_signed_in?
+    %nav.navigation
+      %ul.list-unstyled
+        - if current_project
+          %li{ class: conditions_for_active_project.inject{|a,b| a||b} ? 'active' : nil }
+            = link_to project_path(current_project) do
+              %i.fa.fa-dashboard
+              %span.nav-label= current_project.name
+          %li{ class: controller_name == 'project_files' ? 'active' : nil }
+            = link_to project_files_path(current_project) do
+              %i.fa.fa-folder-open
+              %span.nav-label Files
+          %li{ class: current_page?(project_participations_path(current_project)) ? 'active' : nil }
+            = link_to project_participations_path(current_project) do
+              %i.fa.fa-users
+              %span.nav-label Users
+          %li{ class: controller_name == 'settings' ? 'active' : nil }
+            = link_to project_settings_path(current_project) do
+              %i.fa.fa-cog
+              %span.nav-label= "Settings"
+          %li{ class: current_page?(instructions_project_path(current_project)) ? 'active' : nil }
+            = link_to instructions_project_path(current_project) do
+              %i.fa.fa-book
+              %span.nav-label= "Instructions"
       - if current_project
-        %li{ class: conditions_for_active_project.inject{|a,b| a||b} ? 'active' : nil }
-          = link_to project_path(current_project) do
-            %i.fa.fa-dashboard
-            %span.nav-label= current_project.name
-        %li{ class: controller_name == 'project_files' ? 'active' : nil }
-          = link_to project_files_path(current_project) do
-            %i.fa.fa-folder-open
-            %span.nav-label Files
-        %li{ class: current_page?(project_participations_path(current_project)) ? 'active' : nil }
-          = link_to project_participations_path(current_project) do
-            %i.fa.fa-users
-            %span.nav-label Users
-        %li{ class: controller_name == 'settings' ? 'active' : nil }
-          = link_to project_settings_path(current_project) do
-            %i.fa.fa-cog
-            %span.nav-label= "Settings"
-        %li{ class: current_page?(instructions_project_path(current_project)) ? 'active' : nil }
-          = link_to instructions_project_path(current_project) do
-            %i.fa.fa-book
-            %span.nav-label= "Instructions"
-    - if current_project
-      %ul.list-unstyled
-        %li
-          = link_to new_project_branch_path(current_project) do
-            %i.fa.fa-plus
-            %span.nav-label Add a branch
-    - else
-      %ul.list-unstyled
-        %li
-          = link_to project_wizard_path(:select_repository) do
-            %i.fa.fa-plus
-            %span.nav-label Add a project
+        %ul.list-unstyled
+          %li
+            = link_to new_project_branch_path(current_project) do
+              %i.fa.fa-plus
+              %span.nav-label Add a branch
+      - else
+        %ul.list-unstyled
+          %li
+            = link_to project_wizard_path(:select_repository) do
+              %i.fa.fa-plus
+              %span.nav-label Add a project

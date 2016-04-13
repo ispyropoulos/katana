@@ -91,6 +91,6 @@ class ProjectWizardController < DashboardController
 
   def project_params
     params.permit(:repository_provider, :repository_owner, :repository_name,
-      :repository_id, :repository_slug)
+      :repository_id, :repository_slug, :is_private)
   end
 end

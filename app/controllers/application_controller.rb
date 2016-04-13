@@ -14,9 +14,14 @@ class ApplicationController < ActionController::Base
   # is a participant. If project is specified with a different name
   # (as in ProjectsController with :id), this method should be overridden.
   def current_project(param_name=:project_id)
-    @current_project ||=
-      params[param_name] &&
-      current_user.participating_projects.find_by(id: params[param_name])
+    return @current_project if @current_project
+    return nil unless params[param_name]
+
+    if current_user
+      @current_project = current_user.participating_projects.find_by(id: params[param_name])
+    end
+    # If no project is found yet, try the public projects
+    @current_project ||= Project.non_private.find_by(id: params[param_name])
   end
 
   def current_ability

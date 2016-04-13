@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :worker_group do
     association :oauth_application, factory: :doorkeeper_application
+    friendly_name 'worker_group 1'
     ssh_key_private <<-KEY
 -----BEGIN RSA PRIVATE KEY-----
 MIIJJwIBAAKCAgEAzPCMpATC8f7XckjFfjdLxCr57eRzfodpWy+rDJA76wL0/9QI

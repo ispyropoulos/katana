@@ -4,19 +4,24 @@
   #{@tracked_branch.try(:branch_name)}
 
 - content_for :page_actions do
-  = link_to project_branch_test_runs_path, method: :post, remote: true,
-    data: { disable_with: with_dots("Adding build") },
-    action: :create, class: 'btn btn-xs btn-success m-r-5 js-remote-submission' do
-    %i.fa.fa-plus
-    %span= 'Add a new build'
+  -# TODO: Write tests about permissions
+  - if can? :create, TrackedBranch
+    = link_to project_branch_test_runs_path, method: :post, remote: true,
+      data: { disable_with: with_dots("Adding build") },
+      action: :create, class: 'btn btn-xs btn-success m-r-5 js-remote-submission' do
+      %i.fa.fa-plus
+      %span= 'Add a new build'
 
-  = link_to project_branch_path(current_project, @tracked_branch),
-    method: :delete, class: 'btn btn-xs btn-danger',
-    data: { disable_with: with_dots('Untracking branch'),
-            confirm: "Branch will be removed from this project. Are you sure?" } do
-    %i.fa.fa-times
-    %span= "Untrack branch"
+  - if can? :untrack_branch, @tracked_branch
+    = link_to project_branch_path(current_project, @tracked_branch),
+      method: :delete, class: 'btn btn-xs btn-danger',
+      data: { disable_with: with_dots('Untracking branch'),
+              confirm: "Branch will be removed from this project. Are you sure?" } do
+      %i.fa.fa-times
+      %span= "Untrack branch"
 .panel
   .panel-body
     = react_component 'TestRunPresenter',
-      { testRuns: @test_runs.map(&:serialized_run), branchId: @tracked_branch.id }
+      { testRuns: @test_runs.map(&:serialized_run),
+        branchId: @tracked_branch.id,
+        userCanManageRun: @user_can_manage_runs }

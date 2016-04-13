@@ -12,4 +12,14 @@ FactoryGirl.define do
     encrypted_github_access_token_salt "c5301a0e89a217ab"
     encrypted_github_access_token_iv "7Q6SiUycJvz+S6/6mXhGQg==\n"
   end
+
+  factory :bitbucket_user, class: User do
+    sequence(:email) { |n| "bitbucket_person#{n}@example.com" }
+    password '12345678'
+    password_confirmation '12345678'
+    confirmed_at Date.current
+    projects_limit 1
+    bitbucket_access_token "zX4dt9nfH5QVkKvnXH"
+    bitbucket_access_token_secret "sDXvhTxed8npRZEejazuxxTPSUFr7Y6D"
+  end
 end

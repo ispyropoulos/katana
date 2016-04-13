@@ -8,6 +8,7 @@ class Testributor.Pages.TestRuns
     errorTemplate = HandlebarsTemplates["test_jobs/error"]
     testRunId = $('[data-test-run-id]').data('test-run-id')
     userIsAdmin = $('[data-admin-user]').data('admin-user')
+    userCanManageRun = $('[data-user-can-manage-run]').data('user-can-manage-run')
 
     progressBar = new Testributor.Widgets.ProgressBar(display_stats: true)
     Testributor.Widgets.LiveUpdates("TestRun#" + testRunId, (msg) ->
@@ -28,7 +29,7 @@ class Testributor.Pages.TestRuns
             $error.insertAfter($(jobTemplate(testJob)))
           progressBar.update(testJob.test_run_id, testJob.html_class)
 
-        requiredUpdates(msg.test_run, $.extend(msg.test_job, admin: userIsAdmin))
+        requiredUpdates(msg.test_run, $.extend(msg.test_job, admin: userIsAdmin, userCanManageRun: userCanManageRun))
     )
     $('[data-toggle="popover"]').popover()
 

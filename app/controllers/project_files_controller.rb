@@ -1,6 +1,9 @@
 class ProjectFilesController < DashboardController
   include Controllers::EnsureProject
 
+  before_action :fetch_project_file, only: [:show, :destroy, :update]
+  before_action :authorize_resource!
+
   def index
     testributor_yml = current_project.
       project_files.find_by_path(ProjectFile::JOBS_YML_PATH)
@@ -28,35 +31,37 @@ class ProjectFilesController < DashboardController
   end
 
   def show
-    @file = current_project.project_files.find(params[:id])
     @project_files = sorted_project_files
     @docs = docs
   end
 
   def destroy
-    file = current_project.project_files.find(params[:id])
-    file_name = file.path
-    if file.destroy
+    file_name = @project_file.path
+    if @project_file.destroy
       flash[:notice] = "#{file_name} was deleted"
     else
-      flash[:alert] = file.errors.messages.values.join(', ')
+      flash[:alert] = @project_file.errors.messages.values.join(', ')
     end
 
     redirect_to project_files_path(current_project)
   end
 
   def update
-    file = current_project.project_files.find(params[:id])
-    if file.update(file_params)
-      flash[:notice] = "#{file.path} updated successfully."
+    if @project_file.update(file_params)
+      flash[:notice] = "#{@project_file.path} updated successfully."
     else
-      flash[:alert] = file.errors.messages.values.join(', ')
+      flash[:alert] = @project_file.errors.messages.values.join(', ')
     end
 
     redirect_to :back
   end
 
   private
+
+  def fetch_project_file
+    @project_file = current_project.project_files.find(params[:id])
+  end
+
   def sorted_project_files
     current_project.project_files.sort_by do |f|
       case f.path
@@ -91,5 +96,18 @@ class ProjectFilesController < DashboardController
 
   def file_params
     params.require(:project_file).permit(:path, :contents)
+  end
+
+  def authorize_resource!
+    action_map = {
+      index: :read,
+      new: :create,
+      create: :create,
+      show: :update, # show page is actually a form
+      update: :update,
+      destroy: :destroy
+    }
+
+    authorize!(action_map[action_name.to_sym], @project_file || ProjectFile)
   end
 end
