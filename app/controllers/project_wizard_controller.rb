@@ -85,7 +85,8 @@ class ProjectWizardController < DashboardController
   private
 
   def fetch_project
-    @project ||= Project.where(id: cookies[:wizard_project_id]).first
+    @project ||=
+      current_user.projects.where(id: cookies[:wizard_project_id]).first
   end
 
   def project_params

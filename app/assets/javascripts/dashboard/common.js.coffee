@@ -3,7 +3,7 @@ $(document).on 'ready', ->
   new Testributor.Helpers.Helper
 
   # Disable all links that have 'disabled' class
-  $('a.disabled').click (e) ->
+  $('body').on 'click', 'a.disabled', (e) ->
     e.preventDefault()
 
   # Feedback form submission

@@ -2,7 +2,7 @@
 # This is an adaptee class for RepositoryManager
 class GithubRepositoryManager
   HISTORY_COMMITS_LIMIT = 30
-  REPOSITORIES_PER_PAGE = 20
+  REPOSITORIES_PER_PAGE = 10
 
   # We want this for github_webhook_url
   include Rails.application.routes.url_helpers
@@ -137,32 +137,37 @@ class GithubRepositoryManager
   # b) has administrative rights in Organizations that owns them (implicit admin), or
   # c) has administrative rights in Teams that can access them (implicit admin)
   def fetch_repos(page=0)
-    # https://developer.github.com/v3/repos/#list-user-repositories
-    owners_of_administered_repos = github_client.repositories.
-      select { |r| r.permissions.admin? }.map { |m| m.owner.login }.uniq
-
-    projects_already_added = Project.github.
-      where(repository_owner: owners_of_administered_repos).includes(:user)
-
-    repo_ids_already_added_by_current_user =
-      project.user.participating_projects.pluck(:repository_id)
-
     page = page.to_i
-    # https://developer.github.com/v3/repos/#list-user-repositories
     repos = github_client.repositories(nil, { per_page: REPOSITORIES_PER_PAGE }.
-      merge(page > 0 ? { page: page } : {})).
-      map do |repo|
-      project_owner_email = projects_already_added.
-        select{|p|p.repository_id == repo.id}.first.try(:user).try(:email)
+      merge(page > 0 ? { page: page } : {}))
+    repo_ids = repos.map(&:id)
+
+    already_imported_projects = Project.github.where(repository_id: repo_ids).
+        includes(:members)
+
+    repos = repos.map do |repo|
+      already_imported_project = already_imported_projects.detect do |p|
+        p.repository_id == repo.id
+      end
+
+      cannot_import_message =
+        if already_imported_project.present? &&
+          already_imported_project.members.include?(project.user)
+          "You already participate in a project based on this repository"
+        elsif (owner = already_imported_project.try(:user).try(:email))
+          "Please ask user #{owner} to invite you"
+        elsif !repo.permissions.admin?
+          "You need administrative rights to select this repository"
+        end
+
       {
         id: repo.id,
-        fork: repo.fork?,
+        description: repo.description,
+        is_fork: repo.fork?,
         full_name: repo.full_name,
         owner: repo.owner.login,
         name: repo.name,
-        can_be_imported: repo.permissions.admin?,
-        is_participating_project: repo.id.in?(repo_ids_already_added_by_current_user),
-        already_added_by: project_owner_email
+        cannot_import_message: cannot_import_message
       }
     end
 

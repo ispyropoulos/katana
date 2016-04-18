@@ -60,6 +60,7 @@ class Testributor.Pages.ProjectWizard
         window.location.href = data['redirect_path'] if data['redirect_path']
 
         $('.js-fetch-repos').html(data).fadeIn('slow')
+        $('[data-toggle="tooltip"]').tooltip()
       ).fail((jqXHR, textStatus, errorThrown) ->
         $('.js-fetch-repos').
           append('Oops! Something went wrong. We are working on it.').

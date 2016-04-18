@@ -4,23 +4,33 @@
   .panel-body
     .list-group
       - @response_data[:repos].each do |repo|
-        = link_to_if_with_block !repo[:is_participating_project] && !repo[:already_added_by] && repo[:can_be_imported],
-          project_wizard_path(repository_owner: repo[:owner],
-            repository_name: repo[:name], repository_id: repo[:id],
-            repository_provider: 'github'), method: :put do
-          %li.list-group-item
+        :ruby
+          if repo[:cannot_import_message]
+            url = "#"
+            klass = "disabled"
+            method = nil
+            tooltip_options =
+              { data: {toggle: 'tooltip', trigger: 'hover'}, title: repo[:cannot_import_message] }
+          else
+            url = project_wizard_path(repository_owner: repo[:owner],
+              repository_name: repo[:name], repository_id: repo[:id],
+              repository_provider: 'github')
+            klass = ""
+            method = :put
+            tooltip_options = {}
+          end
+
+        = link_to url, { method: method,
+          class: "list-group-item #{klass}" }.merge(tooltip_options) do
+          - if repo[:is_fork]
+            %span.badge
+              FORK
+          .list-group-item-heading
             #{repo[:full_name]}
-            - if repo[:fork]
-              %strong= "[FORK]"
-            - if !repo[:can_be_imported]
-              %i= ' - You need administrative rights to select this repository'
-            - elsif repo[:is_participating_project]
-              %i= ' - You already participate in a project based on this repository'
-            - elsif repo[:already_added_by]
-              %i
-                #{'-'} Please ask user
-                %code= repo[:already_added_by]
-                to invite you
+          .list-group-item-text
+            #{repo[:description]}
+
+
       - page_manager = GithubRepoPageManager.new(@response_data[:last_response])
       - if page_manager.all_pages_number > 1
         %ul.pagination.m-b-5

@@ -2,7 +2,7 @@
 # This is an adaptee class for RepositoryManager
 class BitbucketRepositoryManager
   HISTORY_COMMITS_LIMIT = 30
-  REPOSITORIES_PER_PAGE = 20
+  REPOSITORIES_PER_PAGE = 10
   PROJECT_FILES_DIRECTORY_DEPTH =
     ENV["BITBUCKET_PROJECT_FILES_DIRECTORY_DEPTH"] || 3
 
@@ -133,39 +133,61 @@ class BitbucketRepositoryManager
   # c) has administrative rights for (explicit admin). This is the case when the
   #    user is an admin only on this repository and not the team that owns it.
   def fetch_repos(page=0)
+    # https://confluence.atlassian.com/display/bitbucket/user+endpoint#userEndpoint-GETalistofrepositoriesvisibletoanaccount
+    repos = bitbucket_client.user_api.repositories
+    repository_slugs_by_owner =
+      repos.group_by(&:owner).map{|k,v| [k, v.map(&:slug)]}.to_h
+
     # https://confluence.atlassian.com/display/bitbucket/user+endpoint#userEndpoint-GETalistofuserprivileges
-    administered_teams = bitbucket_client.user_api.privileges[:teams].
+    administered_teams = bitbucket_client.user_api.privileges.teams.
       reject { |_,v| v != 'admin' }.keys
 
-    team_projects_already_added = Project.bitbucket.
-      where(repository_owner: administered_teams).includes(:user)
-    slugs_already_added = user.participating_projects.
-      pluck(:repository_slug)
-    # https://confluence.atlassian.com/display/bitbucket/user+endpoint#userEndpoint-GETalistofrepositoriesvisibletoanaccount
-    repos = bitbucket_client.user_api.repositories.select do |repo|
-      begin
-        repo[:owner] == username || repo[:owner].in?(administered_teams) ||
-          username.in?(bitbucket_client.privileges.
-            list_on_repo(repo[:owner], repo[:slug], filter: 'admin').
-            map{ |p| p.user.username })
-      rescue BitBucket::Error::Forbidden
-        next
+    # All the projects that match both the owner and the slug (this combination
+    # is unique on Bitbucket)
+    already_imported_projects = Project.bitbucket.
+      where(repository_slug: repos.map(&:slug)).select do |p|
+      p.repository_slug.in?(repository_slugs_by_owner[p.repository_owner])
+    end
+
+    repos = repos.map do |repo|
+      already_imported_project = already_imported_projects.detect do |p|
+        p.repository_slug == repo.slug && p.repository_owner == repo.owner
       end
-    end.map do |repo|
-      project_owner_email = team_projects_already_added.
-        select{|p|p.repository_slug == repo[:slug]}.first.try(:user).try(:email)
+
+      user_is_explicit_admin_on_repo = ->{
+        username.in?(bitbucket_client.privileges.
+          list_on_repo(repo.owner, repo.slug, filter: 'admin').
+          map{ |p| p.user.username })
+      }
+
+      cannot_import_message =
+        if already_imported_project.present? &&
+          already_imported_project.members.include?(project.user)
+          "You already participate in a project based on this repository"
+        elsif (owner = already_imported_project.try(:user).try(:email))
+          "Please ask user #{owner} to invite you"
+        # Admin check
+        elsif repo.owner != username && !repo.owner.in?(administered_teams) &&
+          begin
+            !user_is_explicit_admin_on_repo.call
+          rescue BitBucket::Error::Forbidden
+            next
+          end
+          "You need administrative rights to select this repository"
+        end
+
       {
-        slug: repo[:slug],
-        fork: repo[:is_fork],
-        full_name: "#{repo[:owner]}/#{repo[:name]}",
-        owner: repo[:owner],
-        name: repo[:name],
-        is_participating_project: repo[:slug].in?(slugs_already_added),
-        already_added_by: project_owner_email
+        slug: repo.slug,
+        description: repo.description,
+        is_fork: repo.is_fork?,
+        full_name: "#{repo.owner}/#{repo.name}",
+        owner: repo.owner,
+        name: repo.name,
+        cannot_import_message: cannot_import_message
       }
     end
 
-    { repos: repos }
+    { repos: repos.compact }
   end
 
   def fetch_branches

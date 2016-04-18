@@ -50,6 +50,15 @@ body.project_wizard {
       .actions {
         padding-top: 10px;
       }
+
+      a.list-group-item {
+        text-decoration: none;
+
+        .list-group-item-heading {
+          font-size: 18px; // Reset to Bootstrap default
+          font-weight: normal; // Reset to Bootstrap default
+        }
+      }
     }
   }
 }

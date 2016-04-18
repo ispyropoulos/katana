@@ -112,14 +112,6 @@ module ApplicationHelper
     flash_message
   end
 
-  def link_to_if_with_block condition, options, html_options={}, &block
-    if condition
-      link_to options, html_options, &block
-    else
-      capture &block
-    end
-  end
-
   def with_dots(text)
     "#{text}<span class='dot'></span><span class='dot'></span><span class='dot'></span>".html_safe
   end

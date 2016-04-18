@@ -4,21 +4,34 @@
   .panel-body
     .list-group
       - @response_data[:repos].each do |repo|
-        = link_to_if_with_block !repo[:is_participating_project] && !repo[:already_added_by],
-          project_wizard_path(repository_owner: repo[:owner],
-            repository_name: repo[:name], repository_slug: repo[:slug],
-            repository_provider: 'bitbucket'), method: :put do
-          %li.list-group-item
+        :ruby
+          if repo[:cannot_import_message]
+            url = "#"
+            klass = "disabled"
+            link_method = nil
+            tooltip_options =
+              { data: {toggle: 'tooltip'}, title: repo[:cannot_import_message] }
+          else
+            url = project_wizard_path(repository_owner: repo[:owner],
+              repository_name: repo[:name], repository_slug: repo[:slug],
+              repository_provider: 'bitbucket')
+            klass = ""
+            link_method = :put
+            tooltip_options = {}
+          end
+
+        = link_to url, { method: link_method,
+          class: "list-group-item #{klass}" }.merge(tooltip_options) do
+          - if repo[:is_fork]
+            %span.badge
+              FORK
+          .list-group-item-heading
             #{repo[:full_name]}
-            - if repo[:fork]
-              %strong= "[FORK]"
-            - if repo[:is_participating_project]
-              %i= ' - You already participate in a project based on this repository'
-            - elsif repo[:already_added_by]
-              %i
-                #{'-'} Please ask user
-                %code= repo[:already_added_by]
-                to invite you
+          .list-group-item-text
+            #{repo[:description]}
+
+
+
     -# TODO Add pagination support when migrate to using BitBucket API v2
 - else
   .panel-title
