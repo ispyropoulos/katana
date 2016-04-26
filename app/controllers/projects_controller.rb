@@ -75,6 +75,27 @@ class ProjectsController < DashboardController
     end
   end
 
+  def status
+    status = nil
+    if params[:branch].present?
+      branch = current_project.tracked_branches.
+        where(branch_name: params[:branch]).first
+
+      if branch
+        # NOTE: We only show terminal statuses on badges.
+        status = branch.test_runs.terminal_status.order(:created_at).last.status.text.downcase
+      end
+    end
+
+    file = if status
+      Rails.root.join('app' , 'assets', 'images', "build-status-#{status}.svg")
+    else
+      Rails.root.join('app' , 'assets', 'images', 'build-status-unknown.svg')
+    end
+
+    send_file file, disposition: 'inline', format: :svg
+  end
+
   private
 
   def current_project
@@ -96,6 +117,7 @@ class ProjectsController < DashboardController
       update: :update,
       destroy: :destroy,
       show: :read,
+      status: :read,
       instructions: :read_instructions,
       docker_compose: :read_docker_compose,
       toggle_private: :manage # we are being deliberately strict

@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       get :instructions
       get :docker_compose
       post :toggle_private
+      get :status
     end
 
     resources :test_runs, only: [:show, :update, :destroy] do
