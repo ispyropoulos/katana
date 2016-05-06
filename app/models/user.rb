@@ -69,4 +69,8 @@ class User < ActiveRecord::Base
       end
     end
   end
+
+  def subscribe(topics, socket_id)
+    TopicSubscriber.new(self, socket_id).subscribe(topics)
+  end
 end

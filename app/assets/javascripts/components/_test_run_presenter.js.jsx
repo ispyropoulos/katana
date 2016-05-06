@@ -21,10 +21,12 @@ var TestRunPresenter = React.createClass({
   },
 
   subscribe: function (branchId) {
-    var resourceId = "TrackedBranch#" + branchId
+    var subscriptions = {
+      "TrackedBranch":  [branchId]
+    }
     var _this = this;
 
-    Testributor.Widgets.LiveUpdates(resourceId, _this.handleUpdate)
+    Testributor.Widgets.LiveUpdates(subscriptions, _this.handleUpdate)
   },
 
   componentDidMount: function() {

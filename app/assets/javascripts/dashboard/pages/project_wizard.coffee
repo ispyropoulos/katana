@@ -38,7 +38,11 @@ class Testributor.Pages.ProjectWizard
 
     $waiting_for_worker = $('#waiting_for_worker')
     if $waiting_for_worker.length > 0
-      Testributor.Widgets.LiveUpdates($waiting_for_worker.data('live-update-resource-id'), (msg) ->
+      [resource, id] = $waiting_for_worker
+        .data('live-update-resource-id').split("#")
+      subscriptions = {}
+      subscriptions[resource] = [id]
+      Testributor.Widgets.LiveUpdates(subscriptions, (msg) ->
         if msg.event == 'worker_added'
           $waiting_for_worker.remove()
           $("#done_button").show()

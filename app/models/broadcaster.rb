@@ -14,9 +14,9 @@ class Broadcaster
   # This method is called when we need to tell the backend endpoint
   # to subscribe a socket(uid) to a specific room(resource_key)
   # Check socket.io docs for more info on sockets
-  def self.subscribe(uid, resource_key)
+  def self.subscribe(uid, subscriptions)
     Katana::Application.redis.publish(SUBSCRIBERS_PUBLISH_CHANNEL,
-      { socket_id: uid, room: resource_key }.to_json)
+      { socket_id: uid, rooms: subscriptions }.to_json)
   end
 
   # This method is called whenever there is a need to inform the backend

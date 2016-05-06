@@ -11,7 +11,10 @@ class Testributor.Pages.TestRuns
     userCanManageRun = $('[data-user-can-manage-run]').data('user-can-manage-run')
 
     progressBar = new Testributor.Widgets.ProgressBar(display_stats: true)
-    Testributor.Widgets.LiveUpdates("TestRun#" + testRunId, (msg) ->
+    subscriptions = {
+      "TestRun": [testRunId]
+    }
+    Testributor.Widgets.LiveUpdates(subscriptions, (msg) ->
       if msg.retry
         progressBar.reset(msg.test_run_id)
       else
