@@ -1,0 +1,61 @@
+{
+  "name": "Testributor",
+  "description": "This file describes the environment and add-ons required to run Review apps on Heroku. It is assumed that testributor is the parent app.",
+  "scripts": {
+    "postdeploy": "script/heroku/bootstrap.sh",
+    "pr-predestroy": "script/heroku/teardown.sh"
+  },
+  "env": {
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "HEROKU_PARENT_APP_NAME": {
+      "required": true
+    },
+    "HEROKU_API_KEY": {
+      "required": true
+    },
+    "DB_POOL": {
+      "required": true
+    },
+    "ENCRYPTED_TOKEN_SECRET": {
+      "required": true
+    },
+    "GC_PROFILER": {
+      "required": true
+    },
+    "GITHUB_CLIENT_IDV": {
+      "required": true
+    },
+    "GITHUB_CLIENT_SECRET": {
+      "required": true
+    },
+    "GITHUB_WEBHOOK_SECRET": {
+      "required": true
+    },
+    "LANG": {
+      "required": true
+    },
+    "LOG_LEVEL": {
+      "required": true
+    },
+    "RACK_ATTACK_API_LIMIT": {
+      "required": true
+    },
+    "RACK_ENV": {
+      "required": true
+    },
+    "RAILS_ENV": {
+      "required": true
+    },
+    "WORKER_THREADS": {
+      "required": true
+    }
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev",
+    "heroku-redis",
+    "papertrail",
+    "sendgrid"
+  ]
+}
