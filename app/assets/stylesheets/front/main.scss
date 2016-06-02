@@ -232,6 +232,9 @@ section.features {
 .service-logos {
   list-style: none;
   padding: 10px;
+  li {
+    line-height: 60px;
+  }
   span {
     font-weight: bold;
     padding-left: 10px;

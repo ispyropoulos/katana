@@ -21,17 +21,39 @@
           .col-xs-10.col-xs-offset-1
             %h1.main-title
               Frequently Asked Questions
-            %h2 What are the supported technologies?
-            %p.inner-text
-              We are working very hard to make the Testributor a stable and
-              reliable service that will never let you down. Towards this end,
-              we strive to test as many platforms and technology combinations as
-              possible. So far, we promise that Testributor can run anything
-              that is built on:
+            %h2 Which technologies are supported by the Testributor workers?
+            %p
+              %strong
+                Quick answer:
+              We don't mean to sound cheeky, but we support nearly everything!
+            %p
+              %strong
+                Longer answer:
+              We built Testributor in a way that a vast range of languages,
+              frameworks and dependencies can be supported.
+              The agents workers that will run your test suite "live" inside a
+              Docker container. In order to speed things up with creating a suitable
+              test environment, a huge number of open-source pre-build Docker
+              images exist for you, in order to add what you need in your
+              docker-compose.yml file and get everything in play quickly.
+            %p
+              To make things even easier for you, we have already tested a number
+              of technologies ourselves and you can select those via your project
+              settings page. Behind the scenes, we add your selections in the
+              docker-compose.yml file, as well.
             %ul.service-logos
               %li
-                = image_tag(asset_path('service-logos/ruby.png'), width: 45)
-                %span 1.9.3 &nbsp;&nbsp;·&nbsp;&nbsp; 2.0.0 &nbsp;&nbsp;·&nbsp;&nbsp; 2.1.4 &nbsp;&nbsp;·&nbsp;&nbsp; 2.1.5 &nbsp;&nbsp;·&nbsp;&nbsp; 2.2.0 &nbsp;&nbsp;·&nbsp;&nbsp; 2.2.1
+                = image_tag(asset_path('service-logos/ruby.png'), width: 50)
+                %span
+                  1.9.3-p551 &nbsp;&nbsp;·&nbsp;&nbsp;
+                  2.0.0-p648 &nbsp;&nbsp;·&nbsp;&nbsp;
+                  2.1.9 &nbsp;&nbsp;·&nbsp;&nbsp;
+                  2.2.4 &nbsp;&nbsp;·&nbsp;&nbsp;
+                  2.3.0
+              %li
+                = image_tag(asset_path('service-logos/nodejs.png'), width: 50)
+                %span
+                  5.10
               %li
                 = image_tag(asset_path('service-logos/postgres.png'), width: 50)
                 %span 9.3 &nbsp;&nbsp;·&nbsp;&nbsp; 9.4
@@ -41,5 +63,20 @@
               %li
                 = image_tag(asset_path('service-logos/redis.png'), width: 50)
                 %span 2.6 &nbsp;&nbsp;·&nbsp;&nbsp; 2.8 &nbsp;&nbsp;·&nbsp;&nbsp; 3.0
-            %p.inner-text We will update this list regularly.
+              %li
+                = image_tag(asset_path('service-logos/mongodb.png'), width: 50)
+                %span 3.2.5
+            %p
+              If you don't see your stack in this list, fear not!
+              #{mail_to('support@testributor.com', 'Give us a shout', encode: :javascript)}
+              and we'll get back to you in a jiffy to help you create your
+              container.
+            %h2 What a docker-compose.yml file?
+            %p
+              This is a simple text file. Inside this file, you define the
+              services, networks and volumes you wish to use in your Docker
+              container. The syntax used to write those definitions is YAML
+              (which is very easy by the way!). You can find the complete
+              reference of what goes in this file
+              #{link_to 'here', 'https://docs.docker.com/compose/compose-file/'}.
 = render partial: 'layouts/footer_front'
