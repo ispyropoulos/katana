@@ -25,6 +25,19 @@
           .row.pt40
             .col-md-3
               .price_card.text-center
+                .header.bg-success
+                  %span.price Free
+                  %span.name Free Pack
+                %ul.price-features
+                  %li 1 Worker
+                  %li Up to 10 Projects
+                  %li Unlimited Builds
+                  %li Unlimited Users
+                  %li
+                    %p Free for ever
+                = link_to 'Sign up', new_user_registration_path, class: 'btn btn-success w-md'
+            .col-md-3
+              .price_card.text-center
                 .header.bg-info
                   %span.price 34€
                   %span.name Starter Pack
@@ -34,8 +47,7 @@
                   %li Unlimited Builds
                   %li Unlimited Users
                   %li
-                    %del Free for 1 month
-                    %p Free for 6 months (Beta)
+                    %p Free for 1 month
                 = link_to 'Sign up', new_user_registration_path, class: 'btn btn-info w-md'
               / end Pricing_card
             / end col
@@ -50,8 +62,7 @@
                   %li Unlimited Builds
                   %li Unlimited Users
                   %li
-                    %del Free for 15 days
-                    %p Free for 1 month (Beta)
+                    %p Free for 1 month
                 = link_to 'Sign up', new_user_registration_path, class: 'btn dark-blue w-md'
               %span.tip * Most popular!
             / end col
@@ -66,28 +77,13 @@
                   %li Unlimited Builds
                   %li Unlimited Users
                   %li
-                    %del Free for 15 days
-                    %p Free for 1 month (Beta)
-                = link_to 'Sign up', new_user_registration_path, class: 'btn btn-info w-md'
-            .col-md-3
-              .price_card.text-center
-                .header.bg-info
-                  %span.price 139€
-                  %span.name Big Pack
-                %ul.price-features
-                  %li Up to 20 Workers
-                  %li Unlimited Projects
-                  %li Unlimited Builds
-                  %li Unlimited Users
-                  %li
-                    %del Free for 15 days
-                    %p Free for 1 month (Beta)
+                    %p Free for 1 month
                 = link_to 'Sign up', new_user_registration_path, class: 'btn btn-info w-md'
           .row.pt40
             .col-md-12.text-center
               %hr
               %h1 In need of a bigger pack?
-              If 20 workers are not enough for you, send us an e-mail and we will help you.
+              If 15 workers are not enough for you, send us an e-mail and we will help you.
               .pt40
                 = mail_to 'support@testributor.com', 'Contact us', class: 'btn btn-primary btn-lg m-l-10'
           .row.pt40
