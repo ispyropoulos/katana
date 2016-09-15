@@ -87,11 +87,11 @@ class ProjectWizardFeatureTest < Capybara::Rails::TestCase
     end
 
     repositories = all('.list-group-item')
-    repositories[1].all('div')[1].text.must_equal 'testributor-github-api-test-user/agent'
+    repositories[1].find('.list-group-item-heading').text.must_equal 'testributor-github-api-test-user/agent'
     repositories[1].all('span').first.text.must_equal 'FORK'
     repositories[1].all('span')[1].text.must_equal 'PUBLIC'
 
-    repositories[0].all('div').first.text.must_equal 'PRIVATE'
-    repositories[0].all('div')[1].text.must_equal 'ispyropoulos/aroma-kouzinas'
+    repositories[0].find('.list-group-item-heading').text.must_equal 'ispyropoulos/aroma-kouzinas'
+    repositories[0].all('span').first.text.must_equal 'PRIVATE'
   end
 end
