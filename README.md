@@ -15,7 +15,7 @@ Authorization/Authentication.
 Katana is a Ruby on Rails application and it needs:
   - PostgreSQL for storage
   - Redis as a PUB/SUB system
-  - [Socketidio](https://github.com/testributor/socketidio) (TODO: Release socketidio code)
+  - [Socketidio](https://github.com/testributor/socketidio)
   - At least one running [Sidekiq](https://github.com/mperham/sidekiq) worker
 
 ## Running the application
