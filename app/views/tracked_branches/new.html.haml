@@ -1,61 +1,62 @@
-.row.m-t-10.panelized
-  .col-xs-12
-    .col-xs-12.track-branch-title
-      %h4
-        Select a branch to track from the
-        %strong
-          #{current_project.owner_and_name}
-        repository
-        %span{ data: { toggle: "tooltip",
-          title: "Change the project's settings if you want to track all new branches and avoid tracking them manually." } }
-          %i.fa.fa-info-circle
-  .col-xs-12
-    .col-sm-12
-      %br
-      - if @response_data[:branches].any?
-        .list-group
-          - @response_data[:branches].each do |branch|
-            :ruby
-              if branch[:cannot_import_message]
-                url = "#"
-                klass = "disabled"
-                method = nil
-                tooltip_options =
-                  { data: {toggle: 'tooltip', trigger: 'hover'}, title: branch[:cannot_import_message] }
-              else
-                url = project_branches_path(current_project, branch_name: branch[:name])
-                klass = ""
-                method = :post
-                tooltip_options = {}
-              end
+.m-t-10.panelized
+  .row
+    .col-xs-12
+      .track-branch-title
+        %h4
+          Select a branch to track from the
+          %strong
+            #{current_project.owner_and_name}
+          repository
+          %span{ data: { toggle: "tooltip",
+            title: "Change the project's settings if you want to track all new branches and avoid tracking them manually." } }
+            %i.fa.fa-info-circle
+    .col-xs-12
+      .col-sm-12
+        %br
+        - if @response_data[:branches].any?
+          .list-group
+            - @response_data[:branches].each do |branch|
+              :ruby
+                if branch[:cannot_import_message]
+                  url = "#"
+                  klass = "disabled"
+                  method = nil
+                  tooltip_options =
+                    { data: {toggle: 'tooltip', trigger: 'hover'}, title: branch[:cannot_import_message] }
+                else
+                  url = project_branches_path(current_project, branch_name: branch[:name])
+                  klass = ""
+                  method = :post
+                  tooltip_options = {}
+                end
 
-            = link_to url, { method: method,
-              class: "list-group-item #{klass}" }.merge(tooltip_options) do
-              .list-group-item-heading
-                #{branch[:name]}
-            .list-group-separator
-          - if current_project.repository_provider == 'github'
-            - page_manager = GithubPageManager.new(@response_data[:last_response])
-            - if page_manager.all_pages_number > 1 && (next_page = page_manager.next_page_number)
-              = link_to "Fetch more...", fetch_branches_project_branches_path(page: next_page),
-                id: 'fetch_more', class: 'btn btn-default btn-lg btn-block',
-                data: { disable_with: with_dots('Fetching branches'), remote: true }
+              = link_to url, { method: method,
+                class: "list-group-item #{klass}" }.merge(tooltip_options) do
+                .list-group-item-heading
+                  #{branch[:name]}
+              .list-group-separator
+            - if current_project.repository_provider == 'github'
+              - page_manager = GithubPageManager.new(@response_data[:last_response])
+              - if page_manager.all_pages_number > 1 && (next_page = page_manager.next_page_number)
+                = link_to "Fetch more...", fetch_branches_project_branches_path(page: next_page),
+                  id: 'fetch_more', class: 'btn btn-default btn-lg btn-block',
+                  data: { disable_with: with_dots('Fetching branches'), remote: true }
 
-      - else
-        %h2 No branches found! None. Zero. Zilch. Nada.
-        We were unable to find any branches in the '#{current_project.repository_name}'. That's weird...
-        - if @branches
-          - if @branches.empty?
-            %p
-              %h2 No branches found! None. Zero. Zilch. Nada.
-              We were unable to find any branches in the '#{current_project.repository_name}'. That's weird...
-          - else
-            %ul.list-group
-              .branches
-                - @branches.each do |branch|
-                  %li.list-unstyled
-                    = link_to branch.branch_name,
-                      project_branches_path(current_project,
-                      branch_name: branch.branch_name),
-                      method: :post,
-                      class: 'btn btn-raised btn-default btn-custom btn-block m-b-5'
+        - else
+          %h2 No branches found! None. Zero. Zilch. Nada.
+          We were unable to find any branches in the '#{current_project.repository_name}'. That's weird...
+          - if @branches
+            - if @branches.empty?
+              %p
+                %h2 No branches found! None. Zero. Zilch. Nada.
+                We were unable to find any branches in the '#{current_project.repository_name}'. That's weird...
+            - else
+              %ul.list-group
+                .branches
+                  - @branches.each do |branch|
+                    %li.list-unstyled
+                      = link_to branch.branch_name,
+                        project_branches_path(current_project,
+                        branch_name: branch.branch_name),
+                        method: :post,
+                        class: 'btn btn-raised btn-default btn-custom btn-block m-b-5'

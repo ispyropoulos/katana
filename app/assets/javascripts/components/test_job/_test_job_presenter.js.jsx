@@ -60,8 +60,8 @@ var TestJobPresenter = React.createClass({
 
   render: function () {
     return (
-      <div>
-        <div className='row panelized m-t-10'>
+      <div className='panelized'>
+        <div className='row m-t-10'>
           <ReactCSSTransitionGroup
             transitionName="build-react-style"
             transitionAppear={true}
@@ -81,7 +81,7 @@ var TestJobPresenter = React.createClass({
                                key={2} />
           </div>
         </div>
-        <div className='row panelized'>
+        <div className='row'>
           <div className='col-xs-12'>
              <TestJobList
               test_jobs={this.state.testJobs}
