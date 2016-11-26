@@ -20,7 +20,7 @@ class WorkerGroupsController < DashboardController
       flash[:notice] = "A Worker Group has been created."
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   def update
@@ -32,14 +32,14 @@ class WorkerGroupsController < DashboardController
       flash[:notice] = "Successfully updated worker group"
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   def destroy
     current_project.destroy_oauth_application!(@worker_group.oauth_application_id)
     flash[:notice] = "The Worker Group was deleted."
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   def reset_ssh_key
@@ -49,7 +49,7 @@ class WorkerGroupsController < DashboardController
       "The SSH key for the \"#{@worker_group.friendly_name}\" "\
         "Worker Group is now reset."
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   private

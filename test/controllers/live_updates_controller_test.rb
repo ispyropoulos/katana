@@ -19,10 +19,10 @@ class LiveUpdatesControllerTest < ActionController::TestCase
     end
     let(:user) { tracked_branch.project.user }
 
-    before { sign_in :user, user }
+    before { sign_in user, scope: :user }
 
     it "returns response in proper JSON format" do
-      post :subscribe, subscription_params
+      post :subscribe, params: subscription_params
       successful_subscriptions = JSON.
         parse(response.body)["successful_subscriptions"]
       successful_subscriptions["Project"].

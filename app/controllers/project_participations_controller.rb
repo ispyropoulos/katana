@@ -17,11 +17,11 @@ class ProjectParticipationsController < DashboardController
         redirect_to root_path
       else
         flash[:notice] = "User is no longer a member of this project"
-        redirect_to :back
+        redirect_back(fallback_location: redirect_back_fallback_path)
       end
     else
       flash[:alert] = @participation.errors.full_messages.to_sentence
-      redirect_to :back
+      redirect_back(fallback_location: redirect_back_fallback_path)
     end
   end
 
@@ -32,7 +32,7 @@ class ProjectParticipationsController < DashboardController
       flash[:alert] = @participation.errors.full_messages.to_sentence
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   private

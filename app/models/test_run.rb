@@ -41,7 +41,7 @@ class TestRun < ActiveRecord::Base
   end
 
   def serialized_run
-    ActiveModel::SerializableResource.new(
+    ActiveModelSerializers::SerializableResource.new(
       self, serializer: InternalTestRunsSerializer).serializable_hash
   end
 

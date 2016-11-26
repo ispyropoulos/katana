@@ -27,7 +27,7 @@ class ProjectFilesController < DashboardController
       flash[:alert] = file.errors.messages.values.join(', ')
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   def show
@@ -53,7 +53,7 @@ class ProjectFilesController < DashboardController
       flash[:alert] = @project_file.errors.messages.values.join(', ')
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   private

@@ -3,7 +3,7 @@ module UsersApi
     class CommitsController < UsersApiController
       def status
         unless params[:id].length >= 6
-          render text: "Specify a commit hash with at least the first 6 characters",
+          render plain: "Specify a commit hash with at least the first 6 characters",
             status: :bad_request
           return
         end
@@ -12,7 +12,7 @@ module UsersApi
           current_user.participating_projects.find_by(name: params[:project])
 
         unless project
-          render text: "Project with name '#{params[:project]}' does not exist",
+          render plain: "Project with name '#{params[:project]}' does not exist",
             status: :not_found
           return
         end
@@ -22,7 +22,7 @@ module UsersApi
           order("created_at DESC").first
 
         unless test_run
-          render text: "No Build found for the specified commit", status: 404
+          render plain: "No Build found for the specified commit", status: 404
           return
         end
 

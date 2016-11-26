@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '2.3.0'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.2'
+gem 'rails', '~> 5.0'
 gem 'haml-rails'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
@@ -29,11 +29,11 @@ gem 'wicked'
 gem 'sidekiq'
 gem 'sinatra', require: false
 gem 'select2-rails'
-gem 'draper'
+gem 'draper', github: 'drapergem/draper', ref: '957507f'
 gem 'bootstrap-sass'
 gem 'bootstrap-social-rails'
 gem 'font-awesome-rails'
-gem 'exception_notification', '~> 4.1.4'
+gem 'exception_notification', '~> 4.2.1'
 gem 'slack-notifier'
 gem 'gretel'
 gem 'rack-timeout'
@@ -50,7 +50,7 @@ gem 'attr_encrypted'
 gem 'doorkeeper', '~>3.1.0'
 gem 'oauth2'
 gem 'omniauth-github'
-gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: '1f0886' # 0.10 rc version
+gem 'active_model_serializers', github: 'rails-api/active_model_serializers', ref: 'b41df13' # 0.10.2 version
 gem 'simple_form'
 gem 'actionview-encoded_mail_to'
 gem 'fog-aws'
@@ -68,7 +68,9 @@ group :production do
 end
 
 group :test do
-  gem 'test_after_commit'
+  # As of rails 5 the `assigns` method of ActionController::TestCase is 
+  # deprecated. To continue using it, we us the rails-controller-testing gem
+  gem 'rails-controller-testing'
   gem 'factory_girl_rails'
   gem 'capybara'
   gem 'poltergeist'
@@ -83,13 +85,16 @@ group :test do
   gem 'timecop'
 end
 
+group :development do
+  # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'web-console', '~> 3.0'
+end
+
 group :development, :test do
   gem 'byebug'
   # Call 'binding.pry' anywhere in the code to stop execution and get a debugger console
   gem 'pry-rails'
   gem 'pry-nav'
-  # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'

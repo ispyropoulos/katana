@@ -29,7 +29,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
       @controller.stub :doorkeeper_token, token do
         # the request will also make this worker active
         request.env['HTTP_WORKER_UUID'] = 'alive_worker_uuid'
-        patch :bind_next_batch, default: { format: :json }
+        patch :bind_next_batch, params: { default: { format: 'json' } }
         result = JSON.parse(response.body)
         result.count.must_equal 1
         result.first["command"].must_equal _test_jobs[-1].command
@@ -49,7 +49,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
       @controller.stub :doorkeeper_token, token do
         # the request will also make this worker active
         request.env['HTTP_WORKER_UUID'] = 'alive_worker_uuid'
-        patch :bind_next_batch, default: { format: :json }
+        patch :bind_next_batch, params: { default: { format: 'json' } }
         result = JSON.parse(response.body)
         result.count.must_equal 3
         _test_jobs[0..-2].each(&:reload).map(&:worker_uuid).uniq.
@@ -63,7 +63,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
       _test_jobs[0..-2].each{|f| f.update_column(:status, TestStatus::RUNNING)}
       @controller.stub :doorkeeper_token, token do
         request.env['HTTP_WORKER_UUID'] = 'this_is_a_worker_uuid'
-        patch :bind_next_batch, default: { format: :json }
+        patch :bind_next_batch, params: { default: { format: 'json' } }
         result = JSON.parse(response.body)
         _test_jobs.each(&:reload).map(&:worker_uuid).compact.uniq.
           must_equal ['this_is_a_worker_uuid']
@@ -82,7 +82,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
       terminal_state_test_run.update_column(:status, TestStatus::PASSED)
 
       @controller.stub :doorkeeper_token, token do
-        patch :bind_next_batch, default: { format: :json }
+        patch :bind_next_batch, params: { default: { format: 'json' } }
         result = JSON.parse(response.body)
         result.count.must_equal 4
       end
@@ -107,7 +107,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
         @controller.stub :doorkeeper_token, token do
           # the request will also make this worker active
           request.env['HTTP_WORKER_UUID'] = 'alive_worker_uuid'
-          patch :bind_next_batch, default: { format: :json }
+          patch :bind_next_batch, params: { default: { format: 'json' } }
           result = JSON.parse(response.body)
           result.map{|r| r["id"]}.wont_include irrelevant_test_job.id
           result.count.must_equal 4
@@ -118,7 +118,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
     it "returns the cost_prediction for each job" do
       TestJob.update_all(old_avg_worker_command_run_seconds: 2)
       @controller.stub :doorkeeper_token, token do
-        patch :bind_next_batch, default: { format: :json }
+        patch :bind_next_batch, params: { default: { format: 'json' } }
         result = JSON.parse(response.body)
         result.count.must_equal 4
         result.map{|j| j["cost_prediction"].to_i}.must_equal [2,2,2,2]
@@ -147,7 +147,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
         result = nil
         @controller.stub :doorkeeper_token, token do
           request.env['HTTP_WORKER_UUID'] = 'alive_worker_uuid'
-          patch :bind_next_batch, default: { format: :json }
+          patch :bind_next_batch, params: { default: { format: 'json' } }
           result = JSON.parse(response.body)
         end
 
@@ -172,7 +172,7 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
           result = nil
           @controller.stub :doorkeeper_token, token do
             request.env['HTTP_WORKER_UUID'] = 'alive_worker_uuid'
-            patch :bind_next_batch, default: { format: :json }
+            patch :bind_next_batch, params: { default: { format: 'json' } }
             result = JSON.parse(response.body)
           end
 
@@ -206,8 +206,9 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
 
     it "does not update sent_at if already set" do
       @controller.stub :doorkeeper_token, token do
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' }, 
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]  }
       end
 
       _test_jobs.last.reload.sent_at.must_equal Date.new(2015, 01,01).beginning_of_day
@@ -215,8 +216,9 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
 
     it "does not update worker_in_queue_seconds if already set" do
       @controller.stub :doorkeeper_token, token do
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
 
       _test_jobs.last.reload.worker_in_queue_seconds.must_equal 10
@@ -230,16 +232,18 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
       ).times(9)
 
       @controller.stub :doorkeeper_token, token do
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
     end
 
 
     it "does not update worker_command_run_seconds if already set" do
       @controller.stub :doorkeeper_token, token do
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
 
       _test_jobs.last.reload.worker_command_run_seconds.must_equal 10
@@ -247,8 +251,9 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
 
     it "does not update reported_at if already set" do
       @controller.stub :doorkeeper_token, token do
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
 
       _test_jobs.last.reload.reported_at.to_i.must_equal report_time.to_i
@@ -261,8 +266,9 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
                                          result: '') }
       @controller.stub :doorkeeper_token, token do
         request.env['HTTP_WORKER_UUID'] = 'this_is_another_worker_uuid'
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
       _test_jobs.map(&:reload).map(&:result).uniq.must_equal ['']
     end
@@ -272,8 +278,9 @@ class Api::V1::TestJobsControllerTest < ActionController::TestCase
                                          result: '') }
       @controller.stub :doorkeeper_token, token do
         request.env['HTTP_WORKER_UUID'] = 'the_original_uuid'
-        patch :batch_update, default: { format: :json },
-          jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}]
+        patch :batch_update, 
+          params: { default: { format: 'json' },
+                    jobs: Hash[_test_jobs.map{|j| [j.id, _test_job_json]}] }
       end
       _test_jobs.map(&:reload).map(&:result).uniq.must_equal ['result']
     end

@@ -11,9 +11,9 @@ module Api
       def setup_data
         render json: {
           current_project:
-            ActiveModel::SerializableResource.new(current_project),
+            ActiveModelSerializers::SerializableResource.new(current_project),
           current_worker_group:
-            ActiveModel::SerializableResource.new(current_worker_group)
+            ActiveModelSerializers::SerializableResource.new(current_worker_group)
         }
       end
 

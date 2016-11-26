@@ -75,7 +75,7 @@ class ProjectWizardController < DashboardController
         redirect_to next_wizard_path
       else
         flash[:alert] = testributor_yml.errors.full_messages.to_sentence
-        redirect_to :back
+        redirect_back(fallback_location: redirect_back_fallback_path)
       end
     when :add_worker
       unless @project.present?

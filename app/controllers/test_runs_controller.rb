@@ -2,7 +2,7 @@ class TestRunsController < DashboardController
   include Controllers::EnsureProject
 
   # skip devise method
-  skip_before_filter :authenticate_user!, :only => [:show, :index]
+  skip_before_action :authenticate_user!, :only => [:show, :index]
   before_action :set_test_run, only: [:show, :update, :destroy, :retry]
   before_action :authorize_resource!
 
@@ -58,18 +58,18 @@ class TestRunsController < DashboardController
     if test_run
       head :ok and return if request.xhr?
       flash[:notice] = 'Your build is being setup'
-      redirect_to :back
+      redirect_back(fallback_location: redirect_back_fallback_path)
     else
       head :ok and return if request.xhr?
       flash[:alert] =  manager.errors.join(', ')
-      redirect_to :back
+      redirect_back(fallback_location: redirect_back_fallback_path)
     end
   end
 
   def update
     if @test_run.update(test_run_params)
       head :ok and return if request.xhr?
-      redirect_to :back, notice: 'Test run was successfully updated.'
+      redirect_back(fallback_location: redirect_back_fallback_path)
     else
       head 422 and return if request.xhr?
       render :edit
@@ -78,7 +78,8 @@ class TestRunsController < DashboardController
 
   def retry
     unless @test_run.retry?
-      return redirect_to :back, alert: "Retrying ##{@test_run.id} test run is not allowed at this time"
+      redirect_back(fallback_location: redirect_back_fallback_path, 
+                    alert: "Retrying ##{@test_run.id} test run is not allowed at this time")
     end
 
     # TODO: Consider delete_all here or a custom retry method on TestRun
@@ -98,7 +99,8 @@ class TestRunsController < DashboardController
     })
 
     head :ok and return if request.xhr?
-    redirect_to :back, notice: 'The Build will soon be retried'
+    redirect_back(fallback_location: redirect_back_fallback_path,
+                  notice: 'The build will soon be retried')
   end
 
   def destroy
@@ -106,7 +108,8 @@ class TestRunsController < DashboardController
 
     @test_run.destroy
 
-    redirect_to :back, notice: 'Test run was successfully cancelled.'
+    redirect_back(fallback_location: redirect_back_fallback_path, 
+                  notice: 'Test run was successfully cancelled.')
   end
 
   private

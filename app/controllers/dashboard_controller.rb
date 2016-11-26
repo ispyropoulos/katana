@@ -1,10 +1,10 @@
 class DashboardController < ApplicationController
   layout "dashboard"
-  before_filter :authenticate_user!
+  before_action :authenticate_user!
   # Skip setting the redirect_url in cookies in order to avoid redirecting the
   # user to this intermediate warning page, after returning from the provider's
   # authorization flow.
-  skip_before_filter :set_redirect_url_in_cookie,
+  skip_before_action :set_redirect_url_in_cookie,
     only: [:github_authorization_required, :bitbucket_authorization_required]
 
   rescue_from Octokit::Unauthorized do |exception|

@@ -1,7 +1,7 @@
 class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:github, :bitbucket]
-  skip_filter :set_redirect_url_in_cookie
-  before_filter :verify_request_from_github!, only: :github
+  skip_before_action :set_redirect_url_in_cookie
+  before_action :verify_request_from_github!, only: :github
 
   def github
     # We listen for 'push' and 'delete' events

@@ -18,8 +18,9 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when no project is specified" do
       it "returns an error message" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: _test_run.commit_sha
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: _test_run.commit_sha }
         response.status.must_equal 404
         response.body.must_equal(
           "Project with name '' does not exist")
@@ -28,8 +29,10 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when the specified project does not exist" do
       it "returns an error message" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: _test_run.commit_sha, project: 'some_non_existent_project'
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: _test_run.commit_sha, 
+                               project: 'some_non_existent_project' }
         response.status.must_equal 404
         response.body.must_equal(
           "Project with name 'some_non_existent_project' does not exist")
@@ -38,8 +41,9 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when :id (commit sha) is shorter than 6 characters" do
       it "returns an error message" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: _test_run.commit_sha[0..2]
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: _test_run.commit_sha[0..2] }
         response.status.must_equal 400
         response.body.must_equal(
           'Specify a commit hash with at least the first 6 characters')
@@ -48,8 +52,10 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when the specified commit does not exist" do
       it "returns an error message" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: 'non_existent_commit_sha', project: project.name
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: 'non_existent_commit_sha', 
+                               project: project.name }
         response.status.must_equal 404
         response.body.must_equal(
           'No Build found for the specified commit')
@@ -58,8 +64,10 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when the commit exists but not in the specified project" do
       it "still returns an error" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: _test_run_2.commit_sha, project: project.name
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: _test_run_2.commit_sha, 
+                               project: project.name }
         response.status.must_equal 404
         response.body.must_equal(
           'No Build found for the specified commit')
@@ -68,8 +76,10 @@ class UsersApi::V1::CommitsControllerTest < ActionController::TestCase
 
     describe "when the specified project has a test run for the specified commit" do
       it "returns the status of the test run" do
-        get :status, access_token: user_token.token, default: { format: :json },
-          id: _test_run.commit_sha, project: project.name
+        get :status, params: { access_token: user_token.token, 
+                               default: { format: 'json' },
+                               id: _test_run.commit_sha, 
+                               project: project.name }
         response.status.must_equal 200
         JSON.parse(response.body).must_equal({"status" => "Setup"})
       end

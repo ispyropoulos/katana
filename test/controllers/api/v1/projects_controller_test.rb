@@ -23,16 +23,16 @@ class Api::V1::ProjectsControllerTest < ActionController::TestCase
     end
 
     it "returns 401 unauthorized when token owner is a User (and current_project does not exist)" do
-      get :setup_data, access_token: user_token.token,
-        default: { format: :json }
+      get :setup_data, params: { access_token: user_token.token ,
+        default: { format: 'json' } }
       response.status.must_equal 401
     end
   end
 
   describe "GET#setup_data" do
     it "returns the current project with project_files included" do
-      get :setup_data, access_token: token.token,
-        default: { format: :json }
+      get :setup_data, params: { access_token: token.token, 
+                                 default: { format: 'json' } }
 
       result = JSON.parse(response.body)['current_project']
       files = result["files"]
@@ -52,7 +52,8 @@ class Api::V1::ProjectsControllerTest < ActionController::TestCase
       point_in_time = Time.current
       Timecop.freeze(point_in_time) do
         request.env['HTTP_WORKER_UUID'] = '123'
-        get :setup_data, access_token: token.token, default: { format: :json }
+        get :setup_data, params: { access_token: token.token, 
+                                   default: { format: 'json' } }
 
         project.active_workers.count.must_equal 0
       end
@@ -62,12 +63,14 @@ class Api::V1::ProjectsControllerTest < ActionController::TestCase
       point_in_time = Time.current
       Timecop.freeze(point_in_time) do
         request.env['HTTP_WORKER_UUID'] = '123'
-        post :beacon, access_token: token.token, default: { format: :json }
+        post :beacon, params: { access_token: token.token, 
+                                default: { format: 'json' } }
 
         project.active_workers.count.must_equal 1
 
         request.env['HTTP_WORKER_UUID'] = '124'
-        post :beacon, access_token: token.token, default: { format: :json }
+        post :beacon, params: { access_token: token.token, 
+                                default: { format: 'json' } }
 
         project.active_workers.count.must_equal 2
       end

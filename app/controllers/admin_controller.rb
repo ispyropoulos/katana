@@ -1,9 +1,9 @@
 class AdminController < ApplicationController
-  before_filter :authenticate_user!
-  before_filter :authenticate_admin
+  before_action :authenticate_user!
+  before_action :authenticate_admin
 
   def become
-    sign_in(:user, User.find(params[:id]), bypass: true) # do not update last_sign_in
+    bypass_sign_in(User.find(params[:id])) # do not update last_sign_in
     redirect_to root_url # or user_root_url
   end
 

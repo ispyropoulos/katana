@@ -20,7 +20,7 @@ end
 
 # Inherits from ActiveSupport::TestCase
 class ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 
   def setup
     # Clean everything in "test" redis database before each test
@@ -73,7 +73,7 @@ class Capybara::Rails::TestCase
   # # uses a separate server thread, which the transactions would be hidden
   # from. We hence use DatabaseCleaner to truncate our test database.
   # @see http://stackoverflow.com/questions/10904996/difference-between-truncation-transaction-and-deletion-database-strategies
-  self.use_transactional_fixtures = false
+  self.use_transactional_tests = false
 
   before do
     RepositoryManager.any_instance.stubs(:post_add_repository_setup).

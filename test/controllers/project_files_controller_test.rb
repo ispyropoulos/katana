@@ -7,14 +7,14 @@ class ProjectFilesControllerTest < ActionController::TestCase
 
   before do
     project
-    sign_in :user, user
+    sign_in user, scope: :user
     request.env["HTTP_REFERER"] = "previous_path"
   end
 
   describe "GET#index" do
     it "prevents not logged users" do
       sign_out :user
-      get :index, project_id: project.id
+      get :index, params: { project_id: project.id }
       response.status.must_equal 302
       response.redirect_url.must_match /users\/sign_in/
     end
@@ -29,15 +29,15 @@ class ProjectFilesControllerTest < ActionController::TestCase
         create(path: "testributor.yml", contents: contents)
       project.project_files.create(path: "two", contents: "two contents")
 
-      get :index, project_id: project.id
+      get :index, params: { project_id: project.id }
 
       assert_redirected_to project_settings_file_path(project, testributor.id)
     end
 
     it "prevents non members from visiting the page" do
       sign_out :user
-      sign_in :user, registered_user
-      -> { get :index, project_id: project.id }.must_raise ActiveRecord::RecordNotFound
+      sign_in registered_user, scope: :user
+      -> { get :index, params: { project_id: project.id } }.must_raise ActiveRecord::RecordNotFound
     end
 
     it "redirects to testributor.yml" do
@@ -50,7 +50,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
         create(path: "testributor.yml", contents: contents)
       project.project_files.create(path: "two", contents: "two contents")
 
-      get :index, project_id: project.id
+      get :index, params: { project_id: project.id }
 
       assert_redirected_to project_settings_file_path(project, testributor.id)
     end
@@ -64,7 +64,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
 
     it "creates the files with the specified params" do
       old_count = ProjectFile.count
-      post :create, project_id: project.id, project_file: params
+      post :create, params: { project_id: project.id, project_file: params }
       flash[:alert].must_be :blank?
       ProjectFile.count.must_equal old_count + 1
       new_file = ProjectFile.last
@@ -79,7 +79,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
 
     it "destroys the specified file" do
       old_count = ProjectFile.count
-      delete :destroy, project_id: project.id, id: subject.id
+      delete :destroy, params: { project_id: project.id, id: subject.id }
       ProjectFile.count.must_equal old_count - 1
       ProjectFile.find_by(id: subject.id).must_be :nil?
     end
@@ -88,7 +88,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
       old_count = ProjectFile.count
       ProjectFile.any_instance.
         stubs(:testributor_yml?).returns(true)
-      delete :destroy, project_id: project.id, id: subject.id
+      delete :destroy, params: { project_id: project.id, id: subject.id }
       ProjectFile.count.must_equal old_count
     end
 
@@ -96,7 +96,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
       other_project_file = FactoryGirl.create(:project_file)
 
       old_count = ProjectFile.count
-      ->{ delete :destroy, project_id: project.id, id: other_project_file.id }.
+      ->{ delete :destroy, params: { project_id: project.id, id: other_project_file.id } }.
         must_raise ActiveRecord::RecordNotFound
       ProjectFile.count.must_equal old_count
       ProjectFile.find_by(id: other_project_file.id).
@@ -104,7 +104,7 @@ class ProjectFilesControllerTest < ActionController::TestCase
     end
 
     it "redirects to project_settings_files_path(project)" do
-      delete :destroy, project_id: project.id, id: subject.id
+      delete :destroy, params: { project_id: project.id, id: subject.id }
       assert_redirected_to project_settings_files_path(project)
     end
   end
@@ -113,8 +113,8 @@ class ProjectFilesControllerTest < ActionController::TestCase
     subject { FactoryGirl.create(:project_file, project: project) }
 
     it "updates the specified record" do
-      put :update, project_id: project.id, id: subject.id,
-        project_file: { path: "the new path", contents: "the new contents" }
+      put :update, params: { project_id: project.id, id: subject.id,
+        project_file: { path: "the new path", contents: "the new contents" } }
       flash[:alert].must_be :blank?
 
       subject.reload.path.must_equal 'the new path'

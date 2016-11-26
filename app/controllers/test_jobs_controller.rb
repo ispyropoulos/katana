@@ -10,7 +10,8 @@ class TestJobsController < DashboardController
     if request.xhr?
       head :ok and return
     else
-      redirect_to :back, notice: 'Test job was successfully updated.'
+     redirect_back(fallback_location: redirect_back_fallback_path,
+                   notice: 'Test job was successfully updated.')
     end
   end
 

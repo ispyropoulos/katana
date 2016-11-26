@@ -8,12 +8,13 @@ class FeedbackSubmissionsControllerTest < ActionController::TestCase
     let(:rating) { 1 }
 
     before do
-      sign_in :user, user
+      sign_in user, scope: :user
     end
 
     it "creates FeedbackSubmission if valid" do
-      xhr :post, :create,
-        { feedback_submission: { category: category, body: body, rating: rating } }
+      post :create, xhr: true, 
+        params: { feedback_submission: 
+                  { category: category, body: body, rating: rating } }
 
       assert_response :ok
 
@@ -25,8 +26,9 @@ class FeedbackSubmissionsControllerTest < ActionController::TestCase
     end
 
     it "sends e-mail if valid" do
-      xhr :post, :create,
-        { feedback_submission: { category: category, body: body, rating: rating } }
+      post :create, xhr: true, 
+        params: { feedback_submission: 
+                  { category: category, body: body, rating: rating } }
 
       assert_response :ok
 
@@ -34,7 +36,8 @@ class FeedbackSubmissionsControllerTest < ActionController::TestCase
     end
 
     it "doesn't create FeedbackSubmission if invalid" do
-      xhr :post, :create, { feedback_submission: { category: category, body: '' } }
+      post :create, xhr: true,
+        params: { feedback_submission: { category: category, body: '' } }
 
       assert_response :unprocessable_entity
       FeedbackSubmission.last.must_equal nil

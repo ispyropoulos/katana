@@ -9,36 +9,36 @@ class SettingsControllerTest < ActionController::TestCase
   let(:user) { FactoryGirl.create(:user) }
 
   describe 'when a user is a member of the project' do
-    before { sign_in :user, member }
+    before { sign_in member, scope: :user }
 
     it 'allows GET#notifications' do
-      get :notifications, project_id: project
+      get :notifications, params: { project_id: project }
     end
 
     it 'allows GET#worker_setup' do
-      get :worker_setup, project_id: project
+      get :worker_setup, params: { project_id: project }
     end
 
     it 'allows GET#show' do
-      get :show, project_id: project
+      get :show, params: { project_id: project }
     end
   end
 
   describe 'when a user is NOT a member of the project' do
-    before { sign_in :user, user }
+    before { sign_in user, scope: :user }
 
     it 'does NOT allow GET#notifications' do
-      -> { get :notifications, project_id: project }.must_raise
+      -> { get :notifications, params: { project_id: project } }.must_raise
         ActiveRecord::RecordNotFound
     end
 
     it 'does NOT allow GET#worker_setup' do
-      -> { get :worker_setup, project_id: project }.must_raise
+      -> { get :worker_setup, params: { project_id: project } }.must_raise
         ActiveRecord::RecordNotFound
     end
 
     it 'does NOT allow GET#show' do
-      -> { get :show, project_id: project }.must_raise
+      -> { get :show, params: { project_id: project } }.must_raise
         ActiveRecord::RecordNotFound
     end
   end

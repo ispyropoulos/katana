@@ -31,7 +31,7 @@ module Api
 
       def batch_update
         test_run_ids = []
-        jobs = params[:jobs].map do |id, json|
+        jobs = params.require(:jobs).to_unsafe_hash.map do |id, json|
           if (test_run_id_for_setup = id.to_s.match(/^setup_job_(\d+)$/).try(:[], 1))
             test_run_ids << test_run_id_for_setup.to_i
             handle_test_run_setup(test_run_id_for_setup.to_i, json)
@@ -41,7 +41,7 @@ module Api
           end
         end.compact
         jobs = Hash[jobs]
-        job_ids = params[:jobs].keys
+        job_ids = params.require(:jobs).keys
         test_run_ids += jobs.values.map{|j| j["test_run_id"].to_i}.uniq
 
         # Store the TestRun ids of any missing or cancelled TestRuns to let

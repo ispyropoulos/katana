@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -24,10 +23,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.integer  "notify_on",                default: 0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["project_participation_id"], name: "index_branch_notification_settings_on_project_participation_id", using: :btree
+    t.index ["tracked_branch_id"], name: "index_branch_notification_settings_on_tracked_branch_id", using: :btree
   end
-
-  add_index "branch_notification_settings", ["project_participation_id"], name: "index_branch_notification_settings_on_project_participation_id", using: :btree
-  add_index "branch_notification_settings", ["tracked_branch_id"], name: "index_branch_notification_settings_on_tracked_branch_id", using: :btree
 
   create_table "docker_images", force: :cascade do |t|
     t.string "public_name",         default: "",         null: false
@@ -48,9 +46,8 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.text    "body"
     t.integer "rating"
     t.integer "user_id"
+    t.index ["user_id"], name: "index_feedback_submissions_on_user_id", using: :btree
   end
-
-  add_index "feedback_submissions", ["user_id"], name: "index_feedback_submissions_on_user_id", using: :btree
 
   create_table "oauth_access_grants", force: :cascade do |t|
     t.integer  "resource_owner_id", null: false
@@ -61,9 +58,8 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.datetime "created_at",        null: false
     t.datetime "revoked_at"
     t.string   "scopes"
+    t.index ["token"], name: "index_oauth_access_grants_on_token", unique: true, using: :btree
   end
-
-  add_index "oauth_access_grants", ["token"], name: "index_oauth_access_grants_on_token", unique: true, using: :btree
 
   create_table "oauth_access_tokens", force: :cascade do |t|
     t.integer  "resource_owner_id"
@@ -74,11 +70,10 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.datetime "revoked_at"
     t.datetime "created_at",        null: false
     t.string   "scopes"
+    t.index ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
+    t.index ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id", using: :btree
+    t.index ["token"], name: "index_oauth_access_tokens_on_token", unique: true, using: :btree
   end
-
-  add_index "oauth_access_tokens", ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
-  add_index "oauth_access_tokens", ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id", using: :btree
-  add_index "oauth_access_tokens", ["token"], name: "index_oauth_access_tokens_on_token", unique: true, using: :btree
 
   create_table "oauth_applications", force: :cascade do |t|
     t.string   "name",                      null: false
@@ -90,10 +85,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.datetime "updated_at"
     t.integer  "owner_id"
     t.string   "owner_type"
+    t.index ["owner_id", "owner_type"], name: "index_oauth_applications_on_owner_id_and_owner_type", using: :btree
+    t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
   end
-
-  add_index "oauth_applications", ["owner_id", "owner_type"], name: "index_oauth_applications_on_owner_id_and_owner_type", using: :btree
-  add_index "oauth_applications", ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
 
   create_table "project_files", force: :cascade do |t|
     t.integer  "project_id"
@@ -121,10 +115,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.boolean  "auto_track_branches",       default: true,  null: false
     t.string   "repository_url"
     t.text     "custom_docker_compose_yml", default: "",    null: false
+    t.index ["user_id", "repository_provider", "repository_id"], name: "index_projects_on_user_and_provider_and_repository_id", unique: true, using: :btree
+    t.index ["user_id"], name: "index_projects_on_user_id", using: :btree
   end
-
-  add_index "projects", ["user_id", "repository_provider", "repository_id"], name: "index_projects_on_user_and_provider_and_repository_id", unique: true, using: :btree
-  add_index "projects", ["user_id"], name: "index_projects_on_user_id", using: :btree
 
   create_table "projects_users", force: :cascade do |t|
     t.integer  "user_id"
@@ -134,10 +127,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.integer  "new_branch_notify_on",    default: 0, null: false
     t.integer  "my_builds_notify_on",     default: 1, null: false
     t.integer  "others_builds_notify_on", default: 1, null: false
+    t.index ["project_id"], name: "index_projects_users_on_project_id", using: :btree
+    t.index ["user_id"], name: "index_projects_users_on_user_id", using: :btree
   end
-
-  add_index "projects_users", ["project_id"], name: "index_projects_users_on_project_id", using: :btree
-  add_index "projects_users", ["user_id"], name: "index_projects_users_on_user_id", using: :btree
 
   create_table "technology_selections", force: :cascade do |t|
     t.integer  "project_id"
@@ -145,10 +137,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.string   "version"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["docker_image_id"], name: "index_technology_selections_on_docker_image_id", using: :btree
+    t.index ["project_id"], name: "index_technology_selections_on_project_id", using: :btree
   end
-
-  add_index "technology_selections", ["docker_image_id"], name: "index_technology_selections_on_docker_image_id", using: :btree
-  add_index "technology_selections", ["project_id"], name: "index_technology_selections_on_project_id", using: :btree
 
   create_table "test_jobs", force: :cascade do |t|
     t.integer  "test_run_id"
@@ -199,19 +190,17 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.string   "commit_committer_photo_url", default: "", null: false
     t.integer  "initiator_id"
     t.string   "setup_worker_uuid"
+    t.index ["tracked_branch_id"], name: "index_test_runs_on_tracked_branch_id", using: :btree
   end
-
-  add_index "test_runs", ["tracked_branch_id"], name: "index_test_runs_on_tracked_branch_id", using: :btree
 
   create_table "tracked_branches", force: :cascade do |t|
     t.integer  "project_id",  null: false
     t.string   "branch_name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["project_id", "branch_name"], name: "index_tracked_branches_on_project_id_and_branch_name", unique: true, using: :btree
+    t.index ["project_id"], name: "index_tracked_branches_on_project_id", using: :btree
   end
-
-  add_index "tracked_branches", ["project_id", "branch_name"], name: "index_tracked_branches_on_project_id_and_branch_name", unique: true, using: :btree
-  add_index "tracked_branches", ["project_id"], name: "index_tracked_branches_on_project_id", using: :btree
 
   create_table "user_invitations", force: :cascade do |t|
     t.string   "token",       default: "", null: false
@@ -221,9 +210,8 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.datetime "accepted_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["project_id"], name: "index_user_invitations_on_project_id", using: :btree
   end
-
-  add_index "user_invitations", ["project_id"], name: "index_user_invitations_on_project_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                                        default: "",    null: false
@@ -255,10 +243,9 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.string   "encrypted_bitbucket_access_token_secret"
     t.string   "encrypted_bitbucket_access_token_secret_salt"
     t.string   "encrypted_bitbucket_access_token_secret_iv"
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
-
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "worker_groups", force: :cascade do |t|
     t.integer "oauth_application_id",           null: false
@@ -269,8 +256,7 @@ ActiveRecord::Schema.define(version: 20160617102644) do
     t.text    "ssh_key_public"
     t.integer "ssh_key_provider_reference_id"
     t.integer "project_id",                     null: false
+    t.index ["oauth_application_id"], name: "index_worker_groups_on_oauth_application_id", using: :btree
   end
-
-  add_index "worker_groups", ["oauth_application_id"], name: "index_worker_groups_on_oauth_application_id", using: :btree
 
 end

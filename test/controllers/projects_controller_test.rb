@@ -14,7 +14,7 @@ class ProjectsControllerTest < ActionController::TestCase
   describe 'when user is registered' do
     before do
       request.env["HTTP_REFERER"] = "previous_path"
-      sign_in :user, owner
+      sign_in owner, scope: :user
     end
 
     describe "GET#show" do
@@ -24,7 +24,7 @@ class ProjectsControllerTest < ActionController::TestCase
 
       describe 'when the project repository provider is bare_repo' do
         it 'redirects to the test_runs/index page' do
-          get :show, id: project.id
+          get :show, params: { id: project.id }
           assert_response 302
           response.location.must_equal project_test_runs_url(project)
         end
@@ -36,7 +36,7 @@ class ProjectsControllerTest < ActionController::TestCase
         it "updates docker_image_id when Project#valid?" do
           project_params = {
             id: project.id, project: { docker_image_id: language.id } }
-          patch :update, project_params
+          patch :update, params: project_params
 
           project.reload
           project.docker_image_id.must_equal language.id
@@ -49,7 +49,7 @@ class ProjectsControllerTest < ActionController::TestCase
               docker_image_id: language.id,
               technology_ids: [technology.id]}
           }
-          patch :update, project_params
+          patch :update, params: project_params
 
           project.reload
           project.technology_ids.must_equal [technology.id]
@@ -60,7 +60,7 @@ class ProjectsControllerTest < ActionController::TestCase
             id: project.id,
             project: { repository_url: "this_is_the_projects_new_home" }
           }
-          patch :update, project_params
+          patch :update, params: project_params
 
           project.reload
           project.repository_url.must_equal "this_is_the_projects_new_home"
@@ -70,13 +70,13 @@ class ProjectsControllerTest < ActionController::TestCase
       describe 'when user is a member' do
         before do
           sign_out :user
-          sign_in :user, member
+          sign_in member, scope: :user
         end
 
         it "updates docker_image_id when Project#valid?" do
           project_params = {
             id: project.id, project: { docker_image_id: language.id } }
-          patch :update, project_params
+          patch :update, params: project_params
 
           project.reload
           project.docker_image_id.must_equal language.id
@@ -89,7 +89,7 @@ class ProjectsControllerTest < ActionController::TestCase
               docker_image_id: language.id,
               technology_ids: [technology.id]}
           }
-          patch :update, project_params
+          patch :update, params: project_params
 
           project.reload
           project.technology_ids.must_equal [technology.id]
@@ -100,9 +100,9 @@ class ProjectsControllerTest < ActionController::TestCase
         it "doesn't destroy the project if user is not the owner" do
           member = FactoryGirl.create(:user)
           project.members << member
-          sign_in :user, member
+          sign_in member, scope: :user
 
-          delete :destroy, { id: project.id }
+          delete :destroy, params: { id: project.id }
           assert_response 403
 
           Project.count.must_equal 1
@@ -110,7 +110,7 @@ class ProjectsControllerTest < ActionController::TestCase
 
         it "destroys the project if user is the owner" do
           Octokit::Client.any_instance.stubs(:remove_hook).returns(1)
-          delete :destroy, { id: project.id }
+          delete :destroy, params: { id: project.id }
 
           Project.count.must_equal 0
         end
@@ -118,7 +118,7 @@ class ProjectsControllerTest < ActionController::TestCase
         it "doesn't delete the github webhook if project wasn't destroyed" do
           Project.any_instance.stubs(:destroy).returns(false)
           Octokit::Client.any_instance.expects(:remove_hook).never
-          delete :destroy, { id: project.id }
+          delete :destroy, params: { id: project.id }
         end
       end
 
@@ -127,11 +127,11 @@ class ProjectsControllerTest < ActionController::TestCase
           before do
             member = FactoryGirl.create(:user)
             project.members << member
-            sign_in :user, member
+            sign_in member, scope: :user
           end
 
           it 'does not allow that action' do
-            post :toggle_private, id: project.id
+            post :toggle_private, params: { id: project.id }
             assert_response 403
             project.reload
             project.is_private.must_equal true
@@ -141,11 +141,11 @@ class ProjectsControllerTest < ActionController::TestCase
         describe 'when a member tries to toggle private' do
           before do
             project
-            sign_in :user, owner
+            sign_in owner, scope: :user
           end
 
           it 'allows the user to toggle' do
-            post :toggle_private, id: project.id
+            post :toggle_private, params: { id: project.id }
             project.reload
             project.is_private.must_equal false
             flash[:notice].must_equal "Your project is now public."
@@ -159,7 +159,7 @@ class ProjectsControllerTest < ActionController::TestCase
     describe 'when the project is private' do
       describe "GET#show" do
         it "returns ok" do
-          -> { get :show, id: project.id }.
+          -> { get :show, params: { id: project.id } }.
            must_raise ActiveRecord::RecordNotFound
         end
       end
@@ -170,7 +170,7 @@ class ProjectsControllerTest < ActionController::TestCase
 
       describe "GET#show" do
         it "returns ok" do
-          get :show, id: project.id
+          get :show, params: { id: project.id }
           assert_response 302
           response.location.must_equal "http://test.host/projects/#{project.to_param}/builds"
         end
@@ -179,7 +179,7 @@ class ProjectsControllerTest < ActionController::TestCase
 
     describe "DELETE#destroy" do
       it "doesn't destroy the project if user is not the owner" do
-        delete :destroy, { id: project.id }
+        delete :destroy, params: { id: project.id }
         assert_response 302
         response.location.must_equal 'http://test.host/users/sign_in'
         Project.count.must_equal 1
@@ -189,7 +189,7 @@ class ProjectsControllerTest < ActionController::TestCase
     describe 'POST#toggle_private' do
       describe 'when a member tries to toggle private' do
         it 'does not allow that action' do
-          post :toggle_private, id: project.id
+          post :toggle_private, params: { id: project.id }
           assert_response 302
           response.location.must_equal 'http://test.host/users/sign_in'
           project.reload
@@ -203,7 +203,7 @@ class ProjectsControllerTest < ActionController::TestCase
         it "updates docker_image_id when Project#valid?" do
           project_params = {
             id: project.id, project: { docker_image_id: language.id } }
-          patch :update, project_params
+          patch :update, params: project_params
           assert_response 302
           response.location.must_equal 'http://test.host/users/sign_in'
         end
@@ -216,7 +216,7 @@ class ProjectsControllerTest < ActionController::TestCase
               technology_ids: [technology.id]}
           }
 
-          patch :update, project_params
+          patch :update, params: project_params
           assert_response 302
           response.location.must_equal 'http://test.host/users/sign_in'
         end
@@ -231,7 +231,7 @@ class ProjectsControllerTest < ActionController::TestCase
         end
 
         it 'returns the uknown status image' do
-          get :status, id: project.id, branch: 'master'
+          get :status, params: { id: project.id, branch: 'master' }
           response.content_type.must_equal 'image/svg+xml'
           response.header["Content-Disposition"].must_equal(
             "inline; filename=\"build-status-unknown.svg\"")
@@ -248,7 +248,7 @@ class ProjectsControllerTest < ActionController::TestCase
         end
 
         it 'returns the uknown status image' do
-          get :status, id: project.id, branch: 'master'
+          get :status, params: { id: project.id, branch: 'master' }
           response.content_type.must_equal 'image/svg+xml'
           response.header["Content-Disposition"].must_equal(
             "inline; filename=\"build-status-passed.svg\"")

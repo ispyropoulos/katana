@@ -22,9 +22,9 @@ class WebhooksControllerTest < ActionController::TestCase
           GithubRepositoryManager.any_instance.stubs(:project_file_names).
             returns([filename_1, filename_2])
           post :github,
-            { repository: { id: project.repository_id },
-              ref_type: 'branch',
-              ref: "#{tracked_branch.branch_name}" }
+            params: { repository: { id: project.repository_id },
+                      ref_type: 'branch',
+                      ref: "#{tracked_branch.branch_name}" }
         end
 
         it "destroys the branch" do
@@ -97,7 +97,7 @@ class WebhooksControllerTest < ActionController::TestCase
             project.update_column(:auto_track_branches, true)
             new_branch_name = "a_new_branch"
             github_params[:ref] = "refs/head/ispyropoulos/#{new_branch_name}"
-            post :github, github_params
+            post :github, params: github_params
 
             branch = TrackedBranch.last
             branch.project.must_equal project
@@ -109,7 +109,7 @@ class WebhooksControllerTest < ActionController::TestCase
             project.update_column(:auto_track_branches, false)
             new_branch_name = "a_new_branch"
             github_params[:ref] = "refs/head/ispyropoulos/#{new_branch_name}"
-            post :github, github_params
+            post :github, params: github_params
 
             branch = TrackedBranch.last
             branch.project.must_equal project
@@ -119,7 +119,7 @@ class WebhooksControllerTest < ActionController::TestCase
         end
 
         it "creates a test run with correct attributes" do
-          post :github, github_params
+          post :github, params: github_params
 
           testrun = TestRun.last
           testrun.tracked_branch_id.must_equal tracked_branch.id
@@ -128,7 +128,7 @@ class WebhooksControllerTest < ActionController::TestCase
         end
 
         it "responds with :ok" do
-          post :github, github_params
+          post :github, params: github_params
 
           assert_response :ok
         end
@@ -258,7 +258,7 @@ class WebhooksControllerTest < ActionController::TestCase
           project.update_column(:auto_track_branches, true)
           new_branch_name = "a_new_branch"
           bitbucket_params[:push][:changes].first[:new][:name] = new_branch_name
-          post :bitbucket, {
+          post :bitbucket, params: {
             repository: {
               name: project.repository_slug
             }
@@ -274,7 +274,7 @@ class WebhooksControllerTest < ActionController::TestCase
           project.update_column(:auto_track_branches, false)
           new_branch_name = "a_new_branch"
           bitbucket_params[:push][:changes].first[:new][:name] = new_branch_name
-          post :bitbucket, {
+          post :bitbucket, params: {
             repository: {
               name: project.repository_slug
             }
@@ -288,7 +288,7 @@ class WebhooksControllerTest < ActionController::TestCase
       end
 
       it "creates a test run with correct attributes" do
-        post :bitbucket, {
+        post :bitbucket, params: {
           repository: {
             name: project.repository_slug
           }
@@ -300,7 +300,7 @@ class WebhooksControllerTest < ActionController::TestCase
       end
 
       it "responds with :ok" do
-        post :bitbucket, {
+        post :bitbucket, params: {
           repository: {
             name: project.repository_slug
           }

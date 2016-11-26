@@ -5,10 +5,10 @@ class AdminControllerTest < ActionController::TestCase
     describe "when user is not admin" do
       let(:user) { FactoryGirl.create(:user, admin: false) }
       let(:other_user) { FactoryGirl.create(:user, admin: false) }
-      before { sign_in :user, user }
+      before { sign_in user, scope: :user }
 
       it "returns 401" do
-        get :become, id: other_user.id
+        get :become, params: { id: other_user.id }
 
         response.status.must_equal 401
       end
@@ -18,10 +18,10 @@ class AdminControllerTest < ActionController::TestCase
       let(:admin_user) { FactoryGirl.create(:user, admin: true) }
       let(:other_user) { FactoryGirl.create(:user, admin: false) }
 
-      before { sign_in :user, admin_user }
+      before { sign_in admin_user, scope: :user }
 
       it "changes the logged user" do
-        get :become, id: other_user.id
+        get :become, params: { id: other_user.id }
         response.status.must_equal 302
         session["warden.user.user.key"].first.first.must_equal other_user.id
       end

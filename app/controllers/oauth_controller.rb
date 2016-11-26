@@ -1,6 +1,6 @@
 class OauthController < ApplicationController
-  before_filter :authenticate_user!
-  skip_filter :set_redirect_url_in_cookie
+  before_action :authenticate_user!
+  skip_before_action :set_redirect_url_in_cookie
   include ApplicationHelper
 
   def github_callback

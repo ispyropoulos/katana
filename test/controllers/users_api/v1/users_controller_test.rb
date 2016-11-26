@@ -9,8 +9,8 @@ class UsersApi::V1::UsersControllerTest < ActionController::TestCase
     let(:worker_token) { application.access_tokens.create }
 
     it "returns 401 unauthorized when token does not have an resource_owner_id" do
-      get :current, access_token: worker_token.token,
-        default: { format: :json }
+      get :current, params: { access_token: worker_token.token,
+                              default: { format: 'json' } }
       response.status.must_equal 401
     end
   end
@@ -22,7 +22,8 @@ class UsersApi::V1::UsersControllerTest < ActionController::TestCase
     end
 
     it "returns the current user's data" do
-      get :current, access_token: user_token.token, default: { format: :json }
+      get :current, params: { access_token: user_token.token, 
+                              default: { format: 'json' } }
       response.status.must_equal 200
       JSON.parse(response.body).must_equal(
         {"email" => "dannydevito@example.com"})

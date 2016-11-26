@@ -69,21 +69,22 @@ class TestRunsControllerTest < ActionController::TestCase
       }.to_yaml
       project.project_files.create!(
         path: ProjectFile::JOBS_YML_PATH, contents: contents)
-      sign_in :user, project.user
+      sign_in project.user, scope: :user
       request.env["HTTP_REFERER"] = "previous_path"
     end
 
     describe 'When the user is the owner of the project' do
       describe "GET#show" do
         it "returns 200" do
-          get :show, { project_id: project.id, id: _test_run.id }
+          get :show, params: { project_id: project.id, id: _test_run.id }
           assert_response :ok
         end
 
         it "returns 404 when requesting a test_run of a different project" do
           different_project_run = FactoryGirl.create(:testributor_run)
           ->{
-            get :show, { project_id: project.id, id: different_project_run.id }
+            get :show, params: { project_id: project.id, 
+                                 id: different_project_run.id }
           }.must_raise ActiveRecord::RecordNotFound
         end
       end
@@ -91,7 +92,8 @@ class TestRunsControllerTest < ActionController::TestCase
       describe "POST#create" do
         it "sets :notice when RepositoryManager#create_test_run! is true" do
           RepositoryManager.any_instance.stubs(:create_test_run!).returns(true)
-          post :create, { project_id: project.to_param, branch_id: branch.id }
+          post :create, params: { project_id: project.to_param, 
+                                  branch_id: branch.id }
 
           flash[:notice].must_equal "Your build is being setup"
         end
@@ -100,7 +102,8 @@ class TestRunsControllerTest < ActionController::TestCase
           RepositoryManager.any_instance.stubs(:create_test_run!).returns(nil)
           RepositoryManager.any_instance.stubs(:errors).returns(
             ["#{branch.branch_name} doesn't exist anymore on github"])
-          post :create, { project_id: project.to_param, branch_id: branch.id }
+          post :create, params: { project_id: project.to_param, 
+                                  branch_id: branch.id }
 
           flash[:alert].
             must_equal("#{branch.branch_name} doesn't exist anymore on github")
@@ -109,7 +112,8 @@ class TestRunsControllerTest < ActionController::TestCase
         it "creates a TestRun with correct attributes" do
           GithubRepositoryManager.any_instance.stubs(:sha_history).
             returns(branch_github_response)
-          post :create, { project_id: project.to_param, branch_id: branch.id }
+          post :create, params: { project_id: project.to_param, 
+                                  branch_id: branch.id }
 
           TestRun.count.must_equal 2
           _test_run = TestRun.last
@@ -122,7 +126,8 @@ class TestRunsControllerTest < ActionController::TestCase
         it "does not allow retying queued runs" do
           job_ids = _test_run.test_jobs.pluck(:id).sort
           _test_run.update_column(:status, TestStatus::QUEUED)
-          post :retry, { project_id: project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: project.to_param, 
+                                 id: _test_run.id }
           flash[:alert].must_equal "Retrying ##{_test_run.id} test run is not allowed at this time"
 
           _test_run.reload.status.code.must_equal TestStatus::QUEUED
@@ -133,7 +138,8 @@ class TestRunsControllerTest < ActionController::TestCase
         it "does not allow retying cancelled runs" do
           job_ids = _test_run.test_jobs.pluck(:id).sort
           _test_run.update_column(:status, TestStatus::CANCELLED)
-          post :retry, { project_id: project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: project.to_param, 
+                                 id: _test_run.id }
           flash[:alert].must_equal "Retrying ##{_test_run.id} test run is not allowed at this time"
 
           _test_run.reload.status.code.must_equal TestStatus::CANCELLED
@@ -144,7 +150,8 @@ class TestRunsControllerTest < ActionController::TestCase
         it "does not allow retying running runs" do
           job_ids = _test_run.test_jobs.pluck(:id).sort
           _test_run.update_column(:status, TestStatus::RUNNING)
-          post :retry, { project_id: project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: project.to_param, 
+                                 id: _test_run.id }
           flash[:alert].must_equal "Retrying ##{_test_run.id} test run is not allowed at this time"
 
           _test_run.reload.status.code.must_equal TestStatus::RUNNING
@@ -155,7 +162,8 @@ class TestRunsControllerTest < ActionController::TestCase
           job_ids = _test_run.test_jobs.pluck(:id).sort
           _test_run.update_columns(status: TestStatus::PASSED,
                                    setup_worker_uuid: "some uuid")
-          post :retry, { project_id: project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: project.to_param, 
+                                 id: _test_run.id }
           flash[:notice].must_equal "The Build will soon be retried"
 
           _test_run.reload.setup_worker_uuid.must_equal nil
@@ -164,7 +172,8 @@ class TestRunsControllerTest < ActionController::TestCase
         it "returns 404 when retrying a test_run of a different project" do
           different_project_run = FactoryGirl.create(:testributor_run)
           ->{
-            post :retry, { project_id: project.id, id: different_project_run.id }
+            post :retry, params: { project_id: project.id, 
+                                   id: different_project_run.id }
           }.must_raise ActiveRecord::RecordNotFound
         end
       end
@@ -173,49 +182,65 @@ class TestRunsControllerTest < ActionController::TestCase
         it "returns 404 when updating a test_run of a different project" do
           different_project_run = FactoryGirl.create(:testributor_run)
           ->{
-            put :update, { project_id: project.id, id: different_project_run.id }
+            put :update, params: { project_id: project.id, 
+                                   id: different_project_run.id }
           }.must_raise ActiveRecord::RecordNotFound
         end
       end
     end
 
     describe 'When user is a random registered user' do
-      before { sign_in :user, random_user }
+      before { sign_in random_user, scope: :user }
 
       describe "GET#show" do
         it "returns 302" do
-          -> { get :show, { project_id: project.id, id: _test_run.id } }.must_raise ActiveRecord::RecordNotFound
+          -> { 
+            get :show, params: { project_id: project.id, 
+                                 id: _test_run.id } 
+          }.must_raise ActiveRecord::RecordNotFound
         end
       end
 
       describe "GET#index" do
         it "returns 302" do
-          -> { get :index, { project_id: project.id, branch_id: branch.id } }.must_raise ActiveRecord::RecordNotFound
+          -> { 
+            get :index, params: { project_id: project.id, 
+                                  branch_id: branch.id } 
+          }.must_raise ActiveRecord::RecordNotFound
         end
       end
 
       describe "POST#create" do
         it "sets :notice when RepositoryManager#create_test_run! is true" do
-          -> { post :create, { project_id: project.id, branch_id: branch.id } }.must_raise ActiveRecord::RecordNotFound
+          -> { 
+            post :create, params: { project_id: project.id, 
+                                    branch_id: branch.id } 
+          }.must_raise ActiveRecord::RecordNotFound
         end
       end
 
       describe "POST#retry" do
         it 'does not allow the user to retry the test run' do
-          -> { post :retry, { project_id: project.id, id: _test_run.id } }.must_raise ActiveRecord::RecordNotFound
+          -> { 
+            post :retry, params: { project_id: project.id, 
+                                   id: _test_run.id } 
+          }.must_raise ActiveRecord::RecordNotFound
         end
       end
 
       describe "POST#destroy" do
         it 'does not allow the user to retry the test run' do
-          -> { post :destroy, { project_id: project.id, id: _test_run.id } }.must_raise ActiveRecord::RecordNotFound
+          -> { post :destroy, params: { project_id: project.id, 
+                                        id: _test_run.id } 
+          }.must_raise ActiveRecord::RecordNotFound
         end
       end
     end
 
     it "creates a TestRun with correct attributes when repo provider is bare_repo and branch is missing" do
       project.update_column(:repository_provider, "bare_repo")
-      post :create, { project_id: project.to_param, test_run: { commit_sha: '1234' } }
+      post :create, params: { project_id: project.to_param, 
+                              test_run: { commit_sha: '1234' } }
 
       TestRun.count.must_equal 2
       _test_run = TestRun.last
@@ -244,39 +269,44 @@ class TestRunsControllerTest < ActionController::TestCase
     end
 
     describe 'when the user is registered' do
-      before { sign_in :user, random_user }
+      before { sign_in random_user, scope: :user }
 
       describe "GET#show" do
         it "returns 200" do
-          get :show, { project_id: public_project.id, id: _test_run.id }
+          get :show, params: { project_id: public_project.id, 
+                               id: _test_run.id }
           assert_response :ok
         end
       end
 
       describe "GET#index" do
         it "returns 200" do
-          get :index, { project_id: public_project.id, branch_id: branch.id }
+          get :index, params: { project_id: public_project.id, 
+                                branch_id: branch.id }
           assert_response :ok
         end
       end
 
       describe "POST#create" do
         it "sets :notice when RepositoryManager#create_test_run! is true" do
-          post :create, { project_id: public_project.to_param, branch_id: branch.id }
+          post :create, params: { project_id: public_project.to_param, 
+                                  branch_id: branch.id }
           assert_response 403
         end
       end
 
       describe "POST#retry" do
         it 'does not allow the user to retry the test run' do
-          post :retry, { project_id: public_project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: public_project.to_param, 
+                                 id: _test_run.id }
           assert_response 403
         end
       end
 
       describe "POST#destroy" do
         it 'does not allow the user to retry the test run' do
-          post :destroy, { project_id: public_project.to_param, id: _test_run.id }
+          post :destroy, params: { project_id: public_project.to_param, 
+                                   id: _test_run.id }
           assert_response 403
         end
       end
@@ -285,21 +315,24 @@ class TestRunsControllerTest < ActionController::TestCase
     describe 'when the user is not registered' do
       describe "GET#show" do
         it "returns 200" do
-          get :show, { project_id: public_project.id, id: _test_run.id }
+          get 'show', params: { project_id: public_project.id, 
+                                id: _test_run.id }
           assert_response :ok
         end
       end
 
       describe "GET#index" do
         it "returns 200" do
-          get :index, { project_id: public_project.id, branch_id: branch.id }
+          get 'index', params: { project_id: public_project.id, 
+                                 branch_id: branch.id }
           assert_response :ok
         end
       end
 
       describe "POST#create" do
         it "sets an alert and redirects to sign in page" do
-          post :create, { project_id: public_project.to_param, branch_id: branch.id }
+          post :create, params: { project_id: public_project.to_param, 
+                                  branch_id: branch.id }
           flash[:alert].must_equal 'You need to sign in or sign up before continuing.'
           assert_response 302
         end
@@ -307,7 +340,8 @@ class TestRunsControllerTest < ActionController::TestCase
 
       describe "POST#retry" do
         it 'does not allow the user to retry the test run' do
-          post :retry, { project_id: public_project.to_param, id: _test_run.id }
+          post :retry, params: { project_id: public_project.to_param, 
+                                 id: _test_run.id }
           flash[:alert].must_equal 'You need to sign in or sign up before continuing.'
           assert_response 302
         end
@@ -315,7 +349,8 @@ class TestRunsControllerTest < ActionController::TestCase
 
       describe "POST#destroy" do
         it 'does not allow the user to retry the test run' do
-          post :destroy, { project_id: public_project.to_param, id: _test_run.id }
+          post :destroy, params: { project_id: public_project.to_param, 
+                                   id: _test_run.id }
           flash[:alert].must_equal 'You need to sign in or sign up before continuing.'
           assert_response 302
         end

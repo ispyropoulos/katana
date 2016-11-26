@@ -6,15 +6,15 @@ class UserInvitationsControllerTest < ActionController::TestCase
 
   before do
     project
-    sign_in :user, user
+    sign_in user, scope: :user
     request.env["HTTP_REFERER"] = "previous_path"
   end
 
   describe "POST#create" do
     it "creates a new invitation for the given email" do
-      post :create, project_id: project.id, user_invitation: {
-        email: "someone@example.com"
-      }
+      post :create, 
+        params: { project_id: project.id, 
+                  user_invitation: { email: "someone@example.com" } }
       flash[:notice].must_equal "Invitation will be sent shortly"
       UserInvitation.last.email.must_equal 'someone@example.com'
     end
@@ -23,9 +23,9 @@ class UserInvitationsControllerTest < ActionController::TestCase
       FactoryGirl.create(:user_invitation, email: 'someone@example.com',
                         project: project)
 
-      post :create, project_id: project.id, user_invitation: {
-        email: "someone@example.com"
-      }
+      post :create, 
+        params: { project_id: project.id, 
+                  user_invitation: { email: "someone@example.com" } }
       flash[:notice].must_be :nil?
       flash[:alert].must_equal "Email An invitation for this user already exists"
     end
@@ -35,7 +35,7 @@ class UserInvitationsControllerTest < ActionController::TestCase
     subject { FactoryGirl.create(:user_invitation, project: project) }
 
     it "destroys the invitation" do
-      delete :destroy, project_id: project.id, id: subject.id
+      delete :destroy, params: { project_id: project.id, id: subject.id }
       flash[:notice].must_equal 'Invitation was cancelled'
       ->{ subject.reload }.must_raise ActiveRecord::RecordNotFound
     end
@@ -46,7 +46,7 @@ class UserInvitationsControllerTest < ActionController::TestCase
 
     it "sends an email for an existing invitation" do
       perform_enqueued_jobs do
-        post :resend, project_id: project.id, id: subject.id
+        post :resend, params: { project_id: project.id, id: subject.id }
       end
       flash[:notice].must_equal "Invitation will be sent shortly"
       ActionMailer::Base.deliveries.last.body.to_s.must_match(subject.token)
@@ -59,7 +59,7 @@ class UserInvitationsControllerTest < ActionController::TestCase
     describe "when the user is not logged in" do
       it "asks the user to login" do
         sign_out :user
-        get :accept, token: subject.token
+        get :accept, params: { token: subject.token }
         flash[:alert].must_equal "You need to sign in or sign up before continuing."
       end
     end
@@ -67,7 +67,7 @@ class UserInvitationsControllerTest < ActionController::TestCase
     describe "when the user is logged in" do
       describe "but is already a member" do
         it "flashes a message" do
-          get :accept, token: subject.token
+          get :accept, params: { token: subject.token }
           flash[:alert].must_equal "You are already a member of this project!"
         end
       end
@@ -75,8 +75,8 @@ class UserInvitationsControllerTest < ActionController::TestCase
       it "adds current_user to members" do
         subject.accepted_at.must_be :nil?
         user = FactoryGirl.create(:user)
-        sign_in :user, user
-        get :accept, token: subject.token
+        sign_in user, scope: :user
+        get :accept, params: { token: subject.token }
         flash[:notice].must_equal "Welcome to #{project.name}"
         user.participating_projects.must_equal [project]
         subject.reload.accepted_at.wont_be :nil?

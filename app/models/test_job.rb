@@ -67,7 +67,7 @@ class TestJob < ActiveRecord::Base
   end
 
   def serialized_job
-    ActiveModel::SerializableResource.new(
+    ActiveModelSerializers::SerializableResource.new(
       self, serializer: InternalTestJobsSerializer).serializable_hash
   end
 

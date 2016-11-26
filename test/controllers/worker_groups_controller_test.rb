@@ -9,28 +9,29 @@ class WorkerGroupsControllerTest < ActionController::TestCase
     before do
       project.worker_groups << worker_group
       request.env["HTTP_REFERER"] = "previous_path"
-      sign_in :user, user
+      sign_in user, scope: :user
     end
 
     describe 'POST#create' do
       it 'allows if member of the project and flashes success' do
         project.members << user
 
-        post :create, { project_id: project.id }
+        post :create, params: { project_id: project.id }
         assert_response 302
         flash[:alert].must_equal nil
         flash[:notice].must_equal "A Worker Group has been created."
       end
 
       it 'does not allow if not member of the project' do
-        -> { post :create, { project_id: project.id } }.must_raise ActiveRecord::RecordNotFound
+        -> { post :create, params: { project_id: project.id } }.
+          must_raise ActiveRecord::RecordNotFound
       end
 
       it "flashes validation errors" do
         project.members << user
 
-        post :create, { project_id: project.id,
-                        worker_group: { friendly_name: "" } }
+        post :create, params: { project_id: project.id,
+                                worker_group: { friendly_name: "" } }
         assert_response 302
         flash[:alert].must_equal "Friendly name can't be blank"
         flash[:notice].must_equal nil
@@ -41,9 +42,9 @@ class WorkerGroupsControllerTest < ActionController::TestCase
       it 'allows if member of the project' do
         project.members << user
 
-        put :update, { project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: worker_group.attributes }
+        put :update, params: { project_id: project.id,
+                               id: project.worker_groups.first.id,
+                               worker_group: worker_group.attributes }
         assert_response 302
         flash[:alert].must_equal nil
         flash[:notice].must_equal "Successfully updated worker group"
@@ -51,18 +52,18 @@ class WorkerGroupsControllerTest < ActionController::TestCase
 
       it 'does not allow if not member of the project' do
         -> {
-          put :update, { project_id: project.id,
-            id: project.worker_groups.first.id,
-            worker_group: worker_group.attributes }
+          put :update, params: { project_id: project.id,
+                                 id: project.worker_groups.first.id,
+                                 worker_group: worker_group.attributes }
         }.must_raise ActiveRecord::RecordNotFound
       end
 
       it "flashes validation errors" do
         project.members << user
 
-        put :update, { project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: { friendly_name: '' } }
+        put :update, params: { project_id: project.id,
+                               id: project.worker_groups.first.id,
+                               worker_group: { friendly_name: '' } }
         assert_response 302
         flash[:alert].must_equal "Friendly name can't be blank"
         flash[:notice].must_equal nil
@@ -77,18 +78,16 @@ class WorkerGroupsControllerTest < ActionController::TestCase
       it 'allows if member of the project' do
         project.members << user
 
-        post :destroy, {
-          project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: worker_group.attributes }
+        post :destroy, params: { project_id: project.id,
+                                 id: project.worker_groups.first.id,
+                                 worker_group: worker_group.attributes }
         assert_response 302
       end
 
       it 'does not allow if not member of the project' do
-        -> { post :destroy,
-          project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: worker_group.attributes
+        -> { post :destroy, params: { project_id: project.id,
+                                      id: project.worker_groups.first.id,
+                                      worker_group: worker_group.attributes }
         }.must_raise ActiveRecord::RecordNotFound
       end
 
@@ -96,10 +95,9 @@ class WorkerGroupsControllerTest < ActionController::TestCase
         cookies[:redirect_to_url] = "some_url"
 
         project.members << user
-        post :destroy, {
-          project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: worker_group.attributes }
+        post :destroy, params: { project_id: project.id,
+                                 id: project.worker_groups.first.id,
+                                 worker_group: worker_group.attributes }
 
         assert_response 302
         cookies[:redirect_to_url].must_equal "some_url"
@@ -112,10 +110,9 @@ class WorkerGroupsControllerTest < ActionController::TestCase
       end
 
       it 'does not allow if not member of the project' do
-        -> { post :reset_ssh_key,
-          project_id: project.id,
-          id: project.worker_groups.first.id,
-          worker_group: worker_group.attributes
+        -> { post :reset_ssh_key, params: { project_id: project.id,
+                                            id: project.worker_groups.first.id,
+                                            worker_group: worker_group.attributes }
         }.must_raise ActiveRecord::RecordNotFound
       end
     end

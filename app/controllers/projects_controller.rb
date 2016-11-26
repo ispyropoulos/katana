@@ -3,7 +3,7 @@ class ProjectsController < DashboardController
   include Controllers::EnsureProject
 
   # skip devise method
-  skip_before_filter :authenticate_user!, :only => [:show, :status]
+  skip_before_action :authenticate_user!, :only => [:show, :status]
   before_action :authorize_resource!
 
   def show
@@ -43,7 +43,7 @@ class ProjectsController < DashboardController
       fmt.html do
         flash[:notice] = notice
         flash[:alert] = alert
-        redirect_to :back
+        redirect_back(fallback_location: redirect_back_fallback_path)
       end
     end
   end
@@ -75,7 +75,7 @@ class ProjectsController < DashboardController
     current_project.is_private = !current_project.is_private
     if current_project.save
       flash[:notice] = "Your project is now #{ current_project.is_private? ? 'private' : 'public'}."
-      redirect_to :back
+      redirect_back(fallback_location: redirect_back_fallback_path)
     end
   end
 

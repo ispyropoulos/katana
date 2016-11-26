@@ -21,7 +21,7 @@ class UserInvitationsController < DashboardController
       flash[:alert] = @invitation.errors.full_messages.to_sentence
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   def destroy
@@ -33,7 +33,7 @@ class UserInvitationsController < DashboardController
       flash[:alert] = invitation.errors.full_messages.to_sentence
     end
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   # GET invitations/accept?token=12312312
@@ -64,7 +64,7 @@ class UserInvitationsController < DashboardController
     invitation.queue_email
     flash[:notice] = "Invitation will be sent shortly"
 
-    redirect_to :back
+    redirect_back(fallback_location: redirect_back_fallback_path)
   end
 
   private
