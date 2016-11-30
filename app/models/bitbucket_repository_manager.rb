@@ -152,7 +152,7 @@ class BitbucketRepositoryManager
     # is unique on Bitbucket)
     already_imported_projects = Project.bitbucket.
       where(repository_slug: repos.map(&:slug)).select do |p|
-      p.repository_slug.in?(repository_slugs_by_owner[p.repository_owner])
+      p.repository_slug.in?(repository_slugs_by_owner[p.repository_owner].to_a)
     end
 
     repos = repos.map do |repo|
