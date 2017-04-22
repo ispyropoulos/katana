@@ -20,46 +20,71 @@ Katana is a Ruby on Rails application and it needs:
 
 ## Running the application
 
-In the future we might provide some easy ways to run Testributor (Docker image,
-AMI etc) but for now you will have to create and run all components on your own.
-Here is the walkthrough:
+### Using docker-compose
 
-- Clone this project to a directory on your system. E.g.
+This is the easiest way because all components are started automatically.
+You can use this setup for development or as a base to create a production ready version.
+
+1. Create a `.env` file with all needed environment variables as they are described
+   in the [Environment Variables section](#environment-variables).
+   The variables set in this file will also be available inside the containers (created in the next step).
+1. Start all containers: `docker-compose -f development-docker-compose.yml up -d`
+
+1. Open the application in your browser at `http://localhost:3000`
+
+In order to simplify development you can use the bin/drun
+to run commands inside the container that runs the rails server
+(`drun` stands for dockerized-run or something like that).
+
+Example usage:
 
 ```
-git clone git@github.com:testributor/katana.git
+bin/drun bin/rails c     # Starts the rails console inside the container
+bin/drun rake db:migrate # Runs migrations
+bin/drun bash            # Starts a bash session inside the container
+bin/drun bin/rake test   # Runs the test suite inside the container
 ```
 
-### Database preparation
+
+### Bare metal way
+
+You can use this method if you don't want to use docker containers, want to
+install each component in a different machine or do any kind of custom setup.
+Here are the steps required to get Testributor up and running:
+
+#### Fetch the code
+
+Clone this project to a directory on your system. E.g.
+
+`git clone git@github.com:testributor/katana.git`
+
+#### Database preparation
 
 - Move to the cloned project's directory: `cd katana`
 - Copy `config/database.local.sample.yml` file to `config/database.local.yml`:
 
-```
-cp config/database.local.sample.yml config/database.local.yml
-```
+  ```cp config/database.local.sample.yml config/database.local.yml```
 
 - Edit the file and change the database details to match a PostgreSQL database
   which you want to use.
 - Unless the database is already created, run `rake db:create` to create it now.
 - Run `rake db:setup` to load the schema and prepare the database.
 
-### Run Socketidio
+#### Run Socketidio
 
 Follow the instructions on [Socketidio README](https://github.com/testributor/socketidio)
 in order to run socketidio (by default on port 9000).
 
-### Start a background Sidekiq worker
+#### Start a background Sidekiq worker
 
 For the application to work you need to have at least one running Sidekiq worker.
 From withing the katana project directory run the following command to start one:
 
 ```
 bundle exec sidekiq -c 3 -q mailers -q default -q low
-
 ```
 
-### Environment variables
+#### Environment variables
 
 Testributor uses some environment variables for configuration and you will not
 be able to start the application unless they are defined. These are:
@@ -80,13 +105,9 @@ be able to start the application unless they are defined. These are:
   default value is "http://localhost:9000" and you don't need to define this
   variable if this is correct for your system.
 
-### Start the application
+#### Start the application
 
-While in the katana project directory start the Rails server:
-
-```
-bin/rails s
-```
+While in the katana project directory start the Rails server: `bin/rails s`
 
 ## Contributing
 

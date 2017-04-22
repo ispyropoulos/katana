@@ -1,0 +1,48 @@
+version: "2"
+services:
+  web:
+    image: testributor:development
+    command: "./script/bootstrap_development.sh"
+    container_name: testributor-development-katana
+    volumes:
+      - .:/usr/src/app
+      # Avoid downloading all gems from scratch by mounting the directory
+      # on the host. See also bootstrap_development.sh script.
+      - ./bundle_cache:/vendor/bundle
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+      - socketidio
+    environment:
+      RAILS_ENV: development
+      SECRET_KEY_BASE: e9744e038fb87c6bfb52d5aa0f2f1a865fbd242a6ce162cb6e5cae9e5e90c558c32f369d3d68ea0ae5325916fb55507a164011964edc4ac2bf1a31a0573efe73
+      REDIS_URL: redis://redis:6379
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+  postgres:
+    image: postgres:9.4
+    container_name: testributor-development-postgres
+    environment:
+      POSTGRES_USER: testributor
+      POSTGRES_PASSWORD: testributor
+    expose:
+      - "5432"
+  redis:
+    image: redis:3.0
+    container_name: testributor-development-redis
+    expose:
+      - "6379"
+  socketidio:
+    image: jimmykarily/socketidio:0.0.2
+    container_name: testributor-development-socketidio
+    expose:
+      - "9000"
+    links:
+      - redis
+    environment:
+      REDIS_URL: redis://redis:6379

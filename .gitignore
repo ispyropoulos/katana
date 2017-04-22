@@ -25,3 +25,4 @@ config/database.local.yml
 .env
 docker-compose.yml
 .DS_Store
+bundle_cache
